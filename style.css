@@ -12,18 +12,18 @@ footer{display:flex;justify-content:space-between;padding:30px 5vw;border-top:1p
 .lightbox{position:fixed;inset:0;z-index:50;background:#000e;display:none;place-items:center;padding:30px}
 .lightbox:not([hidden]){display:grid}.lightbox img{max-width:95vw;max-height:90vh;object-fit:contain}.lightbox button{position:absolute;top:20px;right:25px;background:none;border:0;color:#fff;font-size:3rem;cursor:pointer}
 @media(max-width:800px){.nav nav,.nav>.btn{display:none}.nav{padding:14px 5vw}.hero{min-height:700px}.split,.booking-layout{grid-template-columns:1fr}.stats{gap:22px}.gallery{grid-template-columns:1fr 1fr;grid-auto-rows:180px}.gallery-item.tall{grid-row:span 2}.gallery-item.wide{grid-column:span 2}.price-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.section{padding:75px 5vw}.section-head{display:block}.section-head>.muted,.reservation-rule{display:block;margin-top:12px}}
-/* LOGO SPLASH AGUARÁ */
+/* LOGO AGUARÁ - SPLASH + MARCA DE AGUA */
 .hero-logo-splash{
   position:absolute;
-  z-index:3;
-  top:13%;
+  z-index:1;
+  top:50%;
   left:50%;
-  transform:translateX(-50%);
-  width:min(520px,65vw);
+  width:min(600px,70vw);
   display:flex;
   justify-content:center;
   pointer-events:none;
-  animation:aguaraSplash 1.2s ease-out both;
+  transform:translate(-50%,-50%);
+  animation:aguaraSplash 4s ease-in-out forwards;
 }
 
 .hero-logo-splash img{
@@ -34,19 +34,29 @@ footer{display:flex;justify-content:space-between;padding:30px 5vw;border-top:1p
 }
 
 @keyframes aguaraSplash{
-  from{
+  0%{
     opacity:0;
-    transform:translateX(-50%) scale(.75);
+    transform:translate(-50%,-50%) scale(.75);
   }
-  to{
+
+  15%{
     opacity:1;
-    transform:translateX(-50%) scale(1);
+    transform:translate(-50%,-50%) scale(1);
+  }
+
+  65%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+  }
+
+  100%{
+    opacity:.10;
+    transform:translate(-50%,-50%) scale(.72);
   }
 }
 
 @media(max-width:700px){
   .hero-logo-splash{
-    top:11%;
-    width:min(380px,82vw);
+    width:min(430px,82vw);
   }
 }
