@@ -114,5 +114,46 @@ Configuración guardada.
 </main>
 
 <script src="admin.js"></script>
+    <script>
+const loginScreen = document.getElementById("login-screen");
+const adminPanel = document.getElementById("admin-panel");
+const loginBtn = document.getElementById("login-btn");
+const loginError = document.getElementById("login-error");
+
+loginBtn.addEventListener("click", async () => {
+  const username = document.getElementById("admin-user").value.trim();
+  const password = document.getElementById("admin-pass").value;
+
+  loginError.textContent = "";
+
+  try {
+    const response = await fetch("/api/admin-login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await response.json();
+
+    if (data.ok) {
+      sessionStorage.setItem("aguara_admin", "true");
+      loginScreen.style.display = "none";
+      adminPanel.style.display = "";
+    } else {
+      loginError.textContent = "Usuario o contraseña incorrectos";
+    }
+
+  } catch (error) {
+    loginError.textContent = "Error de conexión con el servidor";
+  }
+});
+
+if (sessionStorage.getItem("aguara_admin") === "true") {
+  loginScreen.style.display = "none";
+  adminPanel.style.display = "";
+}
+</script>
 </body>
 </html>
