@@ -1,14 +1,13 @@
 ```javascript
-import { createClient } from "@supabase/supabase-js";
+const { createClient } = require("@supabase/supabase-js");
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   try {
-    // CREAR UNA RESERVA
     if (req.method === "POST") {
       const {
         nombre,
@@ -30,10 +29,10 @@ export default async function handler(req, res) {
         .from("reservation")
         .insert([
           {
-            nombre,
-            whatsapp,
-            fecha,
-            horario,
+            nombre: nombre,
+            whatsapp: whatsapp,
+            fecha: fecha,
+            horario: horario,
             jugadores: Number(jugadores),
             tipo_de_juego: tipo_de_juego || "Paintball"
           }
@@ -46,7 +45,8 @@ export default async function handler(req, res) {
 
         return res.status(500).json({
           ok: false,
-          message: "No se pudo guardar la reserva"
+          message: "No se pudo guardar la reserva",
+          error: error.message
         });
       }
 
@@ -56,7 +56,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // CONSULTAR RESERVAS
     if (req.method === "GET") {
       const { data, error } = await supabase
         .from("reservation")
@@ -69,7 +68,8 @@ export default async function handler(req, res) {
 
         return res.status(500).json({
           ok: false,
-          message: "No se pudieron consultar las reservas"
+          message: "No se pudieron consultar las reservas",
+          error: error.message
         });
       }
 
@@ -89,8 +89,9 @@ export default async function handler(req, res) {
 
     return res.status(500).json({
       ok: false,
-      message: "Error interno del servidor"
+      message: "Error interno del servidor",
+      error: error.message
     });
   }
-}
+};
 ```
