@@ -1,4 +1,3 @@
-```javascript
 /* =====================================================
    AGUARÁ PAINTBALL
    SCRIPT PRINCIPAL
@@ -13,20 +12,17 @@ const DEFAULTS = {
 
   gamePrice: 29000,
 
-  shotsText:
-    "100 TIROS INCLUIDOS",
+  shotsText: "100 TIROS INCLUIDOS",
 
   hydrogelPrice: 0,
 
-  hydrogelShotsText:
-    "MUNICIÓN INCLUIDA",
+  hydrogelShotsText: "MUNICIÓN INCLUIDA",
 
   deposit: 50000,
 
   minPlayers: 10,
 
-  whatsapp:
-    "5493794250285",
+  whatsapp: "5493794250285",
 
   slots: [
     "10:00",
@@ -57,9 +53,7 @@ function getConfig() {
 
     const saved =
       JSON.parse(
-        localStorage.getItem(
-          "aguaraConfig"
-        ) || "{}"
+        localStorage.getItem("aguaraConfig") || "{}"
       );
 
     return {
@@ -68,6 +62,10 @@ function getConfig() {
     };
 
   } catch (error) {
+
+    console.warn(
+      "No se pudo leer la configuración."
+    );
 
     return {
       ...DEFAULTS
@@ -102,96 +100,30 @@ function money(value) {
 
 
 /* =====================================================
-   FORMATO DE FECHA
+   FECHA PARA MOSTRAR
+   Convierte YYYY-MM-DD → DD/MM/YYYY
 ===================================================== */
 
-function formatDate(dateValue) {
+function formatDate(dateString) {
 
-  if (!dateValue) {
+  if (!dateString) {
     return "";
   }
 
-  const text =
-    String(dateValue).trim();
+  const parts =
+    String(dateString).split("-");
 
-  /*
-   * Si viene como:
-   * 2026-09-29
-   */
-
-  const isoMatch =
-    text.match(
-      /^(\d{4})-(\d{2})-(\d{2})/
-    );
-
-  if (isoMatch) {
-
-    return (
-      isoMatch[3] +
-      "/" +
-      isoMatch[2] +
-      "/" +
-      isoMatch[1]
-    );
-
+  if (parts.length !== 3) {
+    return dateString;
   }
 
-
-  /*
-   * Si por algún motivo ya viene
-   * como 29/09/2026
-   */
-
-  const slashMatch =
-    text.match(
-      /^(\d{2})\/(\d{2})\/(\d{4})$/
-    );
-
-  if (slashMatch) {
-
-    return text;
-
-  }
-
-
-  /*
-   * Último intento
-   */
-
-  const date =
-    new Date(text);
-
-  if (
-    !Number.isNaN(
-      date.getTime()
-    )
-  ) {
-
-    const day =
-      String(
-        date.getDate()
-      ).padStart(2, "0");
-
-    const month =
-      String(
-        date.getMonth() + 1
-      ).padStart(2, "0");
-
-    const year =
-      date.getFullYear();
-
-    return (
-      day +
-      "/" +
-      month +
-      "/" +
-      year
-    );
-
-  }
-
-
-  return text;
+  return (
+    parts[2] +
+    "/" +
+    parts[1] +
+    "/" +
+    parts[0]
+  );
 
 }
 
@@ -396,9 +328,12 @@ function showSlots() {
   }
 
 
-  timeSelect.innerHTML =
-    "";
+  /* Limpiar selector */
 
+  timeSelect.innerHTML = "";
+
+
+  /* Primera opción */
 
   const firstOption =
     document.createElement(
@@ -416,10 +351,9 @@ function showSlots() {
   );
 
 
-  /*
-   * Mostrar todos los horarios.
-   * No depende de ninguna API.
-   */
+  /* =================================================
+     CREAR TODOS LOS HORARIOS
+  ================================================= */
 
   cfg.slots.forEach(
     function (slot) {
@@ -446,25 +380,7 @@ function showSlots() {
 
 
 /* =====================================================
-   CAMBIO DE FECHA
-===================================================== */
-
-if (dateInput) {
-
-  dateInput.addEventListener(
-    "change",
-    function () {
-
-      showSlots();
-
-    }
-  );
-
-}
-
-
-/* =====================================================
-   ESTADO INICIAL
+   ESTADO INICIAL DEL HORARIO
 ===================================================== */
 
 if (timeSelect) {
@@ -481,10 +397,63 @@ if (timeSelect) {
     "";
 
   initialOption.textContent =
-    "Elegí un horario";
+    "Elegí una fecha";
 
   timeSelect.appendChild(
     initialOption
+  );
+
+}
+
+
+/* =====================================================
+   CUANDO EL CLIENTE ELIGE FECHA
+===================================================== */
+
+if (dateInput) {
+
+  dateInput.addEventListener(
+    "change",
+    function () {
+
+      if (!dateInput.value) {
+
+        if (timeSelect) {
+
+          timeSelect.innerHTML =
+            "";
+
+          const option =
+            document.createElement(
+              "option"
+            );
+
+          option.value =
+            "";
+
+          option.textContent =
+            "Elegí una fecha";
+
+          timeSelect.appendChild(
+            option
+          );
+
+        }
+
+        return;
+
+      }
+
+
+      /*
+       * IMPORTANTE:
+       * Los horarios se cargan directamente.
+       * No dependemos de otra función ni de una API.
+       */
+
+      showSlots();
+
+    }
   );
 
 }
@@ -507,6 +476,7 @@ function showMessage(
 
   }
 
+
   bookingMessage.hidden =
     false;
 
@@ -526,7 +496,9 @@ function showMessage(
 async function createReservation() {
 
   if (!bookingForm) {
+
     return;
+
   }
 
 
@@ -622,9 +594,7 @@ async function createReservation() {
 
   if (
     !Number.isFinite(players) ||
-    players < Number(
-      cfg.minPlayers
-    )
+    players < Number(cfg.minPlayers)
   ) {
 
     showMessage(
@@ -642,28 +612,13 @@ async function createReservation() {
   ================================================= */
 
   const pricePerPlayer =
-    Number(
-      cfg.gamePrice
-    ) || 0;
-
+    Number(cfg.gamePrice) || 0;
 
   const total =
-    pricePerPlayer *
-    players;
-
+    pricePerPlayer * players;
 
   const deposit =
-    Number(
-      cfg.deposit
-    ) || 0;
-
-
-  /* =================================================
-     FECHA PARA MOSTRAR
-  ================================================= */
-
-  const formattedDate =
-    formatDate(date);
+    Number(cfg.deposit) || 0;
 
 
   /* =================================================
@@ -691,7 +646,7 @@ async function createReservation() {
 
 
   /* =================================================
-     ENVIAR A LA API
+     ENVIAR RESERVA
   ================================================= */
 
   try {
@@ -710,59 +665,72 @@ async function createReservation() {
               "application/json"
           },
 
-          body:
-            JSON.stringify({
+          body: JSON.stringify({
 
-              nombre:
-                name,
+            nombre:
+              name,
 
-              whatsapp:
-                phone,
+            whatsapp:
+              phone,
 
-              fecha:
-                date,
+            fecha:
+              date,
 
-              horario:
-                time,
+            horario:
+              time,
 
-              jugadores:
-                players,
+            jugadores:
+              players,
 
-              tipo_de_juego:
-                "Paintball",
+            tipo_de_juego:
+              "Paintball",
 
-              precio_por_jugador:
-                pricePerPlayer,
+            precio_por_jugador:
+              pricePerPlayer,
 
-              total:
-                total,
+            total:
+              total,
 
-              sena_requerida:
-                deposit,
+            sena_requerida:
+              deposit,
 
-              monto_recibido:
-                0,
+            monto_recibido:
+              0,
 
-              estado_de_pago:
-                "pendiente",
+            estado_de_pago:
+              "pendiente",
 
-              estado_de_reserva:
-                "pendiente",
+            estado_de_reserva:
+              "pendiente",
 
-              fecha_de_transferencia:
-                null,
+            fecha_de_transferencia:
+              null,
 
-              observaciones:
-                notes
+            observaciones:
+              notes
 
-            })
+          })
 
         }
       );
 
 
-    const data =
-      await response.json();
+    /* =================================================
+       LEER RESPUESTA
+    ================================================= */
+
+    let data = {};
+
+    try {
+
+      data =
+        await response.json();
+
+    } catch (error) {
+
+      data = {};
+
+    }
 
 
     if (
@@ -779,19 +747,23 @@ async function createReservation() {
 
 
     /* =================================================
+       FECHA FORMATEADA
+    ================================================= */
+
+    const visibleDate =
+      formatDate(date);
+
+
+    /* =================================================
        ÉXITO
     ================================================= */
 
     showMessage(
-      "¡Reserva registrada correctamente! " +
-      "Fecha: " +
-      formattedDate +
-      " — Horario: " +
-      time +
-      ". Seña requerida: " +
-      money(deposit) +
-      ".",
+
+      `¡Reserva registrada correctamente! Fecha: ${visibleDate} — Horario: ${time}. Seña requerida: ${money(deposit)}.`,
+
       "success"
+
     );
 
 
@@ -800,25 +772,44 @@ async function createReservation() {
     ================================================= */
 
     if (nameInput) {
-      nameInput.value = "";
+
+      nameInput.value =
+        "";
+
     }
+
 
     if (phoneInput) {
-      phoneInput.value = "";
+
+      phoneInput.value =
+        "";
+
     }
+
 
     if (dateInput) {
-      dateInput.value = "";
+
+      dateInput.value =
+        "";
+
     }
+
 
     if (playersInput) {
+
       playersInput.value =
         cfg.minPlayers;
+
     }
 
+
     if (notesInput) {
-      notesInput.value = "";
+
+      notesInput.value =
+        "";
+
     }
+
 
     if (timeSelect) {
 
@@ -834,7 +825,7 @@ async function createReservation() {
         "";
 
       option.textContent =
-        "Elegí un horario";
+        "Elegí una fecha";
 
       timeSelect.appendChild(
         option
@@ -849,6 +840,7 @@ async function createReservation() {
       "Error creando reserva:",
       error
     );
+
 
     showMessage(
       "No se pudo guardar la reserva. Intentá nuevamente.",
@@ -1054,14 +1046,9 @@ if (lightbox) {
 
 
 /* =====================================================
-   COMPROBACIÓN
+   CONFIRMACIÓN
 ===================================================== */
 
 console.log(
-  "Aguará Paintball: script.js cargado correctamente."
+  "Aguará Paintball — script.js cargado correctamente."
 );
-
-console.log(
-  "Formato de fecha activo."
-);
-```
