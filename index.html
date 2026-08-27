@@ -93,91 +93,7 @@
       <strong id="publicGamePrice">$0</strong>
 
       <small>por jugador</small>
-
-      <b id="publicShotsText" class="shots-highlight">
-        100 TIROS INCLUIDOS
-      </b>
-    </article>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Aguará Paintball — reservas, partidas, cumpleaños y eventos.">
-  <title>Aguará Paintball</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-
-  <header class="nav">
-
-    <a class="brand" href="#inicio">
-      <img
-        src="assets/logo.png"
-        alt="Aguará Paintball"
-        onerror="this.style.display='none'"
-      >
-      <span>Aguará <b>Paintball</b></span>
-    </a>
-
-    <nav>
-      <a href="#experiencia">Experiencia</a>
-      <a href="#galeria">Galería</a>
-      <a href="#precios">Precios</a>
-      <a href="#reservas">Reservar</a>
-    </nav>
-
-    <a class="btn btn-outline" href="#reservas">
-      Reservar ahora
-    </a>
-
-  </header>
-
-
-  <main>
-
-    <!-- =========================
-         INICIO
-    ========================== -->
-
-    <section id="inicio" class="hero">
-
-      <video
-        class="hero-video"
-        autoplay
-        muted
-        loop
-        playsinline
-        poster="assets/hero.jpg"
-      >
-        <source
-          src="assets/hero.mp4"
-          type="video/mp4"
-        >
-      </video>
-
-      <div class="hero-fallback"></div>
-      <div class="hero-overlay"></div>
-
-      <div class="hero-logo-splash">
-        <img
-          src="assets/logo.png"
-          alt="Aguará Paintball"
-        >
-      </div>
-
-      <div class="hero-content">
-
-        <p class="eyebrow">
-          CORRIENTES · ARGENTINA
-        </p>
-
-        <h1>
-          Entrá al juego.<br>
-          <span>Viví Aguará.</span>
-        </h1>
+         </h1>
 
         <p class="lead">
           Paintball, cumpleaños y eventos para grupos.
@@ -1300,89 +1216,103 @@
               <span>
                 Realizá la seña.
               </span>
+                  Elegí una fecha
+                </option>
 
-            </div>
+              </select>
 
-
-            <div>
-
-              <b>03</b>
-
-              <span>
-                Pago aprobado → horario bloqueado.
-              </span>
-
-            </div>
-
-          </div>
+            </label>
 
 
-          <!-- WHATSAPP RESERVAS -->
+            <label>
 
-          <a
-            class="btn btn-outline full"
-            href="https://wa.me/5493794250285"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Consultar por WhatsApp
-          </a>
+              Jugadores
+
+              <input
+                id="players"
+                type="number"
+                min="10"
+                value="10"
+                required
+              >
+
+            </label>
 
 
-        </aside>
+            <label>
 
-      </div>
+              Observaciones
 
-    </section>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Aguará Paintball — reservas, partidas, cumpleaños y eventos.">
+  <title>Aguará Paintball</title>
 
-  </main>
+  <link rel="stylesheet" href="style.css">
+</head>
 
+<body>
 
   <!-- =========================
-       PIE DE PÁGINA
+       NAVEGACIÓN
   ========================== -->
 
-  <footer>
+  <header class="nav">
 
-    <span>
-      © <span id="year"></span>
-      Aguará Paintball
-    </span>
+    <a class="brand" href="#inicio">
 
-    <a href="admin.html">
-      Administración
+      <img
+        src="assets/logo.png"
+        alt="Aguará Paintball"
+        onerror="this.style.display='none'"
+      >
+
+      <span>
+        Aguará <b>Paintball</b>
+      </span>
+
     </a>
 
-  </footer>
+    <nav>
+      <a href="#experiencia">Experiencia</a>
+      <a href="#galeria">Galería</a>
+      <a href="#precios">Precios</a>
+      <a href="#reservas">Reservar</a>
+    </nav>
+
+    <a
+      class="btn btn-outline"
+      href="#reservas"
+    >
+      Reservar ahora
+    </a>
+
+  </header>
 
 
-  <!-- =========================
-       LIGHTBOX
-  ========================== -->
+  <main>
 
-  <div
-    id="lightbox"
-    class="lightbox"
-    hidden
-  >
+    <!-- =========================
+         INICIO
+    ========================== -->
 
-    <button id="closeLightbox">
-      ×
-    </button>
-
-    <img
-      id="lightboxImg"
-      alt=""
+    <section
+      id="inicio"
+      class="hero"
     >
 
-  </div>
+      <video
+        class="hero-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        poster="assets/hero.jpg"
+      >
 
-
-  <!-- =========================
-       SCRIPT
-  ========================== -->
-
-  <script src="script.js"></script>
-
-</body>
-</html>
+        <source
+          src="assets/hero.mp4"
+          type="video/mp4"
