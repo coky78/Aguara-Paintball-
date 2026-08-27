@@ -1,6 +1,9 @@
 export default function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ ok: false });
+    return res.status(405).json({
+      ok: false,
+      error: "METHOD_NOT_ALLOWED"
+    });
   }
 
   const { username, password } = req.body || {};
@@ -8,12 +11,16 @@ export default function handler(req, res) {
   const validUser = "aguarapaintball";
   const validPassword = process.env.ADMIN_PASSWORD;
 
-  if (username === validUser && password === validPassword) {
-    return res.status(200).json({ ok: true });
-  }
+  const userOK = username === validUser;
+  const passwordExists = Boolean(validPassword);
+  const passwordOK =
+    passwordExists && password === validPassword;
 
-  return res.status(401).json({
-    ok: false,
-    message: "Usuario o contraseña incorrectos"
+  return res.status(200).json({
+    ok: userOK && passwordOK,
+    userOK: userOK,
+    passwordReceived: Boolean(password),
+    passwordConfigured: passwordExists,
+    passwordOK: passwordOK
   });
 }
