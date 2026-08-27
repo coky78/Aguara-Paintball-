@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 
@@ -81,11 +82,8 @@
 
       </video>
 
-
       <div class="hero-fallback"></div>
-
       <div class="hero-overlay"></div>
-
 
       <div class="hero-logo-splash">
 
@@ -96,28 +94,23 @@
 
       </div>
 
-
       <div class="hero-content">
 
         <p class="eyebrow">
           CORRIENTES · ARGENTINA
         </p>
 
-
         <h1>
           Entrá al juego.<br>
           <span>Viví Aguará.</span>
         </h1>
-
 
         <p class="lead">
           Paintball, cumpleaños y eventos para grupos.
           Reservas desde <strong>10 jugadores</strong>.
         </p>
 
-
         <div class="hero-actions">
-
 
           <a
             class="btn btn-primary"
@@ -127,10 +120,8 @@
             <span>→</span>
           </a>
 
-
-          <!-- WHATSAPP -->
-
           <a
+            id="whatsappHero"
             class="btn btn-ghost"
             href="https://wa.me/5493794250285"
             target="_blank"
@@ -140,7 +131,6 @@
             <span>↗</span>
           </a>
 
-
           <a
             class="btn btn-ghost"
             href="#galeria"
@@ -149,18 +139,13 @@
             <span>↓</span>
           </a>
 
-
         </div>
 
       </div>
 
-
       <div class="scroll-hint">
-
         DESLIZÁ PARA CONOCER AGUARÁ
-
         <span>↓</span>
-
       </div>
 
     </section>
@@ -181,12 +166,10 @@
           LA EXPERIENCIA
         </p>
 
-
         <h2>
           Adrenalina, estrategia<br>
           y diversión en equipo.
         </h2>
-
 
         <p class="muted">
           Un espacio pensado para grupos de amigos,
@@ -196,68 +179,41 @@
           desde el panel.
         </p>
 
-
         <div class="stats">
 
-
           <div>
-
             <strong>10+</strong>
-
-            <span>
-              jugadores mínimo
-            </span>
-
+            <span>jugadores mínimo</span>
           </div>
 
-
           <div>
-
             <strong>100%</strong>
-
-            <span>
-              experiencia en equipo
-            </span>
-
+            <span>experiencia en equipo</span>
           </div>
-
 
           <div>
-
             <strong>1</strong>
-
-            <span>
-              reserva por horario
-            </span>
-
+            <span>reserva por horario</span>
           </div>
-
 
         </div>
 
       </div>
 
-
       <div class="feature-card">
-
 
         <div
           class="feature-image"
           style="background-image:url('assets/gallery-1.jpg')"
         ></div>
 
-
         <div class="feature-copy">
 
-          <span>
-            01
-          </span>
-
+          <span>01</span>
 
           <h3>
             Partidas
           </h3>
-
 
           <p>
             Elegí tu fecha y horario y armá tu equipo.
@@ -268,17 +224,29 @@
       </div>
 
     </section>
-        <!-- =========================
+
+
+    <!-- =========================
          GALERÍA
     ========================== -->
 
-    <section id="galeria" class="section">
+    <section
+      id="galeria"
+      class="section"
+    >
 
       <div class="section-head">
 
         <div>
-          <p class="eyebrow">GALERÍA</p>
-          <h2>El juego se ve así.</h2>
+
+          <p class="eyebrow">
+            GALERÍA
+          </p>
+
+          <h2>
+            El juego se ve así.
+          </h2>
+
         </div>
 
         <span class="muted">
@@ -291,50 +259,62 @@
       <div class="gallery">
 
         <button
+          type="button"
           class="gallery-item tall"
           data-src="assets/gallery-1.jpg"
         >
+
           <img
             src="assets/gallery-1.jpg"
             alt="Aguará Paintball"
             onerror="this.src='assets/placeholder.svg'"
           >
+
         </button>
 
 
         <button
+          type="button"
           class="gallery-item"
           data-src="assets/gallery-2.jpg"
         >
+
           <img
             src="assets/gallery-2.jpg"
-            alt="Partida"
+            alt="Partida de paintball"
             onerror="this.src='assets/placeholder.svg'"
           >
+
         </button>
 
 
         <button
+          type="button"
           class="gallery-item"
           data-src="assets/gallery-3.jpg"
         >
+
           <img
             src="assets/gallery-3.jpg"
             alt="Jugadores"
             onerror="this.src='assets/placeholder.svg'"
           >
+
         </button>
 
 
         <button
+          type="button"
           class="gallery-item wide"
           data-src="assets/gallery-4.jpg"
         >
+
           <img
             src="assets/gallery-4.jpg"
-            alt="Campo"
+            alt="Campo de Aguará Paintball"
             onerror="this.src='assets/placeholder.svg'"
           >
+
         </button>
 
       </div>
@@ -354,8 +334,15 @@
       <div class="section-head">
 
         <div>
-          <p class="eyebrow">TARIFAS</p>
-          <h2>Precios claros.</h2>
+
+          <p class="eyebrow">
+            TARIFAS
+          </p>
+
+          <h2>
+            Precios claros.
+          </h2>
+
         </div>
 
         <span class="muted">
@@ -366,7 +353,6 @@
 
 
       <div class="price-grid">
-
 
         <article class="price-card">
 
@@ -479,6 +465,10 @@
       <div class="booking-layout">
 
 
+        <!-- =========================
+             FORMULARIO
+        ========================== -->
+
         <form
           id="bookingForm"
           class="booking-card"
@@ -487,11 +477,16 @@
           <div class="form-grid">
 
 
+            <!-- NOMBRE -->
+
             <label>
               Nombre y apellido
 
               <input
                 id="name"
+                name="name"
+                type="text"
+                autocomplete="name"
                 required
                 placeholder="Tu nombre"
               >
@@ -499,11 +494,16 @@
             </label>
 
 
+            <!-- WHATSAPP -->
+
             <label>
               WhatsApp
 
               <input
                 id="phone"
+                name="phone"
+                type="tel"
+                autocomplete="tel"
                 required
                 placeholder="11 1234 5678"
               >
@@ -511,11 +511,16 @@
             </label>
 
 
+            <!-- =========================
+                 FECHA
+            ========================== -->
+
             <label>
               Fecha
 
               <input
                 id="date"
+                name="date"
                 type="date"
                 required
               >
@@ -523,16 +528,24 @@
             </label>
 
 
+            <!-- =========================
+                 HORARIO
+            ========================== -->
+
             <label>
               Horario
 
               <select
                 id="time"
+                name="time"
                 required
               >
 
-                <option value="">
-                  Elegí una fecha
+                <option
+                  value=""
+                  selected
+                >
+                  Elegí un horario
                 </option>
 
               </select>
@@ -540,11 +553,14 @@
             </label>
 
 
+            <!-- JUGADORES -->
+
             <label>
               Jugadores
 
               <input
                 id="players"
+                name="players"
                 type="number"
                 min="10"
                 value="10"
@@ -554,11 +570,14 @@
             </label>
 
 
+            <!-- OBSERVACIONES -->
+
             <label>
               Observaciones
 
               <textarea
                 id="notes"
+                name="notes"
                 rows="2"
                 placeholder="Cumpleaños, empresa, consulta..."
               ></textarea>
@@ -568,12 +587,16 @@
           </div>
 
 
+          <!-- MENSAJE -->
+
           <div
             id="bookingMessage"
             class="form-message"
             hidden
           ></div>
 
+
+          <!-- BOTÓN -->
 
           <button
             class="btn btn-primary full"
@@ -583,6 +606,8 @@
             <span>→</span>
           </button>
 
+
+          <!-- SEÑA -->
 
           <p class="fine">
 
@@ -599,6 +624,10 @@
 
         </form>
 
+
+        <!-- =========================
+             INFORMACIÓN RESERVA
+        ========================== -->
 
         <aside class="booking-side">
 
@@ -660,9 +689,10 @@
           </div>
 
 
-          <!-- WHATSAPP RESERVAS -->
+          <!-- WHATSAPP -->
 
           <a
+            id="whatsappBooking"
             class="btn btn-outline full"
             href="https://wa.me/5493794250285"
             target="_blank"
@@ -709,7 +739,10 @@
     hidden
   >
 
-    <button id="closeLightbox">
+    <button
+      id="closeLightbox"
+      type="button"
+    >
       ×
     </button>
 
@@ -722,10 +755,12 @@
 
 
   <!-- =========================
-       SCRIPT
+       JAVASCRIPT
   ========================== -->
 
   <script src="script.js"></script>
 
 </body>
+
 </html>
+```
