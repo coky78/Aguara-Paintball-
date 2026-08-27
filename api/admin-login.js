@@ -1,33 +1,74 @@
+```javascript
 export default function handler(req, res) {
+
+  // Solo aceptamos POST
   if (req.method !== "POST") {
     return res.status(405).json({
       ok: false,
-      error: "METHOD_NOT_ALLOWED"
+      message: "Método no permitido"
     });
   }
 
-  const { username, password } = req.body || {};
+  try {
 
-  const validUser = "aguarapaintball";
-  const validPassword = process.env.ADMIN_PASSWORD;
+    const { username, password } = req.body || {};
 
-  const userOK = username === validUser;
-  const passwordConfigured = Boolean(validPassword);
-  const passwordReceived = Boolean(password);
-  const passwordOK =
-    passwordConfigured && password === validPassword;
+    // Usuario correcto
+    const validUser = "aguarapaintball";
 
-  if (userOK && passwordOK) {
-    return res.status(200).json({
-      ok: true
+    // Contraseña almacenada en Vercel
+    const validPassword = process.env.ADMIN_PASSWORD;
+
+    // Comprobaciones
+    const receivedUser =
+      String(username || "").trim();
+
+    const receivedPassword =
+      String(password || "").trim();
+
+    // Comprobar que Vercel tenga configurada la variable
+    if (!validPassword) {
+      console.error(
+        "ADMIN_PASSWORD no está configurada"
+      );
+
+      return res.status(500).json({
+        ok: false,
+        message: "ADMIN_PASSWORD no está configurada en Production"
+      });
+    }
+
+    // Validar usuario y contraseña
+    if (
+      receivedUser === validUser &&
+      receivedPassword === String(validPassword).trim()
+    ) {
+
+      return res.status(200).json({
+        ok: true,
+        message: "Acceso autorizado"
+      });
+
+    }
+
+    return res.status(401).json({
+      ok: false,
+      message: "Usuario o contraseña incorrectos"
     });
+
+  } catch (error) {
+
+    console.error(
+      "Error en admin-login:",
+      error
+    );
+
+    return res.status(500).json({
+      ok: false,
+      message: "Error interno del servidor"
+    });
+
   }
 
-  return res.status(401).json({
-    ok: false,
-    userOK,
-    passwordConfigured,
-    passwordReceived,
-    passwordOK
-  });
 }
+```
