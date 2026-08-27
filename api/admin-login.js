@@ -12,15 +12,22 @@ export default function handler(req, res) {
   const validPassword = process.env.ADMIN_PASSWORD;
 
   const userOK = username === validUser;
-  const passwordExists = Boolean(validPassword);
+  const passwordConfigured = Boolean(validPassword);
+  const passwordReceived = Boolean(password);
   const passwordOK =
-    passwordExists && password === validPassword;
+    passwordConfigured && password === validPassword;
 
-  return res.status(200).json({
-    ok: userOK && passwordOK,
-    userOK: userOK,
-    passwordReceived: Boolean(password),
-    passwordConfigured: passwordExists,
-    passwordOK: passwordOK
+  if (userOK && passwordOK) {
+    return res.status(200).json({
+      ok: true
+    });
+  }
+
+  return res.status(401).json({
+    ok: false,
+    userOK,
+    passwordConfigured,
+    passwordReceived,
+    passwordOK
   });
 }
