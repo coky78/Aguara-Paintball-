@@ -38,24 +38,18 @@ function getConfig() {
   let savedConfig = {};
 
   try {
-
     savedConfig = JSON.parse(
       localStorage.getItem("aguaraConfig") || "{}"
     );
-
   } catch (error) {
-
     savedConfig = {};
-
   }
 
   return {
     ...DEFAULTS,
     ...savedConfig
   };
-
 }
-
 
 const cfg = getConfig();
 
@@ -83,10 +77,8 @@ const yearElement =
   document.getElementById("year");
 
 if (yearElement) {
-
   yearElement.textContent =
     new Date().getFullYear();
-
 }
 
 
@@ -98,10 +90,8 @@ const publicGamePrice =
   document.getElementById("publicGamePrice");
 
 if (publicGamePrice) {
-
   publicGamePrice.textContent =
     money(cfg.gamePrice);
-
 }
 
 
@@ -109,10 +99,8 @@ const publicShotsText =
   document.getElementById("publicShotsText");
 
 if (publicShotsText) {
-
   publicShotsText.textContent =
     cfg.shotsText;
-
 }
 
 
@@ -120,10 +108,8 @@ const publicHydrogelPrice =
   document.getElementById("publicHydrogelPrice");
 
 if (publicHydrogelPrice) {
-
   publicHydrogelPrice.textContent =
     money(cfg.hydrogelPrice);
-
 }
 
 
@@ -133,10 +119,8 @@ const publicHydrogelShotsText =
   );
 
 if (publicHydrogelShotsText) {
-
   publicHydrogelShotsText.textContent =
     cfg.hydrogelShotsText;
-
 }
 
 
@@ -144,10 +128,8 @@ const publicDeposit =
   document.getElementById("publicDeposit");
 
 if (publicDeposit) {
-
   publicDeposit.textContent =
     money(cfg.deposit);
-
 }
 
 
@@ -155,10 +137,8 @@ const depositInline =
   document.getElementById("depositInline");
 
 if (depositInline) {
-
   depositInline.textContent =
     money(cfg.deposit);
-
 }
 
 
@@ -166,10 +146,8 @@ const publicMinPlayers =
   document.getElementById("publicMinPlayers");
 
 if (publicMinPlayers) {
-
   publicMinPlayers.textContent =
     cfg.minPlayers;
-
 }
 
 
@@ -206,7 +184,10 @@ const bookingMessage =
    MENSAJES
 ========================= */
 
-function showBookingMessage(message, type = "success") {
+function showBookingMessage(
+  message,
+  type = "success"
+) {
 
   if (!bookingMessage) {
     alert(message);
@@ -220,12 +201,11 @@ function showBookingMessage(message, type = "success") {
 
   bookingMessage.className =
     `form-message ${type}`;
-
 }
 
 
 /* =========================
-   HORARIOS OCUPADOS
+   OBTENER RESERVAS DE NEON
 ========================= */
 
 async function getReservations() {
@@ -233,32 +213,40 @@ async function getReservations() {
   try {
 
     const response =
-      await fetch("/api/reservations", {
-        method: "GET",
-        headers: {
-          "Accept": "application/json"
+      await fetch(
+        "/api/reservations",
+        {
+          method: "GET",
+          cache: "no-store",
+          headers: {
+            "Accept":
+              "application/json"
+          }
         }
-      });
+      );
 
     if (!response.ok) {
-      throw new Error(
-        `HTTP ${response.status}`
+      console.error(
+        "Error HTTP:",
+        response.status
       );
+
+      return [];
     }
 
     const data =
       await response.json();
 
-    if (Array.isArray(data)) {
-      return data;
-    }
+    console.log(
+      "Reservas recibidas:",
+      data
+    );
 
-    if (Array.isArray(data.reservas)) {
+    if (
+      data &&
+      Array.isArray(data.reservas)
+    ) {
       return data.reservas;
-    }
-
-    if (Array.isArray(data.reservations)) {
-      return data.reservations;
     }
 
     return [];
@@ -266,7 +254,7 @@ async function getReservations() {
   } catch (error) {
 
     console.error(
-      "Error obteniendo reservas:",
+      "No se pudieron obtener las reservas:",
       error
     );
 
@@ -283,36 +271,86 @@ async function getReservations() {
 
 async function loadAvailableSlots() {
 
-  if (!dateInput || !timeSelect) {
+  if (!timeSelect) {
     return;
   }
 
   const selectedDate =
-    dateInput.value;
+    dateInput
+      ? dateInput.value
+      : "";
 
-  timeSelect.innerHTML =
-    '<option value="">Cargando horarios...</option>';
+
+  /* Siempre empezar desde cero */
+
+  timeSelect.innerHTML = "";
+
+
+  /* Si no hay fecha */
 
   if (!selectedDate) {
 
-    timeSelect.innerHTML =
-      '<option value="">Elegí una fecha</option>';
+    const option =
+      document.createElement("option");
+
+    option.value = "";
+
+    option.textContent =
+      "Elegí una fecha";
+
+    timeSelect.appendChild(
+      option
+    );
 
     return;
-
   }
 
+
+  /* Mostrar carga */
+
+  const loadingOption =
+    document.createElement("option");
+
+  loadingOption.value = "";
+
+  loadingOption.textContent =
+    "Cargando horarios...";
+
+  timeSelect.appendChild(
+    loadingOption
+  );
+
+
+  /* Obtener reservas */
 
   const bookings =
     await getReservations();
 
 
-  timeSelect.innerHTML =
-    '<option value="">Elegí un horario</option>';
+  /* Limpiar */
+
+  timeSelect.innerHTML = "";
+
+
+  const firstOption =
+    document.createElement("option");
+
+  firstOption.value = "";
+
+  firstOption.textContent =
+    "Elegí un horario";
+
+  timeSelect.appendChild(
+    firstOption
+  );
 
 
   let availableCount = 0;
 
+
+  /* =========================
+     CREAR HORARIOS
+  ========================== */
 
   cfg.slots.forEach(
     function (slot) {
@@ -322,30 +360,35 @@ async function loadAvailableSlots() {
           function (booking) {
 
             const bookingDate =
-              booking.fecha ??
-              booking.date;
+              String(
+                booking.fecha ?? ""
+              ).substring(0, 10);
 
             const bookingTime =
-              booking.horario ??
-              booking.time;
-
-            const bookingStatus =
               String(
-                booking.estado_de_reserva ??
-                booking.status ??
-                ""
+                booking.horario ?? ""
+              ).substring(0, 5);
+
+
+            const estadoReserva =
+              String(
+                booking.estado_de_reserva ?? ""
               ).toLowerCase();
 
 
-            const cancelled =
-              bookingStatus === "cancelada" ||
-              bookingStatus === "cancelled";
+            const cancelada =
+              estadoReserva ===
+                "cancelada" ||
+              estadoReserva ===
+                "cancelled";
 
 
             return (
-              bookingDate === selectedDate &&
-              bookingTime === slot &&
-              !cancelled
+              bookingDate ===
+                selectedDate &&
+              bookingTime ===
+                slot &&
+              !cancelada
             );
 
           }
@@ -355,7 +398,9 @@ async function loadAvailableSlots() {
       if (!ocupado) {
 
         const option =
-          document.createElement("option");
+          document.createElement(
+            "option"
+          );
 
         option.value =
           slot;
@@ -375,10 +420,28 @@ async function loadAvailableSlots() {
   );
 
 
+  /* =========================
+     SIN HORARIOS
+  ========================== */
+
   if (availableCount === 0) {
 
     timeSelect.innerHTML =
-      '<option value="">No hay horarios disponibles</option>';
+      "";
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+    option.value = "";
+
+    option.textContent =
+      "No hay horarios disponibles";
+
+    timeSelect.appendChild(
+      option
+    );
 
   }
 
@@ -421,7 +484,11 @@ if (dateInput) {
 
   dateInput.addEventListener(
     "change",
-    loadAvailableSlots
+    function () {
+
+      loadAvailableSlots();
+
+    }
   );
 
 }
@@ -433,32 +500,40 @@ if (dateInput) {
 
 async function createReservation() {
 
-  if (
-    !bookingForm ||
-    !dateInput ||
-    !timeSelect ||
-    !nameInput ||
-    !phoneInput ||
-    !playersInput
-  ) {
+  if (!bookingForm) {
     return;
   }
 
 
   const name =
-    nameInput.value.trim();
+    nameInput
+      ? nameInput.value.trim()
+      : "";
+
 
   const phone =
-    phoneInput.value.trim();
+    phoneInput
+      ? phoneInput.value.trim()
+      : "";
+
 
   const date =
-    dateInput.value;
+    dateInput
+      ? dateInput.value
+      : "";
+
 
   const time =
-    timeSelect.value;
+    timeSelect
+      ? timeSelect.value
+      : "";
+
 
   const players =
-    Number(playersInput.value);
+    playersInput
+      ? Number(playersInput.value)
+      : 0;
+
 
   const notes =
     notesInput
@@ -534,27 +609,31 @@ async function createReservation() {
 
 
   /* =========================
-     CALCULAR TOTAL
+     PRECIO
   ========================== */
 
   const pricePerPlayer =
     Number(cfg.gamePrice) || 0;
 
+
   const total =
-    pricePerPlayer * players;
+    pricePerPlayer *
+    players;
+
 
   const deposit =
     Number(cfg.deposit) || 0;
 
 
   /* =========================
-     DESACTIVAR BOTÓN
+     BOTÓN
   ========================== */
 
   const submitButton =
     bookingForm.querySelector(
       'button[type="submit"]'
     );
+
 
   if (submitButton) {
 
@@ -573,7 +652,7 @@ async function createReservation() {
   try {
 
     /* =========================
-       ENVIAR A VERCEL / API
+       GUARDAR EN NEON
     ========================== */
 
     const response =
@@ -590,51 +669,52 @@ async function createReservation() {
               "application/json"
           },
 
-          body: JSON.stringify({
+          body:
+            JSON.stringify({
 
-            nombre:
-              name,
+              nombre:
+                name,
 
-            whatsapp:
-              phone,
+              whatsapp:
+                phone,
 
-            fecha:
-              date,
+              fecha:
+                date,
 
-            horario:
-              time,
+              horario:
+                time,
 
-            jugadores:
-              players,
+              jugadores:
+                players,
 
-            tipo_de_juego:
-              "Paintball",
+              tipo_de_juego:
+                "Paintball",
 
-            precio_por_jugador:
-              pricePerPlayer,
+              precio_por_jugador:
+                pricePerPlayer,
 
-            total:
-              total,
+              total:
+                total,
 
-            sena_requerida:
-              deposit,
+              sena_requerida:
+                deposit,
 
-            monto_recibido:
-              0,
+              monto_recibido:
+                0,
 
-            estado_de_pago:
-              "pendiente",
+              estado_de_pago:
+                "pendiente",
 
-            estado_de_reserva:
-              "pendiente",
+              estado_de_reserva:
+                "pendiente",
 
-            fecha_de_transferencia:
-              null,
+              fecha_de_transferencia:
+                null,
 
-            observaciones:
-              notes
+              observaciones:
+                notes
 
-          })
+            })
 
         }
       );
@@ -644,14 +724,12 @@ async function createReservation() {
       await response.json();
 
 
-    /* =========================
-       ERROR DE API
-    ========================== */
-
-    if (!response.ok || data.ok === false) {
+    if (
+      !response.ok ||
+      data.ok === false
+    ) {
 
       throw new Error(
-        data.error ||
         data.message ||
         "No se pudo guardar la reserva."
       );
@@ -660,35 +738,49 @@ async function createReservation() {
 
 
     /* =========================
-       RESERVA GUARDADA
+       ÉXITO
     ========================== */
 
     showBookingMessage(
-      `¡Reserva registrada correctamente! Fecha: ${date} — Horario: ${time}. La seña requerida es ${money(deposit)}. El horario quedará confirmado al acreditarse el pago.`,
+      `¡Reserva registrada correctamente! Fecha: ${date} — Horario: ${time}. Seña requerida: ${money(deposit)}.`,
       "success"
     );
 
 
     /* =========================
-       LIMPIAR FORMULARIO
+       LIMPIAR
     ========================== */
 
-    nameInput.value = "";
+    if (nameInput) {
+      nameInput.value = "";
+    }
 
-    phoneInput.value = "";
+    if (phoneInput) {
+      phoneInput.value = "";
+    }
 
-    dateInput.value = "";
+    if (dateInput) {
+      dateInput.value = "";
+    }
 
-    timeSelect.innerHTML =
-      '<option value="">Elegí una fecha</option>';
+    if (timeSelect) {
+
+      timeSelect.innerHTML =
+        '<option value="">Elegí una fecha</option>';
+
+    }
 
     if (playersInput) {
+
       playersInput.value =
         cfg.minPlayers;
+
     }
 
     if (notesInput) {
+
       notesInput.value = "";
+
     }
 
 
@@ -701,7 +793,7 @@ async function createReservation() {
 
 
     showBookingMessage(
-      "No se pudo guardar la reserva. Revisá tu conexión e intentá nuevamente.",
+      "No se pudo guardar la reserva. Intentá nuevamente.",
       "error"
     );
 
