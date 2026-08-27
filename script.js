@@ -8,456 +8,167 @@ const DEFAULTS = {
   deposit: 50000,
   minPlayers: 10,
 
-  whatsapp: "5493790000000",
-
-  slots = [
-  "10:00",
-  "11:00",
-  "12:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-  "18:00",
-  "19:00",
-  "20:00",
-  "21:00",
-  "22:00"
-];
-};
-
-const getConfig = () => ({
-  ...DEFAULTS,
-  ...JSON.parse(
-    localStorage.getItem("aguaraConfig") || "{}"
-  )
-});
-
-const money = n =>
-  new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0
-  }).format(Number(n) || 0);
-
-const cfg = getConfig();
-
-/* Año */
-document.getElementById("year").textContent =
-  new Date().getFullYear();
-
-/* PAINTBALL */
-document.getElementById("publicGamePrice").textContent =
-  money(cfg.gamePrice);
-
-document.getElementById("publicShotsText").textContent =
-  cfg.shotsText || "100 TIROS INCLUIDOS";
-
-/* HIDROGEL */
-document.getElementById("publicHydrogelPrice").textContent =
-  money(cfg.hydrogelPrice);
-
-document.getElementById("publicHydrogelShotsText").textContent =
-  cfg.hydrogelShotsText || "MUNICIÓN INCLUIDA";
-
-/* SEÑA */
-document.getElementById("publicDeposit").textContent =
-  money(cfg.deposit);
-
-const depositInline =
-  document.getElementById("depositInline");
-
-if (depositInline) {
-  depositInline.textContent =
-    money(cfg.deposit);
-}
-
-/* MÍNIMO */
-document.getElementById("publicMinPlayers").textContent =
-  cfg.minPlayers;
-/* =========================
-   RESERVAS - FECHA Y HORARIOS
-========================= */
-
-const dateInput = document.getElementById("date");
-const timeSelect = document.getElementById("time");
-
-if (dateInput && timeSelect) {
-
-  // No permitir fechas anteriores a hoy
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-
-  dateInput.min = `${year}-${month}-${day}`;
-
-  dateInput.addEventListener("change", () => {
-
-    const selectedDate = dateInput.value;
-
-    // Limpiar horarios
-    timeSelect.innerHTML = "";
-
-    if (!selectedDate) {
-      timeSelect.innerHTML =
-        '<option value="">Elegí una fecha</option>';
-      return;
-    }
-const DEFAULTS = {
-  gamePrice: 29000,
-  shotsText: "100 TIROS INCLUIDOS",
-
-  hydrogelPrice: 0,
-  hydrogelShotsText: "MUNICIÓN INCLUIDA",
-
-  deposit: 50000,
-  minPlayers: 10,
-
   whatsapp: "5493794250285",
 
   slots: [
     "10:00",
+    "11:00",
     "12:00",
+    "13:00",
     "14:00",
+    "15:00",
     "16:00",
+    "17:00",
     "18:00",
-    "20:00"
+    "19:00",
+    "20:00",
+    "21:00",
+    "22:00"
   ]
 };
 
-const getConfig = () => {
+
+/* =========================
+   CONFIGURACIÓN
+========================= */
+
+function getConfig() {
+
   let savedConfig = {};
 
   try {
+
     savedConfig = JSON.parse(
       localStorage.getItem("aguaraConfig") || "{}"
     );
+
   } catch (error) {
+
     savedConfig = {};
+
   }
 
   return {
     ...DEFAULTS,
     ...savedConfig
   };
-};
 
-const money = n =>
-  new Intl.NumberFormat("es-AR", {
+}
+
+
+const cfg = getConfig();
+
+
+/* =========================
+   DINERO
+========================= */
+
+function money(value) {
+
+  return new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency: "ARS",
     maximumFractionDigits: 0
-  }).format(Number(n) || 0);
+  }).format(Number(value) || 0);
 
-const cfg = getConfig();
+}
+
 
 /* =========================
    AÑO
 ========================= */
 
-const yearElement = document.getElementById("year");
+const yearElement =
+  document.getElementById("year");
 
 if (yearElement) {
+
   yearElement.textContent =
     new Date().getFullYear();
+
 }
 
+
 /* =========================
-   PAINTBALL
+   PRECIOS
 ========================= */
 
 const publicGamePrice =
   document.getElementById("publicGamePrice");
 
 if (publicGamePrice) {
+
   publicGamePrice.textContent =
     money(cfg.gamePrice);
+
 }
+
 
 const publicShotsText =
   document.getElementById("publicShotsText");
 
 if (publicShotsText) {
+
   publicShotsText.textContent =
-    cfg.shotsText || "100 TIROS INCLUIDOS";
+    cfg.shotsText;
+
 }
 
-/* =========================
-   HIDROGEL
-========================= */
 
 const publicHydrogelPrice =
   document.getElementById("publicHydrogelPrice");
 
 if (publicHydrogelPrice) {
+
   publicHydrogelPrice.textContent =
     money(cfg.hydrogelPrice);
+
 }
+
 
 const publicHydrogelShotsText =
-  document.getElementById("publicHydrogelShotsText");
+  document.getElementById(
+    "publicHydrogelShotsText"
+  );
 
 if (publicHydrogelShotsText) {
+
   publicHydrogelShotsText.textContent =
-    cfg.hydrogelShotsText || "MUNICIÓN INCLUIDA";
+    cfg.hydrogelShotsText;
+
 }
 
-/* =========================
-   SEÑA
-========================= */
 
 const publicDeposit =
   document.getElementById("publicDeposit");
 
 if (publicDeposit) {
+
   publicDeposit.textContent =
     money(cfg.deposit);
+
 }
+
 
 const depositInline =
   document.getElementById("depositInline");
 
 if (depositInline) {
+
   depositInline.textContent =
     money(cfg.deposit);
+
 }
 
-/* =========================
-   MÍNIMO DE JUGADORES
-========================= */
 
 const publicMinPlayers =
   document.getElementById("publicMinPlayers");
 
 if (publicMinPlayers) {
+
   publicMinPlayers.textContent =
     cfg.minPlayers;
-}
 
-/* =========================
-   RESERVAS - FECHA Y HORARIOS
-========================= */
-
-const dateInput =
-  document.getElementById("date");
-
-const timeSelect =
-  document.getElementById("time");
-
-if (dateInput && timeSelect) {
-
-  /* No permitir fechas anteriores a hoy */
-
-  const today = new Date();
-
-  const year = today.getFullYear();
-
-  const month = String(
-    today.getMonth() + 1
-  ).padStart(2, "0");
-
-  const day = String(
-    today.getDate()
-  ).padStart(2, "0");
-
-  dateInput.min =
-    `${year}-${month}-${day}`;
-
-  /* Estado inicial */
-
-  timeSelect.innerHTML =
-    '<option value="">Primero elegí una fecha</option>';
-
-  /* Cuando el usuario elige una fecha */
-
-  dateInput.addEventListener(
-    "change",
-    () => {
-
-      const selectedDate =
-        dateInput.value;
-
-      /* Limpiar horarios */
-
-      timeSelect.innerHTML =
-        '<option value="">Elegí un horario</option>';
-
-      /* Si no hay fecha */
-
-      if (!selectedDate) {
-
-        timeSelect.innerHTML =
-          '<option value="">Primero elegí una fecha</option>';
-
-        return;
-      }
-
-      /* =========================
-         HORARIOS
-      ========================= */
-
-      let slots = [];
-
-      if (
-        Array.isArray(cfg.slots) &&
-        cfg.slots.length > 0
-      ) {
-
-        slots = cfg.slots;
-
-      } else {
-
-        slots = [
-          "10:00",
-          "12:00",
-          "14:00",
-          "16:00",
-          "18:00",
-          "20:00"
-        ];
-
-      }
-
-      /* =========================
-         RESERVAS EXISTENTES
-      ========================= */
-
-      let bookings = [];
-
-      try {
-
-        bookings = JSON.parse(
-          localStorage.getItem(
-            "aguaraBookings"
-          ) || "[]"
-        );
-
-const DEFAULTS = {
-  gamePrice: 29000,
-  shotsText: "100 TIROS INCLUIDOS",
-
-  hydrogelPrice: 0,
-  hydrogelShotsText: "MUNICIÓN INCLUIDA",
-
-  deposit: 50000,
-  minPlayers: 10,
-
-  whatsapp: "5493794250285"
-};
-
-const getConfig = () => {
-  let savedConfig = {};
-
-  try {
-    savedConfig = JSON.parse(
-      localStorage.getItem("aguaraConfig") || "{}"
-    );
-  } catch (error) {
-    savedConfig = {};
-  }
-
-  return {
-    ...DEFAULTS,
-    ...savedConfig
-  };
-};
-
-const money = n =>
-  new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0
-  }).format(Number(n) || 0);
-
-const cfg = getConfig();
-
-
-/* =========================
-   AÑO
-========================= */
-
-const yearElement = document.getElementById("year");
-
-if (yearElement) {
-  yearElement.textContent = new Date().getFullYear();
-}
-
-
-/* =========================
-   PAINTBALL
-========================= */
-
-const publicGamePrice =
-  document.getElementById("publicGamePrice");
-
-if (publicGamePrice) {
-  publicGamePrice.textContent =
-    money(cfg.gamePrice);
-}
-
-const publicShotsText =
-  document.getElementById("publicShotsText");
-
-if (publicShotsText) {
-  publicShotsText.textContent =
-    cfg.shotsText || "100 TIROS INCLUIDOS";
-}
-
-
-/* =========================
-   HIDROGEL
-========================= */
-
-const publicHydrogelPrice =
-  document.getElementById("publicHydrogelPrice");
-
-if (publicHydrogelPrice) {
-  publicHydrogelPrice.textContent =
-    money(cfg.hydrogelPrice);
-}
-
-const publicHydrogelShotsText =
-  document.getElementById("publicHydrogelShotsText");
-
-if (publicHydrogelShotsText) {
-  publicHydrogelShotsText.textContent =
-    cfg.hydrogelShotsText || "MUNICIÓN INCLUIDA";
-}
-
-
-/* =========================
-   SEÑA
-========================= */
-
-const publicDeposit =
-  document.getElementById("publicDeposit");
-
-if (publicDeposit) {
-  publicDeposit.textContent =
-    money(cfg.deposit);
-}
-
-const depositInline =
-  document.getElementById("depositInline");
-
-if (depositInline) {
-  depositInline.textContent =
-    money(cfg.deposit);
-}
-
-
-/* =========================
-   MÍNIMO DE JUGADORES
-========================= */
-
-const publicMinPlayers =
-  document.getElementById("publicMinPlayers");
-
-if (publicMinPlayers) {
-  publicMinPlayers.textContent =
-    cfg.minPlayers;
 }
 
 
@@ -474,49 +185,53 @@ const timeSelect =
 
 if (dateInput && timeSelect) {
 
+
   /* Fecha mínima: hoy */
 
-  const today = new Date();
+  const today =
+    new Date();
 
-  const year = today.getFullYear();
+  const year =
+    today.getFullYear();
 
-  const month = String(
-    today.getMonth() + 1
-  ).padStart(2, "0");
+  const month =
+    String(
+      today.getMonth() + 1
+    ).padStart(2, "0");
 
-  const day = String(
-    today.getDate()
-  ).padStart(2, "0");
+  const day =
+    String(
+      today.getDate()
+    ).padStart(2, "0");
+
 
   dateInput.min =
     `${year}-${month}-${day}`;
 
 
-  /* Estado inicial */
+  /* Mensaje inicial */
 
   timeSelect.innerHTML =
     '<option value="">Elegí una fecha</option>';
 
 
   /* =========================
-     CUANDO CAMBIA LA FECHA
-  ========================= */
+     CAMBIO DE FECHA
+  ========================== */
 
   dateInput.addEventListener(
     "change",
-    () => {
+    function () {
 
       const selectedDate =
         dateInput.value;
 
 
-      /* Limpiar horarios */
+      /* Limpiar */
 
       timeSelect.innerHTML =
         '<option value="">Elegí un horario</option>';
 
-
-      /* Si no eligió fecha */
 
       if (!selectedDate) {
 
@@ -524,12 +239,13 @@ if (dateInput && timeSelect) {
           '<option value="">Elegí una fecha</option>';
 
         return;
+
       }
 
 
       /* =========================
-         HORARIOS DE AGUARÁ
-      ========================= */
+         HORARIOS
+      ========================== */
 
       const slots = [
         "10:00",
@@ -550,9 +266,10 @@ if (dateInput && timeSelect) {
 
       /* =========================
          RESERVAS EXISTENTES
-      ========================= */
+      ========================== */
 
       let bookings = [];
+
 
       try {
 
@@ -569,54 +286,65 @@ if (dateInput && timeSelect) {
       }
 
 
-      let horariosDisponibles = 0;
+      let availableCount = 0;
 
 
       /* =========================
          CREAR HORARIOS
-      ========================= */
+      ========================== */
 
-      slots.forEach(slot => {
+      slots.forEach(
+        function (slot) {
 
-        const ocupado =
-          bookings.some(
-            booking =>
-              booking.date === selectedDate &&
-              booking.time === slot &&
-              booking.status !== "cancelled"
-          );
+          const ocupado =
+            bookings.some(
+              function (booking) {
 
+                return (
+                  booking.date === selectedDate &&
+                  booking.time === slot &&
+                  booking.status !== "cancelled"
+                );
 
-        if (!ocupado) {
-
-          const option =
-            document.createElement(
-              "option"
+              }
             );
 
-          option.value =
-            slot;
 
-          option.textContent =
-            slot;
+          if (!ocupado) {
 
-          timeSelect.appendChild(
-            option
-          );
+            const option =
+              document.createElement(
+                "option"
+              );
 
-          horariosDisponibles++;
+
+            option.value =
+              slot;
+
+
+            option.textContent =
+              slot;
+
+
+            timeSelect.appendChild(
+              option
+            );
+
+
+            availableCount++;
+
+          }
 
         }
-
-      });
+      );
 
 
       /* =========================
-         SIN HORARIOS
-      ========================= */
+         SI NO HAY HORARIOS
+      ========================== */
 
       if (
-        horariosDisponibles === 0
+        availableCount === 0
       ) {
 
         timeSelect.innerHTML =
@@ -637,19 +365,22 @@ if (dateInput && timeSelect) {
 const waNumber =
   "5493794250285";
 
-const waMsg =
+
+const waMessage =
   encodeURIComponent(
     "Hola, quiero consultar por una reserva en Aguará Paintball."
   );
 
+
 const waUrl =
-  `https://wa.me/${waNumber}?text=${waMsg}`;
+  `https://wa.me/${waNumber}?text=${waMessage}`;
 
 
 const whatsappHero =
   document.getElementById(
     "whatsappHero"
   );
+
 
 const whatsappBooking =
   document.getElementById(
@@ -662,6 +393,9 @@ if (whatsappHero) {
   whatsappHero.href =
     waUrl;
 
+  whatsappHero.target =
+    "_blank";
+
 }
 
 
@@ -670,7 +404,7 @@ if (whatsappBooking) {
   whatsappBooking.href =
     waUrl;
 
-}
+  whatsappBooking.target =
+    "_blank";
 
-}
 }
