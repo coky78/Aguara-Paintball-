@@ -991,3 +991,4 @@ console.log(
   "Aguará Paintball: script.js cargado correctamente."
 );
 ```
+alert("SCRIPT NUEVO DE AGUARÁ CARGADO");
