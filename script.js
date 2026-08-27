@@ -1,13 +1,13 @@
 ```javascript
-/* =========================================================
+/* =====================================================
    AGUARÁ PAINTBALL
    SCRIPT PRINCIPAL
-========================================================= */
+===================================================== */
 
 
-/* =========================================================
-   CONFIGURACIÓN POR DEFECTO
-========================================================= */
+/* =====================================================
+   CONFIGURACIÓN
+===================================================== */
 
 const DEFAULTS = {
 
@@ -47,9 +47,9 @@ const DEFAULTS = {
 };
 
 
-/* =========================================================
-   CONFIGURACIÓN
-========================================================= */
+/* =====================================================
+   CONFIGURACIÓN GUARDADA
+===================================================== */
 
 function getConfig() {
 
@@ -70,8 +70,7 @@ function getConfig() {
   } catch (error) {
 
     console.warn(
-      "No se pudo leer la configuración guardada.",
-      error
+      "No se pudo leer la configuración."
     );
 
     return {
@@ -83,13 +82,12 @@ function getConfig() {
 }
 
 
-const cfg =
-  getConfig();
+const cfg = getConfig();
 
 
-/* =========================================================
+/* =====================================================
    DINERO
-========================================================= */
+===================================================== */
 
 function money(value) {
 
@@ -107,14 +105,12 @@ function money(value) {
 }
 
 
-/* =========================================================
+/* =====================================================
    AÑO
-========================================================= */
+===================================================== */
 
 const yearElement =
-  document.getElementById(
-    "year"
-  );
+  document.getElementById("year");
 
 if (yearElement) {
 
@@ -124,61 +120,57 @@ if (yearElement) {
 }
 
 
-/* =========================================================
+/* =====================================================
    PRECIOS
-========================================================= */
+===================================================== */
 
-const publicGamePrice =
+const gamePrice =
   document.getElementById(
     "publicGamePrice"
   );
 
-if (publicGamePrice) {
+if (gamePrice) {
 
-  publicGamePrice.textContent =
-    money(
-      cfg.gamePrice
-    );
+  gamePrice.textContent =
+    money(cfg.gamePrice);
 
 }
 
 
-const publicShotsText =
+const shotsText =
   document.getElementById(
     "publicShotsText"
   );
 
-if (publicShotsText) {
+if (shotsText) {
 
-  publicShotsText.textContent =
+  shotsText.textContent =
     cfg.shotsText;
 
 }
 
 
-const publicHydrogelPrice =
+const hydrogelPrice =
   document.getElementById(
     "publicHydrogelPrice"
   );
 
-if (publicHydrogelPrice) {
+if (hydrogelPrice) {
 
-  publicHydrogelPrice.textContent =
-    money(
-      cfg.hydrogelPrice
-    );
+  hydrogelPrice.textContent =
+    money(cfg.hydrogelPrice);
 
 }
 
 
-const publicHydrogelShotsText =
+const hydrogelShotsText =
   document.getElementById(
     "publicHydrogelShotsText"
   );
 
-if (publicHydrogelShotsText) {
+if (hydrogelShotsText) {
 
-  publicHydrogelShotsText.textContent =
+  hydrogelShotsText.textContent =
     cfg.hydrogelShotsText;
 
 }
@@ -192,9 +184,7 @@ const publicDeposit =
 if (publicDeposit) {
 
   publicDeposit.textContent =
-    money(
-      cfg.deposit
-    );
+    money(cfg.deposit);
 
 }
 
@@ -207,9 +197,7 @@ const depositInline =
 if (depositInline) {
 
   depositInline.textContent =
-    money(
-      cfg.deposit
-    );
+    money(cfg.deposit);
 
 }
 
@@ -227,9 +215,9 @@ if (publicMinPlayers) {
 }
 
 
-/* =========================================================
+/* =====================================================
    ELEMENTOS DEL FORMULARIO
-========================================================= */
+===================================================== */
 
 const bookingForm =
   document.getElementById(
@@ -272,44 +260,11 @@ const bookingMessage =
   );
 
 
-/* =========================================================
-   MENSAJES
-========================================================= */
-
-function showBookingMessage(
-  message,
-  type = "success"
-) {
-
-  if (!bookingMessage) {
-
-    alert(message);
-
-    return;
-
-  }
-
-  bookingMessage.hidden =
-    false;
-
-  bookingMessage.textContent =
-    message;
-
-  bookingMessage.className =
-    "form-message " + type;
-
-}
-
-
-/* =========================================================
+/* =====================================================
    FECHA MÍNIMA
-========================================================= */
+===================================================== */
 
-function setMinimumDate() {
-
-  if (!dateInput) {
-    return;
-  }
+if (dateInput) {
 
   const today =
     new Date();
@@ -320,18 +275,12 @@ function setMinimumDate() {
   const month =
     String(
       today.getMonth() + 1
-    ).padStart(
-      2,
-      "0"
-    );
+    ).padStart(2, "0");
 
   const day =
     String(
       today.getDate()
-    ).padStart(
-      2,
-      "0"
-    );
+    ).padStart(2, "0");
 
   const todayString =
     `${year}-${month}-${day}`;
@@ -342,19 +291,16 @@ function setMinimumDate() {
 }
 
 
-setMinimumDate();
-
-
-/* =========================================================
+/* =====================================================
    MOSTRAR HORARIOS
-========================================================= */
+===================================================== */
 
-function showAllSlots() {
+function showSlots() {
 
   if (!timeSelect) {
 
     console.error(
-      "No se encontró #time en index.html"
+      "No se encontró el elemento #time"
     );
 
     return;
@@ -381,35 +327,14 @@ function showAllSlots() {
   firstOption.textContent =
     "Elegí un horario";
 
-  firstOption.selected =
-    true;
-
   timeSelect.appendChild(
     firstOption
   );
 
 
-  /* Obtener horarios */
-
-  let slots =
-    Array.isArray(cfg.slots)
-      ? cfg.slots
-      : DEFAULTS.slots;
-
-
-  /* Si por alguna razón están vacíos */
-
-  if (!slots.length) {
-
-    slots =
-      DEFAULTS.slots;
-
-  }
-
-
   /* Crear horarios */
 
-  slots.forEach(
+  cfg.slots.forEach(
     function (slot) {
 
       const option =
@@ -430,387 +355,12 @@ function showAllSlots() {
     }
   );
 
-
-  console.log(
-    "Horarios cargados:",
-    slots
-  );
-
 }
 
 
-/* =========================================================
-   OBTENER RESERVAS DESDE NEON
-========================================================= */
-
-async function getReservations() {
-
-  try {
-
-    const response =
-      await fetch(
-        "/api/reservations",
-        {
-          method: "GET",
-
-          cache: "no-store",
-
-          headers: {
-            "Accept":
-              "application/json"
-          }
-        }
-      );
-
-
-    if (!response.ok) {
-
-      console.warn(
-        "La API de reservas respondió:",
-        response.status
-      );
-
-      return [];
-
-    }
-
-
-    const data =
-      await response.json();
-
-
-    console.log(
-      "Reservas recibidas:",
-      data
-    );
-
-
-    if (
-      data &&
-      Array.isArray(
-        data.reservas
-      )
-    ) {
-
-      return data.reservas;
-
-    }
-
-
-    if (
-      Array.isArray(data)
-    ) {
-
-      return data;
-
-    }
-
-
-    return [];
-
-  } catch (error) {
-
-    console.warn(
-      "No se pudieron obtener las reservas.",
-      error
-    );
-
-    return [];
-
-  }
-
-}
-
-
-/* =========================================================
-   NORMALIZAR RESERVAS
-========================================================= */
-
-function isReservationCancelled(
-  booking
-) {
-
-  const estado =
-    String(
-      booking.estado_de_reserva ??
-      booking.estado ??
-      ""
-    )
-      .trim()
-      .toLowerCase();
-
-
-  return (
-    estado === "cancelada" ||
-    estado === "cancelado" ||
-    estado === "cancelled"
-  );
-
-}
-
-
-/* =========================================================
-   COMPROBAR SI UN HORARIO ESTÁ OCUPADO
-========================================================= */
-
-function isSlotOccupied(
-  booking,
-  selectedDate,
-  slot
-) {
-
-  if (
-    isReservationCancelled(
-      booking
-    )
-  ) {
-
-    return false;
-
-  }
-
-
-  const bookingDate =
-    String(
-      booking.fecha ??
-      booking.date ??
-      ""
-    )
-      .substring(
-        0,
-        10
-      );
-
-
-  const bookingTime =
-    String(
-      booking.horario ??
-      booking.time ??
-      ""
-    )
-      .substring(
-        0,
-        5
-      );
-
-
-  return (
-    bookingDate ===
-      selectedDate &&
-    bookingTime ===
-      slot
-  );
-
-}
-
-
-/* =========================================================
-   CARGAR HORARIOS DISPONIBLES
-========================================================= */
-
-async function loadAvailableSlots() {
-
-  if (!timeSelect) {
-
-    return;
-
-  }
-
-
-  const selectedDate =
-    dateInput
-      ? dateInput.value
-      : "";
-
-
-  /* =======================================================
-     SIN FECHA
-  ======================================================= */
-
-  if (!selectedDate) {
-
-    showAllSlots();
-
-    return;
-
-  }
-
-
-  /* =======================================================
-     MOSTRAR CARGANDO
-  ======================================================= */
-
-  timeSelect.innerHTML =
-    "";
-
-
-  const loadingOption =
-    document.createElement(
-      "option"
-    );
-
-  loadingOption.value =
-    "";
-
-  loadingOption.textContent =
-    "Cargando horarios...";
-
-  loadingOption.selected =
-    true;
-
-  timeSelect.appendChild(
-    loadingOption
-  );
-
-
-  /* =======================================================
-     OBTENER RESERVAS
-  ======================================================= */
-
-  const bookings =
-    await getReservations();
-
-
-  /* =======================================================
-     LIMPIAR
-  ======================================================= */
-
-  timeSelect.innerHTML =
-    "";
-
-
-  /* =======================================================
-     OPCIÓN INICIAL
-  ======================================================= */
-
-  const firstOption =
-    document.createElement(
-      "option"
-    );
-
-  firstOption.value =
-    "";
-
-  firstOption.textContent =
-    "Elegí un horario";
-
-  firstOption.selected =
-    true;
-
-  timeSelect.appendChild(
-    firstOption
-  );
-
-
-  /* =======================================================
-     HORARIOS
-  ======================================================= */
-
-  const slots =
-    Array.isArray(cfg.slots)
-      ? cfg.slots
-      : DEFAULTS.slots;
-
-
-  let availableCount =
-    0;
-
-
-  slots.forEach(
-    function (slot) {
-
-      const occupied =
-        bookings.some(
-          function (booking) {
-
-            return isSlotOccupied(
-              booking,
-              selectedDate,
-              slot
-            );
-
-          }
-        );
-
-
-      /* ===================================================
-         SI ESTÁ LIBRE
-      =================================================== */
-
-      if (!occupied) {
-
-        const option =
-          document.createElement(
-            "option"
-          );
-
-        option.value =
-          slot;
-
-        option.textContent =
-          slot;
-
-        timeSelect.appendChild(
-          option
-        );
-
-        availableCount++;
-
-      }
-
-    }
-  );
-
-
-  /* =======================================================
-     NO HAY HORARIOS
-  ======================================================= */
-
-  if (
-    availableCount === 0
-  ) {
-
-    timeSelect.innerHTML =
-      "";
-
-
-    const noSlots =
-      document.createElement(
-        "option"
-      );
-
-    noSlots.value =
-      "";
-
-    noSlots.textContent =
-      "No hay horarios disponibles";
-
-    noSlots.selected =
-      true;
-
-    timeSelect.appendChild(
-      noSlots
-    );
-
-  }
-
-
-  console.log(
-    "Fecha seleccionada:",
-    selectedDate
-  );
-
-  console.log(
-    "Horarios disponibles:",
-    availableCount
-  );
-
-}
-
-
-/* =========================================================
+/* =====================================================
    CAMBIO DE FECHA
-========================================================= */
+===================================================== */
 
 if (dateInput) {
 
@@ -818,7 +368,13 @@ if (dateInput) {
     "change",
     function () {
 
-      loadAvailableSlots();
+      /*
+       * IMPORTANTE:
+       * Los horarios se muestran directamente.
+       * No esperamos a ninguna API.
+       */
+
+      showSlots();
 
     }
   );
@@ -826,21 +382,71 @@ if (dateInput) {
 }
 
 
-/* =========================================================
-   INICIO DEL SELECTOR DE HORARIOS
-========================================================= */
+/* =====================================================
+   ESTADO INICIAL
+===================================================== */
 
 if (timeSelect) {
 
+  /*
+   * Si todavía no hay fecha,
+   * mostramos el mensaje correcto.
+   */
+
   timeSelect.innerHTML =
-    '<option value="" selected>Elegí un horario</option>';
+    "";
+
+  const initialOption =
+    document.createElement(
+      "option"
+    );
+
+  initialOption.value =
+    "";
+
+  initialOption.textContent =
+    "Elegí un horario";
+
+  timeSelect.appendChild(
+    initialOption
+  );
 
 }
 
 
-/* =========================================================
+/* =====================================================
+   MENSAJES
+===================================================== */
+
+function showMessage(
+  message,
+  type = "success"
+) {
+
+  if (!bookingMessage) {
+
+    alert(message);
+
+    return;
+
+  }
+
+
+  bookingMessage.hidden =
+    false;
+
+  bookingMessage.textContent =
+    message;
+
+  bookingMessage.className =
+    "form-message " + type;
+
+}
+
+
+/* =====================================================
    CREAR RESERVA
-========================================================= */
+===================================================== */
 
 async function createReservation() {
 
@@ -889,13 +495,13 @@ async function createReservation() {
       : "";
 
 
-  /* =======================================================
+  /* =================================================
      VALIDACIONES
-  ======================================================= */
+  ================================================= */
 
   if (!name) {
 
-    showBookingMessage(
+    showMessage(
       "Ingresá tu nombre y apellido.",
       "error"
     );
@@ -907,7 +513,7 @@ async function createReservation() {
 
   if (!phone) {
 
-    showBookingMessage(
+    showMessage(
       "Ingresá tu número de WhatsApp.",
       "error"
     );
@@ -919,7 +525,7 @@ async function createReservation() {
 
   if (!date) {
 
-    showBookingMessage(
+    showMessage(
       "Elegí una fecha.",
       "error"
     );
@@ -931,7 +537,7 @@ async function createReservation() {
 
   if (!time) {
 
-    showBookingMessage(
+    showMessage(
       "Elegí un horario.",
       "error"
     );
@@ -943,13 +549,12 @@ async function createReservation() {
 
   if (
     !Number.isFinite(players) ||
-    players <
-      Number(
-        cfg.minPlayers
-      )
+    players < Number(
+      cfg.minPlayers
+    )
   ) {
 
-    showBookingMessage(
+    showMessage(
       `La reserva requiere un mínimo de ${cfg.minPlayers} jugadores.`,
       "error"
     );
@@ -959,9 +564,9 @@ async function createReservation() {
   }
 
 
-  /* =======================================================
+  /* =================================================
      PRECIO
-  ======================================================= */
+  ================================================= */
 
   const pricePerPlayer =
     Number(
@@ -980,9 +585,9 @@ async function createReservation() {
     ) || 0;
 
 
-  /* =======================================================
+  /* =================================================
      BOTÓN
-  ======================================================= */
+  ================================================= */
 
   const submitButton =
     bookingForm.querySelector(
@@ -995,7 +600,7 @@ async function createReservation() {
     submitButton.disabled =
       true;
 
-    submitButton.dataset.originalText =
+    submitButton.dataset.original =
       submitButton.innerHTML;
 
     submitButton.innerHTML =
@@ -1004,9 +609,9 @@ async function createReservation() {
   }
 
 
-  /* =======================================================
+  /* =================================================
      ENVIAR A LA API
-  ======================================================= */
+  ================================================= */
 
   try {
 
@@ -1014,86 +619,68 @@ async function createReservation() {
       await fetch(
         "/api/reservations",
         {
-
-          method:
-            "POST",
+          method: "POST",
 
           headers: {
-
             "Content-Type":
               "application/json",
 
             "Accept":
               "application/json"
-
           },
 
-          body:
-            JSON.stringify({
+          body: JSON.stringify({
 
-              nombre:
-                name,
+            nombre:
+              name,
 
-              whatsapp:
-                phone,
+            whatsapp:
+              phone,
 
-              fecha:
-                date,
+            fecha:
+              date,
 
-              horario:
-                time,
+            horario:
+              time,
 
-              jugadores:
-                players,
+            jugadores:
+              players,
 
-              tipo_de_juego:
-                "Paintball",
+            tipo_de_juego:
+              "Paintball",
 
-              precio_por_jugador:
-                pricePerPlayer,
+            precio_por_jugador:
+              pricePerPlayer,
 
-              total:
-                total,
+            total:
+              total,
 
-              sena_requerida:
-                deposit,
+            sena_requerida:
+              deposit,
 
-              monto_recibido:
-                0,
+            monto_recibido:
+              0,
 
-              estado_de_pago:
-                "pendiente",
+            estado_de_pago:
+              "pendiente",
 
-              estado_de_reserva:
-                "pendiente",
+            estado_de_reserva:
+              "pendiente",
 
-              fecha_de_transferencia:
-                null,
+            fecha_de_transferencia:
+              null,
 
-              observaciones:
-                notes
+            observaciones:
+              notes
 
-            })
+          })
 
         }
       );
 
 
-    let data =
-      {};
-
-
-    try {
-
-      data =
-        await response.json();
-
-    } catch {
-
-      data =
-        {};
-
-    }
+    const data =
+      await response.json();
 
 
     if (
@@ -1109,19 +696,17 @@ async function createReservation() {
     }
 
 
-    /* =====================================================
+    /* =================================================
        ÉXITO
-    ===================================================== */
+    ================================================= */
 
-    showBookingMessage(
+    showMessage(
       `¡Reserva registrada correctamente! Fecha: ${date} — Horario: ${time}. Seña requerida: ${money(deposit)}.`,
       "success"
     );
 
 
-    /* =====================================================
-       LIMPIAR
-    ===================================================== */
+    /* Limpiar */
 
     if (nameInput) {
 
@@ -1147,14 +732,6 @@ async function createReservation() {
     }
 
 
-    if (timeSelect) {
-
-      timeSelect.innerHTML =
-        '<option value="" selected>Elegí un horario</option>';
-
-    }
-
-
     if (playersInput) {
 
       playersInput.value =
@@ -1171,6 +748,34 @@ async function createReservation() {
     }
 
 
+    /*
+     * Después de guardar,
+     * volver al estado inicial.
+     */
+
+    if (timeSelect) {
+
+      timeSelect.innerHTML =
+        "";
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value =
+        "";
+
+      option.textContent =
+        "Elegí un horario";
+
+      timeSelect.appendChild(
+        option
+      );
+
+    }
+
+
   } catch (error) {
 
     console.error(
@@ -1179,8 +784,7 @@ async function createReservation() {
     );
 
 
-    showBookingMessage(
-      error.message ||
+    showMessage(
       "No se pudo guardar la reserva. Intentá nuevamente.",
       "error"
     );
@@ -1194,7 +798,7 @@ async function createReservation() {
         false;
 
       submitButton.innerHTML =
-        submitButton.dataset.originalText ||
+        submitButton.dataset.original ||
         "Continuar con la reserva";
 
     }
@@ -1204,9 +808,9 @@ async function createReservation() {
 }
 
 
-/* =========================================================
+/* =====================================================
    FORMULARIO
-========================================================= */
+===================================================== */
 
 if (bookingForm) {
 
@@ -1224,13 +828,13 @@ if (bookingForm) {
 }
 
 
-/* =========================================================
+/* =====================================================
    WHATSAPP
-========================================================= */
+===================================================== */
 
 const waNumber =
   cfg.whatsapp ||
-  DEFAULTS.whatsapp;
+  "5493794250285";
 
 
 const waMessage =
@@ -1283,10 +887,107 @@ if (whatsappBooking) {
 }
 
 
-/* =========================================================
-   FIN
-========================================================= */
+/* =====================================================
+   LIGHTBOX
+===================================================== */
+
+const lightbox =
+  document.getElementById(
+    "lightbox"
+  );
+
+const lightboxImg =
+  document.getElementById(
+    "lightboxImg"
+  );
+
+const closeLightbox =
+  document.getElementById(
+    "closeLightbox"
+  );
+
+
+const galleryItems =
+  document.querySelectorAll(
+    ".gallery-item"
+  );
+
+
+galleryItems.forEach(
+  function (item) {
+
+    item.addEventListener(
+      "click",
+      function () {
+
+        const source =
+          item.dataset.src;
+
+        if (
+          !source ||
+          !lightbox ||
+          !lightboxImg
+        ) {
+
+          return;
+
+        }
+
+        lightboxImg.src =
+          source;
+
+        lightbox.hidden =
+          false;
+
+      }
+    );
+
+  }
+);
+
+
+if (closeLightbox) {
+
+  closeLightbox.addEventListener(
+    "click",
+    function () {
+
+      if (lightbox) {
+
+        lightbox.hidden =
+          true;
+
+      }
+
+    }
+  );
+
+}
+
+
+if (lightbox) {
+
+  lightbox.addEventListener(
+    "click",
+    function (event) {
+
+      if (
+        event.target ===
+        lightbox
+      ) {
+
+        lightbox.hidden =
+          true;
+
+      }
+
+    }
+  );
+
+}
+
 
 console.log(
-  "A
+  "Aguará Paintball: script.js cargado correctamente."
+);
 ```
