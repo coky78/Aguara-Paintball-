@@ -143,6 +143,21 @@ if (dateInput && timeSelect) {
 
 }
 /* WhatsApp */
+const waNumber = "5493794250285";
+
 const waMsg = encodeURIComponent(
   "Hola, quiero consultar por una reserva en Aguará Paintball."
 );
+
+const waUrl = `https://wa.me/${waNumber}?text=${waMsg}`;
+
+const whatsappHero = document.getElementById("whatsappHero");
+const whatsappBooking = document.getElementById("whatsappBooking");
+
+if (whatsappHero) {
+  whatsappHero.href = waUrl;
+}
+
+if (whatsappBooking) {
+  whatsappBooking.href = waUrl;
+}
