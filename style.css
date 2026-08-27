@@ -61,3 +61,12 @@ footer{display:flex;justify-content:space-between;padding:30px 5vw;border-top:1p
     width:min(300px,45vw);
   }
 }
+.shots-highlight {
+  display: block;
+  margin-top: 12px;
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #ff7a00;
+  text-shadow: 0 0 10px rgba(255,122,0,.35);
+}
