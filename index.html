@@ -83,6 +83,7 @@
       </video>
 
       <div class="hero-fallback"></div>
+
       <div class="hero-overlay"></div>
 
       <div class="hero-logo-splash">
@@ -174,9 +175,7 @@
         <p class="muted">
           Un espacio pensado para grupos de amigos,
           cumpleaños, despedidas, empresas y eventos.
-          La web queda preparada para que puedas
-          actualizar precios, horarios y promociones
-          desde el panel.
+          Reservá tu partida y viví la experiencia Aguará.
         </p>
 
         <div class="stats">
@@ -296,7 +295,7 @@
 
           <img
             src="assets/gallery-3.jpg"
-            alt="Jugadores"
+            alt="Jugadores de Aguará Paintball"
             onerror="this.src='assets/placeholder.svg'"
           >
 
@@ -311,7 +310,7 @@
 
           <img
             src="assets/gallery-4.jpg"
-            alt="Campo de Aguará Paintball"
+            alt="Campo de paintball"
             onerror="this.src='assets/placeholder.svg'"
           >
 
@@ -356,7 +355,9 @@
 
         <article class="price-card">
 
-          <span>PAINTBALL</span>
+          <span>
+            PAINTBALL
+          </span>
 
           <strong id="publicGamePrice">
             $0
@@ -378,7 +379,9 @@
 
         <article class="price-card accent">
 
-          <span>HIDROGEL</span>
+          <span>
+            HIDROGEL
+          </span>
 
           <strong id="publicHydrogelPrice">
             $0
@@ -400,7 +403,9 @@
 
         <article class="price-card">
 
-          <span>SEÑA</span>
+          <span>
+            SEÑA
+          </span>
 
           <strong id="publicDeposit">
             $50.000
@@ -415,7 +420,9 @@
 
         <article class="price-card">
 
-          <span>MÍNIMO</span>
+          <span>
+            MÍNIMO
+          </span>
 
           <strong id="publicMinPlayers">
             10
@@ -465,10 +472,6 @@
       <div class="booking-layout">
 
 
-        <!-- =========================
-             FORMULARIO
-        ========================== -->
-
         <form
           id="bookingForm"
           class="booking-card"
@@ -477,74 +480,56 @@
           <div class="form-grid">
 
 
-            <!-- NOMBRE -->
-
             <label>
               Nombre y apellido
 
               <input
                 id="name"
-                name="name"
                 type="text"
-                autocomplete="name"
                 required
+                autocomplete="name"
                 placeholder="Tu nombre"
               >
 
             </label>
 
 
-            <!-- WHATSAPP -->
-
             <label>
               WhatsApp
 
               <input
                 id="phone"
-                name="phone"
                 type="tel"
-                autocomplete="tel"
                 required
+                autocomplete="tel"
                 placeholder="11 1234 5678"
               >
 
             </label>
 
 
-            <!-- =========================
-                 FECHA
-            ========================== -->
-
             <label>
               Fecha
 
               <input
                 id="date"
-                name="date"
                 type="date"
                 required
+                aria-label="Elegí una fecha"
               >
 
             </label>
 
-
-            <!-- =========================
-                 HORARIO
-            ========================== -->
 
             <label>
               Horario
 
               <select
                 id="time"
-                name="time"
                 required
               >
 
-                <option
-                  value=""
-                  selected
-                >
+                <option value="">
                   Elegí un horario
                 </option>
 
@@ -553,14 +538,11 @@
             </label>
 
 
-            <!-- JUGADORES -->
-
             <label>
               Jugadores
 
               <input
                 id="players"
-                name="players"
                 type="number"
                 min="10"
                 value="10"
@@ -570,14 +552,11 @@
             </label>
 
 
-            <!-- OBSERVACIONES -->
-
             <label>
               Observaciones
 
               <textarea
                 id="notes"
-                name="notes"
                 rows="2"
                 placeholder="Cumpleaños, empresa, consulta..."
               ></textarea>
@@ -587,16 +566,12 @@
           </div>
 
 
-          <!-- MENSAJE -->
-
           <div
             id="bookingMessage"
             class="form-message"
             hidden
           ></div>
 
-
-          <!-- BOTÓN -->
 
           <button
             class="btn btn-primary full"
@@ -606,8 +581,6 @@
             <span>→</span>
           </button>
 
-
-          <!-- SEÑA -->
 
           <p class="fine">
 
@@ -624,10 +597,6 @@
 
         </form>
 
-
-        <!-- =========================
-             INFORMACIÓN RESERVA
-        ========================== -->
 
         <aside class="booking-side">
 
@@ -689,8 +658,6 @@
           </div>
 
 
-          <!-- WHATSAPP -->
-
           <a
             id="whatsappBooking"
             class="btn btn-outline full"
@@ -742,20 +709,21 @@
     <button
       id="closeLightbox"
       type="button"
+      aria-label="Cerrar imagen"
     >
       ×
     </button>
 
     <img
       id="lightboxImg"
-      alt=""
+      alt="Aguará Paintball"
     >
 
   </div>
 
 
   <!-- =========================
-       JAVASCRIPT
+       SCRIPT
   ========================== -->
 
   <script src="script.js"></script>
