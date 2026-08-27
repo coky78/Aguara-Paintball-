@@ -1,6 +1,10 @@
-import { neon } from "@neondatabase/serverless";
+```javascript
+import { createClient } from "@supabase/supabase-js";
 
-const sql = neon(process.env.DATABASE_URL);
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export default async function handler(req, res) {
   try {
@@ -12,73 +16,66 @@ export default async function handler(req, res) {
         fecha,
         horario,
         jugadores,
-        tipo_juego,
-        precio_por_jugador,
-        total
+        tipo_de_juego
       } = req.body || {};
 
-      if (
-        !nombre ||
-        !whatsapp ||
-        !fecha ||
-        !horario ||
-        !jugadores
-      ) {
+      if (!nombre || !whatsapp || !fecha || !horario || !jugadores) {
         return res.status(400).json({
           ok: false,
           message: "Faltan datos de la reserva"
         });
       }
 
-      const resultado = await sql`
-        INSERT INTO reservas (
-          nombre,
-          whatsapp,
-          fecha,
-          horario,
-          jugadores,
-          tipo_juego,
-          precio_por_jugador,
-          total,
-          sena_requerida,
-          monto_recibido,
-          estado_pago,
-          estado_reserva
-        )
-        VALUES (
-          ${nombre},
-          ${whatsapp},
-          ${fecha},
-          ${horario},
-          ${Number(jugadores)},
-          ${tipo_juego || "Paintball"},
-          ${Number(precio_por_jugador || 0)},
-          ${Number(total || 0)},
-          50000,
-          0,
-          'pendiente',
-          'pendiente'
-        )
-        RETURNING *
-      `;
+      const { data, error } = await supabase
+        .from("reservation")
+        .insert([
+          {
+            nombre,
+            whatsapp,
+            fecha,
+            horario,
+            jugadores: Number(jugadores),
+            tipo_de_juego: tipo_de_juego || "Paintball"
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        console.error("ERROR SUPABASE:", error);
+
+        return res.status(500).json({
+          ok: false,
+          message: "No se pudo guardar la reserva"
+        });
+      }
 
       return res.status(201).json({
         ok: true,
-        reserva: resultado[0]
+        reserva: data
       });
     }
 
     // CONSULTAR RESERVAS
     if (req.method === "GET") {
-      const reservas = await sql`
-        SELECT *
-        FROM reservas
-        ORDER BY fecha ASC, horario ASC
-      `;
+      const { data, error } = await supabase
+        .from("reservation")
+        .select("*")
+        .order("fecha", { ascending: true })
+        .order("horario", { ascending: true });
+
+      if (error) {
+        console.error("ERROR SUPABASE:", error);
+
+        return res.status(500).json({
+          ok: false,
+          message: "No se pudieron consultar las reservas"
+        });
+      }
 
       return res.status(200).json({
         ok: true,
-        reservas
+        reservas: data
       });
     }
 
@@ -96,3 +93,4 @@ export default async function handler(req, res) {
     });
   }
 }
+```
