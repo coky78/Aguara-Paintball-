@@ -1,23 +1,118 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aguará — Administración</title><link rel="stylesheet" href="style.css"></head>
-<body>
+<script>
+document.getElementById("login-btn").addEventListener("click", async () => {
+  const username = document.getElementById("admin-user").value.trim();
+  const password = document.getElementById("admin-pass").value;
+  const error = document.getElementById("login-error");
+
+  error.textContent = "";
+
+  try {
+    const response = await fetch("/api/admin-login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await response.json();
+
+    if (data.ok) {
+      sessionStorage.setItem("aguara_admin", "true");
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("admin-panel").style.display = "";
+    } else {
+      error.textContent = "Usuario o contraseña incorrectos";
+    }
+  } catch (err) {
+    error.textContent = "No se pudo conectar con el servidor";
+  }
+});
+
+if (sessionStorage.getItem("aguara_admin") === "true") {
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("admin-panel").style.display = "";
+}
+</script>
+  <body>
+  <div id="login-screen">
+  <div class="login-box">
+    <h2>Aguará Paintball</h2>
+    <p>Panel de administración</p>
+
+    <input id="admin-user" type="text" placeholder="Usuario" autocomplete="username">
+    <input id="admin-pass" type="password" placeholder="Contraseña" autocomplete="current-password">
+
+    <button id="login-btn" type="button">INGRESAR</button>
+
+    <p id="login-error"></p>
+  </div>
+</div>
 <header class="nav"><a class="brand" href="index.html"><span>Aguará <b>Paintball</b></span></a><a class="btn btn-outline" href="index.html">← Volver al sitio</a></header>
 <main class="section" style="padding-top:120px">
-<p class="eyebrow">PANEL DE ADMINISTRACIÓN</p><h1>Configuración y reservas</h1>
+<div id="admin-panel" style="display:none;">
+<div id="admin-panel" style="display:none;">
+
+<p class="eyebrow">PANEL DE ADMINISTRACIÓN</p>
+<h1>Configuración y reservas</h1>
+
 <div class="booking-layout">
+
 <section class="booking-card">
 <h2>Precios y reglas</h2>
+
 <form id="configForm" class="form-grid">
-<label>Precio del juego por jugador<input id="gamePrice" type="number" min="0"></label>
-<label>Seña<input id="deposit" type="number" min="0"></label>
-<label>Mínimo de jugadores<input id="minPlayers" type="number" min="1"></label>
-<label>WhatsApp del negocio<input id="whatsapp" placeholder="549379..."></label>
-<label>Horarios (separados por coma)<textarea id="slots" rows="3"></textarea></label>
-<button class="btn btn-primary full" type="submit">Guardar configuración</button>
+
+<label>
+Precio del juego por jugador
+<input id="gamePrice" type="number" min="0">
+</label>
+
+<label>
+Seña
+<input id="deposit" type="number" min="0">
+</label>
+
+<label>
+Mínimo de jugadores
+<input id="minPlayers" type="number" min="1">
+</label>
+
+<label>
+WhatsApp del negocio
+<input id="whatsapp" placeholder="549379...">
+</label>
+
+<label>
+Horarios (separados por coma)
+<textarea id="slots" rows="3"></textarea>
+</label>
+
+<button class="btn btn-primary full" type="submit">
+Guardar configuración
+</button>
+
 </form>
-<div id="saved" class="form-message" hidden>Configuración guardada.</div>
-</section>
-<section class="booking-card"><h2>Reservas</h2><div id="bookings"></div></section>
+
+<div id="saved" class="form-message" hidden>
+Configuración guardada.
 </div>
+
+</section>
+
+<section class="booking-card">
+<h2>Reservas</h2>
+<div id="bookings"></div>
+</section>
+
+</div>
+
+</div>
+
 </main>
-<script src="admin.js"></script></body></html>
+
+<script src="admin.js"></script>
+</body>
+</html>
