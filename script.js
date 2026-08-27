@@ -1,13 +1,10 @@
 const DEFAULTS = {
 gamePrice: 29000,
 shotsText: "100 TIROS INCLUIDOS",
-
 hydrogelPrice: 0,
 hydrogelShotsText: "MUNICIÓN INCLUIDA",
-
 deposit: 50000,
 minPlayers: 10,
-
 whatsapp: "5493794250285",
 
 slots: [
@@ -63,23 +60,6 @@ maximumFractionDigits: 0
 }
 
 /* =========================
-ELEMENTOS
-========================= */
-
-const bookingForm = document.getElementById("bookingForm");
-
-const dateInput = document.getElementById("date");
-const timeSelect = document.getElementById("time");
-
-const nameInput = document.getElementById("name");
-const phoneInput = document.getElementById("phone");
-const playersInput = document.getElementById("players");
-const notesInput = document.getElementById("notes");
-
-const bookingMessage =
-document.getElementById("bookingMessage");
-
-/* =========================
 AÑO
 ========================= */
 
@@ -120,7 +100,9 @@ money(cfg.hydrogelPrice);
 }
 
 const publicHydrogelShotsText =
-document.getElementById("publicHydrogelShotsText");
+document.getElementById(
+"publicHydrogelShotsText"
+);
 
 if (publicHydrogelShotsText) {
 publicHydrogelShotsText.textContent =
@@ -152,10 +134,38 @@ cfg.minPlayers;
 }
 
 /* =========================
+RESERVAS
+========================= */
+
+const bookingForm =
+document.getElementById("bookingForm");
+
+const dateInput =
+document.getElementById("date");
+
+const timeSelect =
+document.getElementById("time");
+
+const nameInput =
+document.getElementById("name");
+
+const phoneInput =
+document.getElementById("phone");
+
+const playersInput =
+document.getElementById("players");
+
+const notesInput =
+document.getElementById("notes");
+
+const bookingMessage =
+document.getElementById("bookingMessage");
+
+/* =========================
 MENSAJES
 ========================= */
 
-function showBookingMessage(message, type = "success") {
+function showBookingMessage(message, type) {
 
 if (!bookingMessage) {
 alert(message);
@@ -164,21 +174,20 @@ return;
 
 bookingMessage.hidden = false;
 bookingMessage.textContent = message;
+
 bookingMessage.className =
-`form-message ${type}`;
+"form-message " +
+(type || "success");
 }
 
 /* =========================
 FECHA MÍNIMA
 ========================= */
 
-function setMinimumDate() {
+if (dateInput) {
 
-if (!dateInput) {
-return;
-}
-
-const today = new Date();
+const today =
+new Date();
 
 const year =
 today.getFullYear();
@@ -192,116 +201,41 @@ String(today.getDate())
 .padStart(2, "0");
 
 dateInput.min =
-`${year}-${month}-${day}`;
+year + "-" +
+month + "-" +
+day;
 }
 
-setMinimumDate();
-
 /* =========================
-HORARIOS
+MOSTRAR HORARIOS
 ========================= */
 
-function resetTimeSelect(message) {
+function showTimeSlots() {
 
 if (!timeSelect) {
+console.error(
+"AGUARA: no se encontró el campo #time"
+);
 return;
 }
 
-timeSelect.innerHTML = "";
-
-const option =
-document.createElement("option");
-
-option.value = "";
-option.textContent = message;
-
-timeSelect.appendChild(option);
-}
-
-/* =========================
-OBTENER RESERVAS
-========================= */
-
-async function getReservations() {
-
-try {
-
-```
-const response =
-  await fetch(
-    "/api/reservations",
-    {
-      method: "GET",
-      cache: "no-store",
-      headers: {
-        "Accept": "application/json"
-      }
-    }
-  );
-
-if (!response.ok) {
-  console.warn(
-    "No se pudieron consultar las reservas:",
-    response.status
-  );
-
-  return [];
-}
-
-const data =
-  await response.json();
-
-if (
-  data &&
-  Array.isArray(data.reservas)
-) {
-  return data.reservas;
-}
-
-if (Array.isArray(data)) {
-  return data;
-}
-
-return [];
-```
-
-} catch (error) {
-
-```
-console.warn(
-  "Error consultando reservas:",
-  error
+if (!dateInput) {
+console.error(
+"AGUARA: no se encontró el campo #date"
 );
-
-return [];
-```
-
-}
-}
-
-/* =========================
-CARGAR HORARIOS
-========================= */
-
-async function loadAvailableSlots() {
-
-if (!timeSelect) {
 return;
 }
 
 const selectedDate =
-dateInput
-? dateInput.value
-: "";
+dateInput.value;
 
 /* Si no hay fecha */
 
 if (!selectedDate) {
 
 ```
-resetTimeSelect(
-  "Elegí una fecha"
-);
+timeSelect.innerHTML =
+  '<option value="">Elegí una fecha</option>';
 
 return;
 ```
@@ -310,128 +244,45 @@ return;
 
 /*
 IMPORTANTE:
-Primero mostramos los horarios.
-No esperamos a Neon.
+Mostramos los horarios
+inmediatamente.
 */
 
-timeSelect.innerHTML = "";
+timeSelect.innerHTML =
+'<option value="">Elegí un horario</option>';
 
-const firstOption =
-document.createElement("option");
-
-firstOption.value = "";
-firstOption.textContent =
-"Elegí un horario";
-
-timeSelect.appendChild(
-firstOption
-);
-
-let bookings = [];
-
-/*
-Consultamos Neon para saber
-cuáles están ocupados.
-*/
-
-try {
+cfg.slots.forEach(function(slot) {
 
 ```
-bookings =
-  await getReservations();
-```
-
-} catch (error) {
-
-```
-bookings = [];
-```
-
-}
-
-/*
-Crear horarios disponibles
-*/
-
-let availableCount = 0;
-
-cfg.slots.forEach(
-function(slot) {
-
-```
-  const ocupado =
-    bookings.some(
-      function(booking) {
-
-        const bookingDate =
-          String(
-            booking.fecha ?? ""
-          ).substring(0, 10);
-
-        const bookingTime =
-          String(
-            booking.horario ?? ""
-          ).substring(0, 5);
-
-        const estadoReserva =
-          String(
-            booking.estado_de_reserva ?? ""
-          ).toLowerCase().trim();
-
-        const cancelada =
-          estadoReserva === "cancelada" ||
-          estadoReserva === "cancelled";
-
-        return (
-          bookingDate === selectedDate &&
-          bookingTime === slot &&
-          !cancelada
-        );
-      }
-    );
-
-
-  if (!ocupado) {
-
-    const option =
-      document.createElement("option");
-
-    option.value = slot;
-    option.textContent = slot;
-
-    timeSelect.appendChild(
-      option
-    );
-
-    availableCount++;
-  }
-
-}
-```
-
-);
-
-/*
-Si no queda ningún horario
-*/
-
-if (availableCount === 0) {
-
-```
-timeSelect.innerHTML = "";
-
 const option =
   document.createElement("option");
 
-option.value = "";
+option.value =
+  slot;
 
 option.textContent =
-  "No hay horarios disponibles";
+  slot;
 
 timeSelect.appendChild(option);
 ```
 
+});
+
+console.log(
+"AGUARA: horarios cargados para",
+selectedDate
+);
+
 }
+
+/* =========================
+ESTADO INICIAL
+========================= */
+
+if (timeSelect) {
+
+timeSelect.innerHTML =
+'<option value="">Elegí una fecha</option>';
 
 }
 
@@ -446,23 +297,16 @@ dateInput.addEventListener(
 function() {
 
 ```
-  loadAvailableSlots();
+  console.log(
+    "AGUARA: fecha seleccionada:",
+    dateInput.value
+  );
+
+  showTimeSlots();
 
 }
 ```
 
-);
-
-}
-
-/* =========================
-INICIALIZAR HORARIO
-========================= */
-
-if (timeSelect) {
-
-resetTimeSelect(
-"Elegí una fecha"
 );
 
 }
@@ -570,7 +414,9 @@ players < Number(cfg.minPlayers)
 
 ```
 showBookingMessage(
-  `La reserva requiere un mínimo de ${cfg.minPlayers} jugadores.`,
+  "La reserva requiere un mínimo de " +
+  cfg.minPlayers +
+  " jugadores.",
   "error"
 );
 
@@ -601,14 +447,14 @@ bookingForm.querySelector(
 'button[type="submit"]'
 );
 
-let originalButtonText = "";
+const originalText =
+submitButton
+? submitButton.innerHTML
+: "";
 
 if (submitButton) {
 
 ```
-originalButtonText =
-  submitButton.innerHTML;
-
 submitButton.disabled = true;
 
 submitButton.innerHTML =
@@ -620,6 +466,10 @@ submitButton.innerHTML =
 try {
 
 ```
+/* =========================
+   GUARDAR RESERVA
+========================== */
+
 const response =
   await fetch(
     "/api/reservations",
@@ -686,14 +536,10 @@ const response =
 let data = {};
 
 try {
-
   data =
     await response.json();
-
 } catch (error) {
-
   data = {};
-
 }
 
 
@@ -714,7 +560,14 @@ if (
 ========================== */
 
 showBookingMessage(
-  `¡Reserva registrada correctamente! Fecha: ${date} — Horario: ${time}. Seña requerida: ${money(deposit)}.`,
+  "¡Reserva registrada correctamente! " +
+  "Fecha: " +
+  date +
+  " — Horario: " +
+  time +
+  ". Seña requerida: " +
+  money(deposit) +
+  ".",
   "success"
 );
 
@@ -745,11 +598,8 @@ if (notesInput) {
 }
 
 if (timeSelect) {
-
-  resetTimeSelect(
-    "Elegí una fecha"
-  );
-
+  timeSelect.innerHTML =
+    '<option value="">Elegí una fecha</option>';
 }
 ```
 
@@ -757,13 +607,13 @@ if (timeSelect) {
 
 ```
 console.error(
-  "Error creando reserva:",
+  "AGUARA: error creando reserva:",
   error
 );
 
 showBookingMessage(
   error.message ||
-  "No se pudo guardar la reserva. Intentá nuevamente.",
+  "No se pudo guardar la reserva.",
   "error"
 );
 ```
@@ -777,7 +627,7 @@ if (submitButton) {
     false;
 
   submitButton.innerHTML =
-    originalButtonText ||
+    originalText ||
     "Continuar con la reserva";
 }
 ```
@@ -822,13 +672,20 @@ encodeURIComponent(
 );
 
 const waUrl =
-`https://wa.me/${waNumber}?text=${waMessage}`;
+"https://wa.me/" +
+waNumber +
+"?text=" +
+waMessage;
 
 const whatsappHero =
-document.getElementById("whatsappHero");
+document.getElementById(
+"whatsappHero"
+);
 
 const whatsappBooking =
-document.getElementById("whatsappBooking");
+document.getElementById(
+"whatsappBooking"
+);
 
 if (whatsappHero) {
 
