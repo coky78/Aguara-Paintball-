@@ -1,126 +1,82 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Aguará — Administración</title>
 
   <link rel="stylesheet" href="style.css">
 
   <style>
-
-    /* PANTALLA DE LOGIN */
-
     #login-screen {
       position: fixed;
       inset: 0;
-
       z-index: 99999;
-
       display: flex;
       align-items: center;
       justify-content: center;
-
       background: #080808;
-
       padding: 20px;
     }
 
-
     .login-box {
       width: min(400px, 100%);
-
       padding: 35px;
-
       border: 1px solid #333;
       border-radius: 14px;
-
       background: #111;
-
       text-align: center;
-
-      box-shadow:
-        0 20px 60px rgba(0,0,0,.7);
+      box-shadow: 0 20px 60px rgba(0,0,0,.7);
     }
-
 
     .login-box h2 {
       margin-bottom: 8px;
     }
 
-
     .login-box p {
       margin-bottom: 22px;
     }
 
-
     .login-box input {
       display: block;
-
       width: 100%;
-
       box-sizing: border-box;
-
       margin: 12px 0;
-
       padding: 14px;
-
       border: 1px solid #444;
       border-radius: 8px;
-
       background: #1b1b1b;
-
       color: #fff;
-
       font-size: 16px;
     }
 
-
     .login-box button {
       width: 100%;
-
       margin-top: 10px;
-
       padding: 14px;
-
       border: 0;
       border-radius: 8px;
-
       cursor: pointer;
-
       font-weight: bold;
       font-size: 16px;
     }
 
-
     #login-error {
       min-height: 20px;
-
       margin-top: 15px;
-
       color: #ff5555;
     }
-
-
-    /* PANEL OCULTO HASTA INICIAR SESIÓN */
 
     #admin-panel {
       display: none;
     }
-
   </style>
-
 </head>
 
-
 <body>
-
 
   <!-- LOGIN -->
 
@@ -132,14 +88,12 @@
 
       <p>Panel de administración</p>
 
-
       <input
         id="admin-user"
         type="text"
         placeholder="Usuario"
         autocomplete="username"
       >
-
 
       <input
         id="admin-pass"
@@ -148,14 +102,12 @@
         autocomplete="current-password"
       >
 
-
       <button
         id="login-btn"
         type="button"
       >
         INGRESAR
       </button>
-
 
       <p id="login-error"></p>
 
@@ -172,68 +124,54 @@
       class="brand"
       href="index.html"
     >
-
       <span>
         Aguará <b>Paintball</b>
       </span>
-
     </a>
-
 
     <a
       class="btn btn-outline"
       href="index.html"
     >
-
       ← Volver al sitio
-
     </a>
 
   </header>
 
 
-  <!-- PANEL DE ADMINISTRACIÓN -->
+  <!-- PANEL -->
 
   <main
     class="section"
     style="padding-top:120px"
   >
 
-
     <div id="admin-panel">
-
 
       <p class="eyebrow">
         PANEL DE ADMINISTRACIÓN
       </p>
 
-
       <h1>
         Configuración y reservas
       </h1>
 
-
       <div class="booking-layout">
 
-
-        <!-- CONFIGURACIÓN -->
+        <!-- PRECIOS Y REGLAS -->
 
         <section class="booking-card">
-
 
           <h2>
             Precios y reglas
           </h2>
-
 
           <form
             id="configForm"
             class="form-grid"
           >
 
-
             <label>
-
               Precio del juego por jugador
 
               <input
@@ -241,12 +179,10 @@
                 type="number"
                 min="0"
               >
-
             </label>
 
 
             <label>
-
               Texto de munición — Paintball
 
               <input
@@ -254,12 +190,10 @@
                 type="text"
                 value="100 TIROS INCLUIDOS"
               >
-
             </label>
 
 
             <label>
-
               Precio por jugador — Hidrogel
 
               <input
@@ -268,12 +202,10 @@
                 min="0"
                 value="0"
               >
-
             </label>
 
 
             <label>
-
               Texto de munición — Hidrogel
 
               <input
@@ -281,12 +213,10 @@
                 type="text"
                 value="MUNICIÓN INCLUIDA"
               >
-
             </label>
 
 
             <label>
-
               Seña
 
               <input
@@ -294,12 +224,10 @@
                 type="number"
                 min="0"
               >
-
             </label>
 
 
             <label>
-
               Mínimo de jugadores
 
               <input
@@ -307,32 +235,26 @@
                 type="number"
                 min="1"
               >
-
             </label>
 
 
             <label>
-
               WhatsApp del negocio
 
               <input
                 id="whatsapp"
                 placeholder="549379..."
               >
-
             </label>
 
 
             <label>
-
-              Horarios
-              (separados por coma)
+              Horarios (separados por coma)
 
               <textarea
                 id="slots"
                 rows="3"
               ></textarea>
-
             </label>
 
 
@@ -340,11 +262,8 @@
               class="btn btn-primary full"
               type="submit"
             >
-
               Guardar configuración
-
             </button>
-
 
           </form>
 
@@ -354,11 +273,8 @@
             class="form-message"
             hidden
           >
-
             Configuración guardada.
-
           </div>
-
 
         </section>
 
@@ -367,28 +283,22 @@
 
         <section class="booking-card">
 
-
           <h2>
             Reservas
           </h2>
 
-
           <div id="bookings"></div>
-
 
         </section>
 
-
       </div>
 
-
     </div>
-
 
   </main>
 
 
-  <!-- JAVASCRIPT DEL PANEL -->
+  <!-- ADMIN.JS -->
 
   <script src="admin.js"></script>
 
@@ -440,35 +350,21 @@
 
       try {
 
-
         const response = await fetch(
-
           window.location.origin +
           "/api/admin-login",
-
           {
-
             method: "POST",
 
-
             headers: {
-
-              "Content-Type":
-                "application/json"
-
+              "Content-Type": "application/json"
             },
 
-
             body: JSON.stringify({
-
               username: username,
-
               password: password
-
             })
-
           }
-
         );
 
 
@@ -478,43 +374,25 @@
 
         if (data.ok) {
 
-
-          sessionStorage.setItem(
-
-            "aguara_admin",
-
-            "true"
-
-          );
-
-
           loginScreen.style.display =
             "none";
-
 
           adminPanel.style.display =
             "block";
 
-
         } else {
-
 
           loginError.textContent =
             "Usuario o contraseña incorrectos.";
 
-
         }
-
 
       } catch (error) {
 
-
         console.error(error);
-
 
         loginError.textContent =
           "No se pudo conectar con el servidor.";
-
 
       }
 
@@ -522,55 +400,25 @@
 
 
     loginBtn.addEventListener(
-
       "click",
-
       login
-
     );
 
 
     passInput.addEventListener(
-
       "keydown",
-
       function(event) {
 
         if (event.key === "Enter") {
-
           login();
-
         }
 
       }
-
     );
 
-
-    /* RESTAURAR SESIÓN */
-
-    if (
-
-      sessionStorage.getItem(
-        "aguara_admin"
-      ) === "true"
-
-    ) {
-
-
-      loginScreen.style.display =
-        "none";
-
-
-      adminPanel.style.display =
-        "block";
-
-
-    }
-
   </script>
-
 
 </body>
 
 </html>
+```
