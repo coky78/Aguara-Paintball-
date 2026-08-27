@@ -69,7 +69,79 @@ if (depositInline) {
 /* MÍNIMO */
 document.getElementById("publicMinPlayers").textContent =
   cfg.minPlayers;
+/* =========================
+   RESERVAS - FECHA Y HORARIOS
+========================= */
 
+const dateInput = document.getElementById("date");
+const timeSelect = document.getElementById("time");
+
+if (dateInput && timeSelect) {
+
+  // No permitir fechas anteriores a hoy
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  dateInput.min = `${year}-${month}-${day}`;
+
+  dateInput.addEventListener("change", () => {
+
+    const selectedDate = dateInput.value;
+
+    // Limpiar horarios
+    timeSelect.innerHTML = "";
+
+    if (!selectedDate) {
+      timeSelect.innerHTML =
+        '<option value="">Elegí una fecha</option>';
+      return;
+    }
+
+    // Horarios configurados desde Administración
+    const slots = cfg.slots || [];
+
+    if (!slots.length) {
+      timeSelect.innerHTML =
+        '<option value="">No hay horarios disponibles</option>';
+      return;
+    }
+
+    // Reservas existentes
+    const bookings = JSON.parse(
+      localStorage.getItem("aguaraBookings") || "[]"
+    );
+
+    slots.forEach(slot => {
+
+      const ocupado = bookings.some(
+        booking =>
+          booking.date === selectedDate &&
+          booking.time === slot &&
+          booking.status !== "cancelled"
+      );
+
+      if (!ocupado) {
+
+        const option = document.createElement("option");
+
+        option.value = slot;
+        option.textContent = slot;
+
+        timeSelect.appendChild(option);
+      }
+
+    });
+
+    if (timeSelect.options.length === 0) {
+      timeSelect.innerHTML =
+        '<option value="">No hay horarios disponibles</option>';
+    }
+
+  });
+
+}
 /* WhatsApp */
 const waMsg = encodeURIComponent(
   "Hola, quiero consultar por una reserva en Aguará Paintball."
