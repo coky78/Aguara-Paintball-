@@ -1,48 +1,76 @@
-const DEFAULTS={
-  gamePrice:29000,
-  shotsText:"100 TIROS INCLUIDOS",
-  deposit:50000,
-  minPlayers:10,
-  whatsapp:"5493790000000",
-  slots:["10:00","12:00","14:00","16:00","18:00","20:00"]
+const DEFAULTS = {
+  gamePrice: 29000,
+  shotsText: "100 TIROS INCLUIDOS",
+
+  hydrogelPrice: 0,
+  hydrogelShotsText: "MUNICIÓN INCLUIDA",
+
+  deposit: 50000,
+  minPlayers: 10,
+
+  whatsapp: "5493790000000",
+
+  slots: [
+    "10:00",
+    "12:00",
+    "14:00",
+    "16:00",
+    "18:00",
+    "20:00"
+  ]
 };
 
-const getConfig=()=>({
+const getConfig = () => ({
   ...DEFAULTS,
-  ...JSON.parse(localStorage.getItem("aguaraConfig")||"{}")
+  ...JSON.parse(
+    localStorage.getItem("aguaraConfig") || "{}"
+  )
 });
 
-const money=n=>new Intl.NumberFormat("es-AR",{
-  style:"currency",
-  currency:"ARS",
-  maximumFractionDigits:0
-}).format(Number(n)||0);
+const money = n =>
+  new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0
+  }).format(Number(n) || 0);
 
-const cfg=getConfig();
+const cfg = getConfig();
 
-document.getElementById("year").textContent=
+/* Año */
+document.getElementById("year").textContent =
   new Date().getFullYear();
 
-document.getElementById("publicGamePrice").textContent=
+/* PAINTBALL */
+document.getElementById("publicGamePrice").textContent =
   money(cfg.gamePrice);
 
-document.getElementById("publicDeposit").textContent=
+document.getElementById("publicShotsText").textContent =
+  cfg.shotsText || "100 TIROS INCLUIDOS";
+
+/* HIDROGEL */
+document.getElementById("publicHydrogelPrice").textContent =
+  money(cfg.hydrogelPrice);
+
+document.getElementById("publicHydrogelShotsText").textContent =
+  cfg.hydrogelShotsText || "MUNICIÓN INCLUIDA";
+
+/* SEÑA */
+document.getElementById("publicDeposit").textContent =
   money(cfg.deposit);
 
-document.getElementById("depositInline").textContent=
-  money(cfg.deposit);
+const depositInline =
+  document.getElementById("depositInline");
 
-document.getElementById("publicMinPlayers").textContent=
-  cfg.minPlayers;
-
-const publicShotsText=
-  document.getElementById("publicShotsText");
-
-if(publicShotsText){
-  publicShotsText.textContent=
-    cfg.shotsText || "100 TIROS INCLUIDOS";
+if (depositInline) {
+  depositInline.textContent =
+    money(cfg.deposit);
 }
 
-const waMsg=encodeURIComponent(
+/* MÍNIMO */
+document.getElementById("publicMinPlayers").textContent =
+  cfg.minPlayers;
+
+/* WhatsApp */
+const waMsg = encodeURIComponent(
   "Hola, quiero consultar por una reserva en Aguará Paintball."
 );
