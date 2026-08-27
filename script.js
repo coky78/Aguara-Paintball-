@@ -334,13 +334,243 @@ if (dateInput && timeSelect) {
           ) || "[]"
         );
 
+const DEFAULTS = {
+  gamePrice: 29000,
+  shotsText: "100 TIROS INCLUIDOS",
+
+  hydrogelPrice: 0,
+  hydrogelShotsText: "MUNICIÓN INCLUIDA",
+
+  deposit: 50000,
+  minPlayers: 10,
+
+  whatsapp: "5493794250285"
+};
+
+const getConfig = () => {
+  let savedConfig = {};
+
+  try {
+    savedConfig = JSON.parse(
+      localStorage.getItem("aguaraConfig") || "{}"
+    );
+  } catch (error) {
+    savedConfig = {};
+  }
+
+  return {
+    ...DEFAULTS,
+    ...savedConfig
+  };
+};
+
+const money = n =>
+  new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0
+  }).format(Number(n) || 0);
+
+const cfg = getConfig();
+
+
+/* =========================
+   AÑO
+========================= */
+
+const yearElement = document.getElementById("year");
+
+if (yearElement) {
+  yearElement.textContent = new Date().getFullYear();
+}
+
+
+/* =========================
+   PAINTBALL
+========================= */
+
+const publicGamePrice =
+  document.getElementById("publicGamePrice");
+
+if (publicGamePrice) {
+  publicGamePrice.textContent =
+    money(cfg.gamePrice);
+}
+
+const publicShotsText =
+  document.getElementById("publicShotsText");
+
+if (publicShotsText) {
+  publicShotsText.textContent =
+    cfg.shotsText || "100 TIROS INCLUIDOS";
+}
+
+
+/* =========================
+   HIDROGEL
+========================= */
+
+const publicHydrogelPrice =
+  document.getElementById("publicHydrogelPrice");
+
+if (publicHydrogelPrice) {
+  publicHydrogelPrice.textContent =
+    money(cfg.hydrogelPrice);
+}
+
+const publicHydrogelShotsText =
+  document.getElementById("publicHydrogelShotsText");
+
+if (publicHydrogelShotsText) {
+  publicHydrogelShotsText.textContent =
+    cfg.hydrogelShotsText || "MUNICIÓN INCLUIDA";
+}
+
+
+/* =========================
+   SEÑA
+========================= */
+
+const publicDeposit =
+  document.getElementById("publicDeposit");
+
+if (publicDeposit) {
+  publicDeposit.textContent =
+    money(cfg.deposit);
+}
+
+const depositInline =
+  document.getElementById("depositInline");
+
+if (depositInline) {
+  depositInline.textContent =
+    money(cfg.deposit);
+}
+
+
+/* =========================
+   MÍNIMO DE JUGADORES
+========================= */
+
+const publicMinPlayers =
+  document.getElementById("publicMinPlayers");
+
+if (publicMinPlayers) {
+  publicMinPlayers.textContent =
+    cfg.minPlayers;
+}
+
+
+/* =========================
+   RESERVAS
+========================= */
+
+const dateInput =
+  document.getElementById("date");
+
+const timeSelect =
+  document.getElementById("time");
+
+
+if (dateInput && timeSelect) {
+
+  /* Fecha mínima: hoy */
+
+  const today = new Date();
+
+  const year = today.getFullYear();
+
+  const month = String(
+    today.getMonth() + 1
+  ).padStart(2, "0");
+
+  const day = String(
+    today.getDate()
+  ).padStart(2, "0");
+
+  dateInput.min =
+    `${year}-${month}-${day}`;
+
+
+  /* Estado inicial */
+
+  timeSelect.innerHTML =
+    '<option value="">Elegí una fecha</option>';
+
+
+  /* =========================
+     CUANDO CAMBIA LA FECHA
+  ========================= */
+
+  dateInput.addEventListener(
+    "change",
+    () => {
+
+      const selectedDate =
+        dateInput.value;
+
+
+      /* Limpiar horarios */
+
+      timeSelect.innerHTML =
+        '<option value="">Elegí un horario</option>';
+
+
+      /* Si no eligió fecha */
+
+      if (!selectedDate) {
+
+        timeSelect.innerHTML =
+          '<option value="">Elegí una fecha</option>';
+
+        return;
+      }
+
+
+      /* =========================
+         HORARIOS DE AGUARÁ
+      ========================= */
+
+      const slots = [
+        "10:00",
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00"
+      ];
+
+
+      /* =========================
+         RESERVAS EXISTENTES
+      ========================= */
+
+      let bookings = [];
+
+      try {
+
+        bookings = JSON.parse(
+          localStorage.getItem(
+            "aguaraBookings"
+          ) || "[]"
+        );
+
       } catch (error) {
 
         bookings = [];
 
       }
 
+
       let horariosDisponibles = 0;
+
 
       /* =========================
          CREAR HORARIOS
@@ -356,6 +586,7 @@ if (dateInput && timeSelect) {
               booking.status !== "cancelled"
           );
 
+
         if (!ocupado) {
 
           const option =
@@ -363,9 +594,11 @@ if (dateInput && timeSelect) {
               "option"
             );
 
-          option.value = slot;
+          option.value =
+            slot;
 
-          option.textContent = slot;
+          option.textContent =
+            slot;
 
           timeSelect.appendChild(
             option
@@ -377,8 +610,9 @@ if (dateInput && timeSelect) {
 
       });
 
+
       /* =========================
-         SIN HORARIOS DISPONIBLES
+         SIN HORARIOS
       ========================= */
 
       if (
@@ -395,6 +629,7 @@ if (dateInput && timeSelect) {
 
 }
 
+
 /* =========================
    WHATSAPP
 ========================= */
@@ -410,6 +645,7 @@ const waMsg =
 const waUrl =
   `https://wa.me/${waNumber}?text=${waMsg}`;
 
+
 const whatsappHero =
   document.getElementById(
     "whatsappHero"
@@ -420,6 +656,7 @@ const whatsappBooking =
     "whatsappBooking"
   );
 
+
 if (whatsappHero) {
 
   whatsappHero.href =
@@ -427,10 +664,13 @@ if (whatsappHero) {
 
 }
 
+
 if (whatsappBooking) {
 
   whatsappBooking.href =
     waUrl;
+
+}
 
 }
 }
