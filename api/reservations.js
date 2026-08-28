@@ -1,6 +1,11 @@
 ```javascript
+import { createClient } from "@supabase/supabase-js";
+
 export default async function handler(req, res) {
-  // Solo permitir GET y POST
+  // =====================================================
+  // MÉTODOS PERMITIDOS
+  // =====================================================
+
   if (req.method !== "GET" && req.method !== "POST") {
     return res.status(405).json({
       ok: false,
@@ -8,11 +13,13 @@ export default async function handler(req, res) {
     });
   }
 
-  // Variables de Supabase del servidor
+  // =====================================================
+  // VARIABLES DE SUPABASE
+  // =====================================================
+
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  // Comprobar configuración
   if (!supabaseUrl || !supabaseKey) {
     console.error("Faltan variables de Supabase");
 
@@ -22,54 +29,52 @@ export default async function handler(req, res) {
     });
   }
 
+  // =====================================================
+  // CLIENTE SUPABASE
+  // =====================================================
+
+  const supabase = createClient(
+    supabaseUrl,
+    supabaseKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  );
+
   try {
-    /* =====================================================
-       GET — CONSULTAR RESERVAS
-    ===================================================== */
+    // ===================================================
+    // GET — LISTAR RESERVAS
+    // ===================================================
 
     if (req.method === "GET") {
-      const response = await fetch(
-        `${supabaseUrl}/rest/v1/reservations?select=*&order=fecha.asc,horario.asc`,
-        {
-          method: "GET",
-          headers: {
-            apikey: supabaseKey,
-            Authorization: `Bearer ${supabaseKey}`,
-            "Content-Type": "application/json"
-          }
-        }
-      );
+      const { data, error } = await supabase
+        .from("reservations")
+        .select("*")
+        .order("fecha", { ascending: true })
+        .order("horario", { ascending: true });
 
-      const text = await response.text();
+      if (error) {
+        console.error("ERROR GET SUPABASE:", error);
 
-      let data;
-
-      try {
-        data = JSON.parse(text);
-      } catch {
-        data = text;
-      }
-
-      if (!response.ok) {
-        console.error("Error GET Supabase:", data);
-
-        return res.status(response.status).json({
+        return res.status(500).json({
           ok: false,
           message: "No se pudieron consultar las reservas",
-          error: data
+          error: error.message
         });
       }
 
       return res.status(200).json({
         ok: true,
-        reservas: data
+        reservas: data || []
       });
     }
 
-
-    /* =====================================================
-       POST — CREAR RESERVA
-    ===================================================== */
+    // ===================================================
+    // POST — CREAR RESERVA
+    // ===================================================
 
     const body = req.body || {};
 
@@ -78,15 +83,66 @@ export default async function handler(req, res) {
       JSON.stringify(body)
     );
 
-    const nombre = body.nombre;
-    const whatsapp = body.whatsapp;
-    const fecha = body.fecha;
-    const horario = body.horario;
-    const jugadores = Number(body.jugadores);
+    // ===================================================
+    // DATOS DEL FORMULARIO
+    // ===================================================
 
-    /* =====================================================
-       VALIDACIONES
-    ===================================================== */
+    const nombre =
+      String(body.nombre || "").trim();
+
+    const whatsapp =
+      String(body.whatsapp || "").trim();
+
+    const fecha =
+      String(body.fecha || "").trim();
+
+    const horario =
+      String(body.horario || "").trim();
+
+    const jugadores =
+      Number(body.jugadores);
+
+    const tipoDeJuego =
+      String(
+        body.tipo_de_juego || "Paintball"
+      );
+
+    const precioPorJugador =
+      body.precio_por_jugador != null
+        ? Number(body.precio_por_jugador)
+        : null;
+
+    const total =
+      body.total != null
+        ? Number(body.total)
+        : null;
+
+    const senaRequerida =
+      body.sena_requerida != null
+        ? Number(body.sena_requerida)
+        : null;
+
+    const montoRecibido =
+      body.monto_recibido != null
+        ? Number(body.monto_recibido)
+        : 0;
+
+    const estadoDePago =
+      String(
+        body.estado_de_pago || "pendiente"
+      );
+
+    const estadoDeReserva =
+      String(
+        body.estado_de_reserva || "pendiente"
+      );
+
+    const fechaDeTransferencia =
+      body.fecha_de_transferencia || null;
+
+    // ===================================================
+    // VALIDACIONES
+    // ===================================================
 
     if (!nombre) {
       return res.status(400).json({
@@ -116,160 +172,156 @@ export default async function handler(req, res) {
       });
     }
 
-    if (!Number.isFinite(jugadores) || jugadores <= 0) {
+    if (
+      !Number.isFinite(jugadores) ||
+      jugadores <= 0
+    ) {
       return res.status(400).json({
         ok: false,
         message: "La cantidad de jugadores no es válida"
       });
     }
 
-
-    /* =====================================================
-       PREPARAR DATOS
-       
-       IMPORTANTE:
-       Estos nombres coinciden con las columnas
-       de public.reservations.
-    ===================================================== */
-
-    const reserva = {
-      nombre: String(nombre),
-      whatsapp: String(whatsapp),
-      fecha: fecha,
-      horario: horario,
-      jugadores: jugadores,
-
-      tipo_de_juego:
-        body.tipo_de_juego || "Paintball",
-
-      precio_por_jugador:
-        body.precio_por_jugador != null
-          ? Number(body.precio_por_jugador)
-          : null,
-
-      total:
-        body.total != null
-          ? Number(body.total)
-          : null,
-
-      sena_requerida:
-        body.sena_requerida != null
-          ? Number(body.sena_requerida)
-          : null,
-
-      monto_recibido:
-        body.monto_recibido != null
-          ? Number(body.monto_recibido)
-          : 0,
-
-      estado_de_pago:
-        body.estado_de_pago || "pendiente",
-
-      estado_de_reserva:
-        body.estado_de_reserva || "pendiente",
-
-      fecha_de_transferencia:
-        body.fecha_de_transferencia || null
-    };
-
-
-    console.log(
-      "GUARDANDO RESERVA:",
-      JSON.stringify(reserva)
-    );
-
-
-    /* =====================================================
-       INSERTAR EN SUPABASE
-    ===================================================== */
-
-    const response = await fetch(
-      `${supabaseUrl}/rest/v1/reservations`,
-      {
-        method: "POST",
-
-        headers: {
-          apikey: supabaseKey,
-          Authorization: `Bearer ${supabaseKey}`,
-          "Content-Type": "application/json",
-          Prefer: "return=representation"
-        },
-
-        body: JSON.stringify(reserva)
-      }
-    );
-
-
-    /* =====================================================
-       RESPUESTA DE SUPABASE
-    ===================================================== */
-
-    const text = await response.text();
-
-    console.log(
-      "SUPABASE STATUS:",
-      response.status
-    );
-
-    console.log(
-      "SUPABASE RESPONSE:",
-      text
-    );
-
-    let data;
-
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = text;
-    }
-
-
-    /* =====================================================
-       ERROR
-    ===================================================== */
-
-    if (!response.ok) {
-      console.error(
-        "ERROR SUPABASE:",
-        data
-      );
-
-      return res.status(response.status).json({
+    if (
+      precioPorJugador !== null &&
+      !Number.isFinite(precioPorJugador)
+    ) {
+      return res.status(400).json({
         ok: false,
-        message:
-          data?.message ||
-          data?.error ||
-          "Supabase rechazó la reserva",
-        error: data
+        message: "El precio por jugador no es válido"
       });
     }
 
+    if (
+      total !== null &&
+      !Number.isFinite(total)
+    ) {
+      return res.status(400).json({
+        ok: false,
+        message: "El total no es válido"
+      });
+    }
 
-    /* =====================================================
-       RESERVA GUARDADA
-    ===================================================== */
+    if (
+      senaRequerida !== null &&
+      !Number.isFinite(senaRequerida)
+    ) {
+      return res.status(400).json({
+        ok: false,
+        message: "La seña requerida no es válida"
+      });
+    }
+
+    // ===================================================
+    // RESERVA
+    //
+    // IMPORTANTE:
+    // NO enviamos "observaciones" porque esa columna
+    // no existe en public.reservations.
+    // ===================================================
+
+    const reserva = {
+      nombre,
+      whatsapp,
+      fecha,
+      horario,
+      jugadores,
+
+      tipo_de_juego:
+        tipoDeJuego,
+
+      precio_por_jugador:
+        precioPorJugador,
+
+      total,
+
+      sena_requerida:
+        senaRequerida,
+
+      monto_recibido:
+        montoRecibido,
+
+      estado_de_pago:
+        estadoDePago,
+
+      estado_de_reserva:
+        estadoDeReserva,
+
+      fecha_de_transferencia:
+        fechaDeTransferencia
+    };
+
+    console.log(
+      "INSERTANDO RESERVA:",
+      JSON.stringify(reserva)
+    );
+
+    // ===================================================
+    // INSERTAR EN SUPABASE
+    // ===================================================
+
+    const { data, error } = await supabase
+      .from("reservations")
+      .insert(reserva)
+      .select()
+      .single();
+
+    // ===================================================
+    // ERROR SUPABASE
+    // ===================================================
+
+    if (error) {
+      console.error(
+        "ERROR INSERT SUPABASE:",
+        error
+      );
+
+      return res.status(500).json({
+        ok: false,
+        message:
+          error.message ||
+          "Supabase rechazó la reserva",
+        error: {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        }
+      });
+    }
+
+    // ===================================================
+    // ÉXITO
+    // ===================================================
+
+    console.log(
+      "RESERVA GUARDADA:",
+      JSON.stringify(data)
+    );
 
     return res.status(201).json({
       ok: true,
       message: "Reserva guardada correctamente",
-      reserva:
-        Array.isArray(data)
-          ? data[0]
-          : data
+      reserva: data
     });
 
   } catch (error) {
+    // ===================================================
+    // ERROR GENERAL
+    // ===================================================
 
     console.error(
-      "ERROR GENERAL:",
+      "ERROR GENERAL RESERVATIONS:",
       error
     );
 
     return res.status(500).json({
       ok: false,
-      message: "Error interno al procesar la reserva",
-      error: error.message
+      message:
+        error?.message ||
+        "Error interno al procesar la reserva",
+      error:
+        error?.message || String(error)
     });
   }
 }
