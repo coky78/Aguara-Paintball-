@@ -1,20 +1,20 @@
 ```javascript
 export default async function handler(req, res) {
-  // Solo permitir POST y GET
-  if (req.method !== "POST" && req.method !== "GET") {
+  // Solo permitir GET y POST
+  if (req.method !== "GET" && req.method !== "POST") {
     return res.status(405).json({
       ok: false,
       message: "Método no permitido"
     });
   }
 
-  // Variables de entorno del servidor
+  // Variables de Supabase del servidor
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  // Verificar variables de entorno
+  // Comprobar configuración
   if (!supabaseUrl || !supabaseKey) {
-    console.error("ERROR: Faltan variables de Supabase");
+    console.error("Faltan variables de Supabase");
 
     return res.status(500).json({
       ok: false,
@@ -32,36 +32,27 @@ export default async function handler(req, res) {
         `${supabaseUrl}/rest/v1/reservations?select=*&order=fecha.asc,horario.asc`,
         {
           method: "GET",
-
           headers: {
-            "apikey": supabaseKey,
-            "Authorization": `Bearer ${supabaseKey}`,
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
             "Content-Type": "application/json"
           }
         }
       );
 
-      const responseText = await response.text();
-
-      console.log(
-        "SUPABASE GET STATUS:",
-        response.status
-      );
-
-      console.log(
-        "SUPABASE GET RESPONSE:",
-        responseText
-      );
+      const text = await response.text();
 
       let data;
 
       try {
-        data = JSON.parse(responseText);
+        data = JSON.parse(text);
       } catch {
-        data = responseText;
+        data = text;
       }
 
       if (!response.ok) {
+        console.error("Error GET Supabase:", data);
+
         return res.status(response.status).json({
           ok: false,
           message: "No se pudieron consultar las reservas",
@@ -87,23 +78,11 @@ export default async function handler(req, res) {
       JSON.stringify(body)
     );
 
-
-    const {
-      nombre,
-      whatsapp,
-      fecha,
-      horario,
-      jugadores,
-      tipo_de_juego,
-      precio_por_jugador,
-      total,
-      sena_requerida,
-      monto_recibido,
-      estado_de_pago,
-      estado_de_reserva,
-      fecha_de_transferencia
-    } = body;
-
+    const nombre = body.nombre;
+    const whatsapp = body.whatsapp;
+    const fecha = body.fecha;
+    const horario = body.horario;
+    const jugadores = Number(body.jugadores);
 
     /* =====================================================
        VALIDACIONES
@@ -137,7 +116,7 @@ export default async function handler(req, res) {
       });
     }
 
-    if (!jugadores || Number(jugadores) <= 0) {
+    if (!Number.isFinite(jugadores) || jugadores <= 0) {
       return res.status(400).json({
         ok: false,
         message: "La cantidad de jugadores no es válida"
@@ -146,71 +125,62 @@ export default async function handler(req, res) {
 
 
     /* =====================================================
-       DATOS QUE SE GUARDARÁN EN SUPABASE
-
+       PREPARAR DATOS
+       
        IMPORTANTE:
-       La tabla se llama "reservations"
-       y estos son exactamente los campos
-       que existen en tu tabla.
+       Estos nombres coinciden con las columnas
+       de public.reservations.
     ===================================================== */
 
     const reserva = {
       nombre: String(nombre),
-
       whatsapp: String(whatsapp),
-
       fecha: fecha,
-
       horario: horario,
-
-      jugadores: Number(jugadores),
+      jugadores: jugadores,
 
       tipo_de_juego:
-        tipo_de_juego || "Paintball",
+        body.tipo_de_juego || "Paintball",
 
       precio_por_jugador:
-        precio_por_jugador !== undefined &&
-        precio_por_jugador !== null
-          ? Number(precio_por_jugador)
+        body.precio_por_jugador != null
+          ? Number(body.precio_por_jugador)
           : null,
 
       total:
-        total !== undefined &&
-        total !== null
-          ? Number(total)
+        body.total != null
+          ? Number(body.total)
           : null,
 
       sena_requerida:
-        sena_requerida !== undefined &&
-        sena_requerida !== null
-          ? Number(sena_requerida)
+        body.sena_requerida != null
+          ? Number(body.sena_requerida)
           : null,
 
       monto_recibido:
-        monto_recibido !== undefined &&
-        monto_recibido !== null
-          ? Number(monto_recibido)
+        body.monto_recibido != null
+          ? Number(body.monto_recibido)
           : 0,
 
       estado_de_pago:
-        estado_de_pago || "pendiente",
+        body.estado_de_pago || "pendiente",
 
       estado_de_reserva:
-        estado_de_reserva || "pendiente",
+        body.estado_de_reserva || "pendiente",
 
       fecha_de_transferencia:
-        fecha_de_transferencia || null
+        body.fecha_de_transferencia || null
     };
 
 
     console.log(
-      "GUARDANDO EN SUPABASE:",
+      "GUARDANDO RESERVA:",
       JSON.stringify(reserva)
     );
 
 
     /* =====================================================
-       ENVIAR A SUPABASE
+       INSERTAR EN SUPABASE
     ===================================================== */
 
     const response = await fetch(
@@ -219,10 +189,10 @@ export default async function handler(req, res) {
         method: "POST",
 
         headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
           "Content-Type": "application/json",
-          "apikey": supabaseKey,
-          "Authorization": `Bearer ${supabaseKey}`,
-          "Prefer": "return=representation"
+          Prefer: "return=representation"
         },
 
         body: JSON.stringify(reserva)
@@ -231,88 +201,75 @@ export default async function handler(req, res) {
 
 
     /* =====================================================
-       LEER RESPUESTA
+       RESPUESTA DE SUPABASE
     ===================================================== */
 
-    const responseText =
-      await response.text();
-
+    const text = await response.text();
 
     console.log(
-      "SUPABASE POST STATUS:",
+      "SUPABASE STATUS:",
       response.status
     );
 
     console.log(
-      "SUPABASE POST RESPONSE:",
-      responseText
+      "SUPABASE RESPONSE:",
+      text
     );
-
 
     let data;
 
     try {
-      data = JSON.parse(responseText);
+      data = JSON.parse(text);
     } catch {
-      data = responseText;
+      data = text;
     }
 
 
     /* =====================================================
-       ERROR DE SUPABASE
+       ERROR
     ===================================================== */
 
     if (!response.ok) {
       console.error(
-        "ERROR SUPABASE COMPLETO:",
+        "ERROR SUPABASE:",
         data
       );
 
       return res.status(response.status).json({
         ok: false,
-
         message:
           data?.message ||
           data?.error ||
           "Supabase rechazó la reserva",
-
         error: data
       });
     }
 
 
     /* =====================================================
-       ÉXITO
+       RESERVA GUARDADA
     ===================================================== */
 
     return res.status(201).json({
       ok: true,
-
-      message:
-        "Reserva guardada correctamente",
-
+      message: "Reserva guardada correctamente",
       reserva:
         Array.isArray(data)
           ? data[0]
           : data
     });
 
-
   } catch (error) {
 
     console.error(
-      "ERROR GENERAL RESERVATIONS:",
+      "ERROR GENERAL:",
       error
     );
 
     return res.status(500).json({
       ok: false,
-
-      message:
-        "Error interno al procesar la reserva",
-
-      error:
-        error.message
+      message: "Error interno al procesar la reserva",
+      error: error.message
     });
   }
 }
