@@ -1,173 +1,114 @@
 const DEFAULTS = {
   gamePrice: 29000,
   shotsText: "100 TIROS INCLUIDOS",
-
   hydrogelPrice: 0,
   hydrogelShotsText: "MUNICIÓN INCLUIDA",
-
   deposit: 50000,
   minPlayers: 10,
-
   whatsapp: "5493794250285",
-
   slots: [
-    "10:00",
-    "11:00",
-    "12:00",
-    "13:00",
-    "14:00",
-    "15:00",
-    "16:00",
-    "17:00",
-    "18:00",
-    "19:00",
-    "20:00",
-    "21:00",
-    "22:00"
+    "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00",
+    "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"
   ]
 };
 
-const cfg = {
-  ...DEFAULTS,
-  ...JSON.parse(localStorage.getItem("aguaraConfig") || "{}")
-};
+const $ = (id) => document.getElementById(id);
 
-const $ = id => document.getElementById(id);
+function loadConfig() {
+  try {
+    return {
+      ...DEFAULTS,
+      ...JSON.parse(localStorage.getItem("aguaraConfig") || "{}")
+    };
+  } catch {
+    return { ...DEFAULTS };
+  }
+}
 
-/* Cargar configuración */
+const cfg = loadConfig();
+
 $("gamePrice").value = cfg.gamePrice;
 $("shotsText").value = cfg.shotsText;
-
 $("hydrogelPrice").value = cfg.hydrogelPrice;
 $("hydrogelShotsText").value = cfg.hydrogelShotsText;
-
 $("deposit").value = cfg.deposit;
 $("minPlayers").value = cfg.minPlayers;
 $("whatsapp").value = cfg.whatsapp;
 $("slots").value = cfg.slots.join(", ");
 
+$("configForm").addEventListener("submit", (event) => {
+  event.preventDefault();
 
-/* Guardar configuración */
-$("configForm").addEventListener("submit", e => {
-  e.preventDefault();
-
-  const c = {
+  const next = {
     gamePrice: Number($("gamePrice").value),
-
     shotsText: $("shotsText").value.trim(),
-
     hydrogelPrice: Number($("hydrogelPrice").value),
-
-    hydrogelShotsText:
-      $("hydrogelShotsText").value.trim(),
-
+    hydrogelShotsText: $("hydrogelShotsText").value.trim(),
     deposit: Number($("deposit").value),
-
     minPlayers: Number($("minPlayers").value),
-
-    whatsapp:
-      $("whatsapp").value.replace(/\D/g, ""),
-
-    slots: $("slots").value
-      .split(",")
-      .map(x => x.trim())
-      .filter(Boolean)
+    whatsapp: $("whatsapp").value.replace(/\D/g, ""),
+    slots: $("slots").value.split(",").map((x) => x.trim()).filter(Boolean)
   };
 
-  localStorage.setItem(
-    "aguaraConfig",
-    JSON.stringify(c)
-  );
-
+  localStorage.setItem("aguaraConfig", JSON.stringify(next));
   $("saved").hidden = false;
-
-  setTimeout(() => location.reload(), 700);
 });
 
-
-/* Formato de dinero */
 function money(n) {
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency: "ARS",
     maximumFractionDigits: 0
-  }).format(n);
+  }).format(Number(n) || 0);
 }
 
-
-/* Reservas */
-function render() {
-
-  const bs = JSON.parse(
-    localStorage.getItem("aguaraBookings") || "[]"
-  );
-
-  $("bookings").innerHTML = bs.length
-    ? bs
-        .sort(
-          (a, b) =>
-            a.date.localeCompare(b.date) ||
-            a.time.localeCompare(b.time)
-        )
-        .map(
-          b => `
-            <div style="border-top:1px solid #333;padding:15px 0">
-
-              <strong>
-                ${b.date} · ${b.time}
-              </strong>
-
-              <br>
-
-              ${b.name} · ${b.players} jugadores
-
-              <br>
-
-              <small>
-                ${b.phone} · ${b.id} · seña ${money(b.deposit)}
-              </small>
-
-              <br>
-
-              <button
-                class="btn btn-outline"
-                onclick="setStatus('${b.id}','confirmed')">
-                Confirmar
-              </button>
-
-              <button
-                class="btn btn-outline"
-                onclick="setStatus('${b.id}','cancelled')">
-                Cancelar
-              </button>
-
-            </div>
-          `
-        )
-        .join("")
-    : "<p class='muted'>No hay reservas todavía.</p>";
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
+async function render() {
+  const container = $("bookings");
+  container.innerHTML = "<p class='muted'>Cargando reservas...</p>";
 
-/* Cambiar estado de reserva */
-window.setStatus = (id, status) => {
+  try {
+    const response = await fetch("/api/reservations", {
+      headers: { Accept: "application/json" }
+    });
+    const data = await response.json();
 
-  const bs = JSON.parse(
-    localStorage.getItem("aguaraBookings") || "[]"
-  );
+    if (!response.ok || !data.ok) {
+      throw new Error(data.message || "No se pudieron cargar las reservas.");
+    }
 
-  const b = bs.find(x => x.id === id);
+    const bookings = Array.isArray(data.reservas) ? data.reservas : [];
 
-  if (b) {
-    b.status = status;
+    if (!bookings.length) {
+      container.innerHTML = "<p class='muted'>No hay reservas todavía.</p>";
+      return;
+    }
+
+    container.innerHTML = bookings
+      .map((b) => `
+        <div style="border-top:1px solid #333;padding:15px 0">
+          <strong>${escapeHtml(b.booking_date)} · ${escapeHtml(b.booking_time)}</strong>
+          <br>
+          ${escapeHtml(b.name)} · ${escapeHtml(b.players)} jugadores
+          <br>
+          <small>${escapeHtml(b.phone)} · ${escapeHtml(b.public_id)} · seña ${money(b.deposit_amount)}</small>
+          <br>
+          <small>Estado: ${escapeHtml(b.status)}</small>
+        </div>
+      `)
+      .join("");
+  } catch (error) {
+    console.error("Error cargando reservas:", error);
+    container.innerHTML = `<p class="muted">${escapeHtml(error.message || "Error cargando reservas.")}</p>`;
   }
-
-  localStorage.setItem(
-    "aguaraBookings",
-    JSON.stringify(bs)
-  );
-
-  render();
-};
+}
 
 render();
