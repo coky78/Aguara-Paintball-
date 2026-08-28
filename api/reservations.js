@@ -1,3 +1,4 @@
+```javascript
 export default async function handler(req, res) {
   // Solo permitir POST y GET
   if (req.method !== "POST" && req.method !== "GET") {
@@ -7,6 +8,7 @@ export default async function handler(req, res) {
     });
   }
 
+  // Variables de entorno del servidor
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -27,7 +29,7 @@ export default async function handler(req, res) {
 
     if (req.method === "GET") {
       const response = await fetch(
-        `${supabaseUrl}/rest/v1/reservation?select=*&order=fecha.asc,horario.asc`,
+        `${supabaseUrl}/rest/v1/reservations?select=*&order=fecha.asc,horario.asc`,
         {
           method: "GET",
 
@@ -99,8 +101,7 @@ export default async function handler(req, res) {
       monto_recibido,
       estado_de_pago,
       estado_de_reserva,
-      fecha_de_transferencia,
-      observaciones
+      fecha_de_transferencia
     } = body;
 
 
@@ -146,13 +147,22 @@ export default async function handler(req, res) {
 
     /* =====================================================
        DATOS QUE SE GUARDARÁN EN SUPABASE
+
+       IMPORTANTE:
+       La tabla se llama "reservations"
+       y estos son exactamente los campos
+       que existen en tu tabla.
     ===================================================== */
 
     const reserva = {
       nombre: String(nombre),
+
       whatsapp: String(whatsapp),
+
       fecha: fecha,
+
       horario: horario,
+
       jugadores: Number(jugadores),
 
       tipo_de_juego:
@@ -189,10 +199,7 @@ export default async function handler(req, res) {
         estado_de_reserva || "pendiente",
 
       fecha_de_transferencia:
-        fecha_de_transferencia || null,
-
-      observaciones:
-        observaciones || null
+        fecha_de_transferencia || null
     };
 
 
@@ -207,7 +214,7 @@ export default async function handler(req, res) {
     ===================================================== */
 
     const response = await fetch(
-      `${supabaseUrl}/rest/v1/reservation`,
+      `${supabaseUrl}/rest/v1/reservations`,
       {
         method: "POST",
 
@@ -224,7 +231,7 @@ export default async function handler(req, res) {
 
 
     /* =====================================================
-       LEER RESPUESTA SIN ROMPER EL ERROR
+       LEER RESPUESTA
     ===================================================== */
 
     const responseText =
@@ -309,3 +316,4 @@ export default async function handler(req, res) {
     });
   }
 }
+```
