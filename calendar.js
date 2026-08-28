@@ -29,36 +29,36 @@
     const style = document.createElement("style");
     style.id = "aguaraCalendarStyles";
     style.textContent = `
-      .aguara-calendar-shell{grid-column:1/-1;margin:0 0 18px;padding:12px;border:1px solid rgba(255,255,255,.10);border-radius:12px;background:linear-gradient(145deg,rgba(20,15,12,.97),rgba(10,10,10,.97));box-shadow:0 12px 28px rgba(0,0,0,.25)}
-      .aguara-calendar-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-      .aguara-calendar-title{margin:0;text-transform:capitalize;font-weight:800;font-size:.95rem;letter-spacing:.02em}
-      .aguara-calendar-nav{display:flex;gap:5px}
-      .aguara-calendar-nav button{width:32px;height:32px;border:1px solid rgba(255,255,255,.14);border-radius:9px;background:#231812;color:#fff;cursor:pointer;font-size:.95rem;font-weight:800}
+      .aguara-calendar-shell{grid-column:1/-1;margin:0 0 18px;padding:18px;border:1px solid rgba(255,255,255,.10);border-radius:18px;background:linear-gradient(145deg,rgba(20,15,12,.97),rgba(10,10,10,.97));box-shadow:0 18px 45px rgba(0,0,0,.25)}
+      .aguara-calendar-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+      .aguara-calendar-title{margin:0;text-transform:capitalize;font-weight:800;font-size:1.15rem;letter-spacing:.02em}
+      .aguara-calendar-nav{display:flex;gap:8px}
+      .aguara-calendar-nav button{width:40px;height:40px;border:1px solid rgba(255,255,255,.14);border-radius:12px;background:#231812;color:#fff;cursor:pointer;font-size:1.15rem;font-weight:800}
       .aguara-calendar-nav button:hover{background:#3b2418}
-      .aguara-calendar-weekdays,.aguara-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
-      .aguara-calendar-weekdays{margin-bottom:4px}
-      .aguara-calendar-weekday{padding:3px 0;text-align:center;font-size:.60rem;color:rgba(255,255,255,.55);font-weight:800;text-transform:uppercase}
-      .aguara-day{position:relative;min-height:42px;border:1px solid rgba(255,255,255,.10);border-radius:8px;background:#171717;color:#fff;cursor:pointer;padding:4px 3px;display:flex;align-items:center;justify-content:center;transition:transform .15s ease,border-color .15s ease,background .15s ease}
+      .aguara-calendar-weekdays,.aguara-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}
+      .aguara-calendar-weekdays{margin-bottom:7px}
+      .aguara-calendar-weekday{padding:6px 0;text-align:center;font-size:.72rem;color:rgba(255,255,255,.55);font-weight:800;text-transform:uppercase}
+      .aguara-day{position:relative;aspect-ratio:1 / 1;min-height:0;border:1px solid rgba(255,255,255,.10);border-radius:12px;background:#171717;color:#fff;cursor:pointer;padding:8px 6px;display:flex;align-items:center;justify-content:center;transition:transform .15s ease,border-color .15s ease,background .15s ease}
       .aguara-day:hover:not(:disabled){transform:translateY(-1px);border-color:rgba(255,255,255,.28)}
       .aguara-day:disabled{cursor:default}
       .aguara-day.is-outside{opacity:.28}
       .aguara-day.is-today{box-shadow:inset 0 0 0 1px rgba(255,255,255,.48)}
-      .aguara-day.is-selected{border-color:#f08a35;box-shadow:0 0 0 2px rgba(240,138,53,.18)}
+      .aguara-day.is-selected{border-color:#f08a35;background:#3a2418;color:#fff;box-shadow:0 0 0 2px rgba(240,138,53,.18)}
       .aguara-day.is-reserved{background:rgba(84,47,26,.72);border-color:rgba(126,67,34,.90)}
-      .aguara-day-number{position:relative;z-index:2;font-size:.78rem;font-weight:900;margin-top:5px}
-      .aguara-day-x{position:absolute;top:3px;left:50%;transform:translateX(-50%);z-index:1;color:#ff3131;font-size:.90rem;line-height:1;text-shadow:0 1px 5px rgba(0,0,0,.9)}
-      .aguara-day-label{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:.34rem;font-weight:900;color:#ff8989;white-space:nowrap;letter-spacing:.04em}
-      .aguara-calendar-status{margin-top:9px;padding:7px 9px;border-radius:8px;background:rgba(0,0,0,.23);font-size:.72rem;color:rgba(255,255,255,.78)}
-      .aguara-time-panel{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)}
-      .aguara-time-title{margin:0 0 7px;font-size:.76rem;font-weight:800}
-      .aguara-time-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
-      .aguara-time-card{position:relative;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:#1a1a1a;color:#fff;padding:7px 8px;text-align:left;cursor:pointer;font-weight:800}
+      .aguara-day-number{position:relative;z-index:2;font-size:1rem;font-weight:900;margin-top:10px}
+      .aguara-day-x{position:absolute;top:3px;left:50%;transform:translateX(-50%);z-index:1;color:#ff3131;font-size:1.15rem;line-height:1;text-shadow:0 1px 5px rgba(0,0,0,.9)}
+      .aguara-day-label{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:.43rem;font-weight:900;color:#ff8989;white-space:nowrap;letter-spacing:.04em}
+      .aguara-calendar-status{margin-top:13px;padding:11px 13px;border-radius:11px;background:rgba(0,0,0,.23);font-size:.86rem;color:rgba(255,255,255,.78)}
+      .aguara-time-panel{margin-top:15px;padding-top:15px;border-top:1px solid rgba(255,255,255,.08)}
+      .aguara-time-title{margin:0 0 10px;font-size:.92rem;font-weight:800}
+      .aguara-time-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+      .aguara-time-card{position:relative;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:#1a1a1a;color:#fff;padding:11px 12px;text-align:left;cursor:pointer;font-weight:800}
       .aguara-time-card small{display:block;margin-top:2px;font-size:.66rem;font-weight:700;color:rgba(255,255,255,.55)}
       .aguara-time-card.is-selected{border-color:#f08a35;background:#3a2418}
-      .aguara-time-card.is-reserved{background:rgba(84,47,26,.72);border-color:rgba(126,67,34,.90);color:rgba(255,255,255,.68);cursor:not-allowed;padding-top:12px}
-      .aguara-time-card.is-reserved::before{content:"✕";position:absolute;top:4px;right:8px;color:#ff3131;font-size:.85rem;font-weight:900}
+      .aguara-time-card.is-reserved{background:rgba(84,47,26,.72);border-color:rgba(126,67,34,.90);color:rgba(255,255,255,.68);cursor:not-allowed;padding-top:18px}
+      .aguara-time-card.is-reserved::before{content:"✕";position:absolute;top:4px;right:8px;color:#ff3131;font-size:1.05rem;font-weight:900}
       .aguara-time-card.is-reserved small{color:#ff8989}
-      @media(max-width:640px){.aguara-calendar-shell{padding:9px;border-radius:10px}.aguara-day{min-height:38px;padding:3px 2px}.aguara-day-number{font-size:.72rem}.aguara-day-label{font-size:.30rem}.aguara-time-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}}
+      @media(max-width:640px){.aguara-calendar-shell{padding:13px;border-radius:15px}.aguara-day{min-height:0;padding:4px}.aguara-day-number{font-size:.92rem}.aguara-day-label{font-size:.38rem}.aguara-time-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     `;
     document.head.appendChild(style);
   }
