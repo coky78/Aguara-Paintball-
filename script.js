@@ -4,13 +4,22 @@
    SCRIPT PRINCIPAL
 ===================================================== */
 
+"use strict";
+
+/* =====================================================
+   CONFIGURACIÓN
+===================================================== */
+
 const DEFAULTS = {
   gamePrice: 29000,
   shotsText: "100 TIROS INCLUIDOS",
+
   hydrogelPrice: 0,
   hydrogelShotsText: "MUNICIÓN INCLUIDA",
+
   deposit: 50000,
   minPlayers: 10,
+
   whatsapp: "5493794250285",
 
   slots: [
@@ -32,22 +41,36 @@ const DEFAULTS = {
 
 
 /* =====================================================
-   CONFIGURACIÓN
+   CONFIGURACIÓN GUARDADA
 ===================================================== */
 
 function getConfig() {
+
   try {
+
     const saved = JSON.parse(
       localStorage.getItem("aguaraConfig") || "{}"
     );
 
     return {
       ...DEFAULTS,
-      ...saved
+      ...saved,
+
+      // Si la configuración guardada no tiene horarios,
+      // usamos siempre los horarios predeterminados.
+      slots:
+        Array.isArray(saved.slots) &&
+        saved.slots.length > 0
+          ? saved.slots
+          : DEFAULTS.slots
     };
 
   } catch (error) {
-    console.warn("No se pudo leer la configuración.");
+
+    console.warn(
+      "No se pudo leer aguaraConfig:",
+      error
+    );
 
     return {
       ...DEFAULTS
@@ -63,11 +86,16 @@ const cfg = getConfig();
 ===================================================== */
 
 function money(value) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0
-  }).format(Number(value) || 0);
+
+  return new Intl.NumberFormat(
+    "es-AR",
+    {
+      style: "currency",
+      currency: "ARS",
+      maximumFractionDigits: 0
+    }
+  ).format(Number(value) || 0);
+
 }
 
 
@@ -76,28 +104,64 @@ function money(value) {
 ===================================================== */
 
 function formatDate(dateString) {
+
   if (!dateString) {
     return "";
   }
 
-  const parts = String(dateString).split("-");
+  const parts =
+    String(dateString).split("-");
 
   if (parts.length !== 3) {
     return dateString;
   }
 
   return `${parts[2]}/${parts[1]}/${parts[0]}`;
+
 }
+
+
+/* =====================================================
+   ELEMENTOS
+===================================================== */
+
+const yearElement =
+  document.getElementById("year");
+
+const bookingForm =
+  document.getElementById("bookingForm");
+
+const dateInput =
+  document.getElementById("date");
+
+const timeSelect =
+  document.getElementById("time");
+
+const nameInput =
+  document.getElementById("name");
+
+const phoneInput =
+  document.getElementById("phone");
+
+const playersInput =
+  document.getElementById("players");
+
+const notesInput =
+  document.getElementById("notes");
+
+const bookingMessage =
+  document.getElementById("bookingMessage");
 
 
 /* =====================================================
    AÑO
 ===================================================== */
 
-const yearElement = document.getElementById("year");
-
 if (yearElement) {
-  yearElement.textContent = new Date().getFullYear();
+
+  yearElement.textContent =
+    new Date().getFullYear();
+
 }
 
 
@@ -105,89 +169,91 @@ if (yearElement) {
    PRECIOS
 ===================================================== */
 
-const gamePrice = document.getElementById("publicGamePrice");
+const gamePriceElement =
+  document.getElementById("publicGamePrice");
 
-if (gamePrice) {
-  gamePrice.textContent = money(cfg.gamePrice);
+if (gamePriceElement) {
+
+  gamePriceElement.textContent =
+    money(cfg.gamePrice);
+
 }
 
 
-const shotsText = document.getElementById("publicShotsText");
+const shotsTextElement =
+  document.getElementById("publicShotsText");
 
-if (shotsText) {
-  shotsText.textContent = cfg.shotsText;
+if (shotsTextElement) {
+
+  shotsTextElement.textContent =
+    cfg.shotsText;
+
 }
 
 
-const hydrogelPrice = document.getElementById(
-  "publicHydrogelPrice"
-);
+const hydrogelPriceElement =
+  document.getElementById(
+    "publicHydrogelPrice"
+  );
 
-if (hydrogelPrice) {
-  hydrogelPrice.textContent = money(cfg.hydrogelPrice);
+if (hydrogelPriceElement) {
+
+  hydrogelPriceElement.textContent =
+    money(cfg.hydrogelPrice);
+
 }
 
 
-const hydrogelShotsText = document.getElementById(
-  "publicHydrogelShotsText"
-);
+const hydrogelShotsTextElement =
+  document.getElementById(
+    "publicHydrogelShotsText"
+  );
 
-if (hydrogelShotsText) {
-  hydrogelShotsText.textContent =
+if (hydrogelShotsTextElement) {
+
+  hydrogelShotsTextElement.textContent =
     cfg.hydrogelShotsText;
+
 }
 
 
-const publicDeposit = document.getElementById(
-  "publicDeposit"
-);
+const publicDepositElement =
+  document.getElementById(
+    "publicDeposit"
+  );
 
-if (publicDeposit) {
-  publicDeposit.textContent = money(cfg.deposit);
+if (publicDepositElement) {
+
+  publicDepositElement.textContent =
+    money(cfg.deposit);
+
 }
 
 
-const depositInline = document.getElementById(
-  "depositInline"
-);
+const depositInlineElement =
+  document.getElementById(
+    "depositInline"
+  );
 
-if (depositInline) {
-  depositInline.textContent = money(cfg.deposit);
+if (depositInlineElement) {
+
+  depositInlineElement.textContent =
+    money(cfg.deposit);
+
 }
 
 
-const publicMinPlayers = document.getElementById(
-  "publicMinPlayers"
-);
+const publicMinPlayersElement =
+  document.getElementById(
+    "publicMinPlayers"
+  );
 
-if (publicMinPlayers) {
-  publicMinPlayers.textContent = cfg.minPlayers;
+if (publicMinPlayersElement) {
+
+  publicMinPlayersElement.textContent =
+    cfg.minPlayers;
+
 }
-
-
-/* =====================================================
-   FORMULARIO
-===================================================== */
-
-const bookingForm = document.getElementById(
-  "bookingForm"
-);
-
-const dateInput = document.getElementById("date");
-
-const timeSelect = document.getElementById("time");
-
-const nameInput = document.getElementById("name");
-
-const phoneInput = document.getElementById("phone");
-
-const playersInput = document.getElementById("players");
-
-const notesInput = document.getElementById("notes");
-
-const bookingMessage = document.getElementById(
-  "bookingMessage"
-);
 
 
 /* =====================================================
@@ -195,30 +261,42 @@ const bookingMessage = document.getElementById(
 ===================================================== */
 
 if (dateInput) {
+
   const today = new Date();
 
-  const year = today.getFullYear();
+  const year =
+    today.getFullYear();
 
-  const month = String(
-    today.getMonth() + 1
-  ).padStart(2, "0");
+  const month =
+    String(
+      today.getMonth() + 1
+    ).padStart(2, "0");
 
-  const day = String(
-    today.getDate()
-  ).padStart(2, "0");
+  const day =
+    String(
+      today.getDate()
+    ).padStart(2, "0");
 
-  dateInput.min = `${year}-${month}-${day}`;
+  dateInput.min =
+    `${year}-${month}-${day}`;
+
 }
 
 
 /* =====================================================
-   HORARIOS
+   CARGAR HORARIOS
 ===================================================== */
 
 function showSlots() {
+
   if (!timeSelect) {
-    console.error("No se encontró #time");
+
+    console.error(
+      "Aguará Paintball: no existe #time"
+    );
+
     return;
+
   }
 
   timeSelect.innerHTML = "";
@@ -231,37 +309,51 @@ function showSlots() {
   firstOption.textContent =
     "Elegí un horario";
 
-  timeSelect.appendChild(firstOption);
+  timeSelect.appendChild(
+    firstOption
+  );
 
-  cfg.slots.forEach(function (slot) {
-    const option =
-      document.createElement("option");
 
-    option.value = slot;
+  // Siempre usar horarios válidos
+  // aunque localStorage tenga una configuración vieja.
 
-    option.textContent = slot;
+  const horarios =
+    Array.isArray(cfg.slots) &&
+    cfg.slots.length > 0
+      ? cfg.slots
+      : DEFAULTS.slots;
 
-    timeSelect.appendChild(option);
-  });
+
+  horarios.forEach(
+    function (horario) {
+
+      const option =
+        document.createElement("option");
+
+      option.value =
+        horario;
+
+      option.textContent =
+        horario;
+
+      timeSelect.appendChild(
+        option
+      );
+
+    }
+  );
+
 }
 
 
 /* =====================================================
-   ESTADO INICIAL
+   MOSTRAR HORARIOS AL CARGAR
 ===================================================== */
 
 if (timeSelect) {
-  timeSelect.innerHTML = "";
 
-  const initialOption =
-    document.createElement("option");
+  showSlots();
 
-  initialOption.value = "";
-
-  initialOption.textContent =
-    "Elegí una fecha";
-
-  timeSelect.appendChild(initialOption);
 }
 
 
@@ -270,33 +362,24 @@ if (timeSelect) {
 ===================================================== */
 
 if (dateInput) {
+
   dateInput.addEventListener(
     "change",
     function () {
 
       if (!dateInput.value) {
 
-        if (timeSelect) {
-
-          timeSelect.innerHTML = "";
-
-          const option =
-            document.createElement("option");
-
-          option.value = "";
-
-          option.textContent =
-            "Elegí una fecha";
-
-          timeSelect.appendChild(option);
-        }
+        showSlots();
 
         return;
+
       }
 
       showSlots();
+
     }
   );
+
 }
 
 
@@ -310,16 +393,22 @@ function showMessage(
 ) {
 
   if (!bookingMessage) {
+
     alert(message);
+
     return;
+
   }
 
-  bookingMessage.hidden = false;
+  bookingMessage.hidden =
+    false;
 
-  bookingMessage.textContent = message;
+  bookingMessage.textContent =
+    message;
 
   bookingMessage.className =
-    "form-message " + type;
+    `form-message ${type}`;
+
 }
 
 
@@ -333,32 +422,38 @@ async function createReservation() {
     return;
   }
 
-  const name =
+
+  const nombre =
     nameInput
       ? nameInput.value.trim()
       : "";
 
-  const phone =
+
+  const whatsapp =
     phoneInput
       ? phoneInput.value.trim()
       : "";
 
-  const date =
+
+  const fecha =
     dateInput
       ? dateInput.value
       : "";
 
-  const time =
+
+  const horario =
     timeSelect
       ? timeSelect.value
       : "";
 
-  const players =
+
+  const jugadores =
     playersInput
       ? Number(playersInput.value)
       : 0;
 
-  const notes =
+
+  const observaciones =
     notesInput
       ? notesInput.value.trim()
       : "";
@@ -368,61 +463,75 @@ async function createReservation() {
      VALIDACIONES
   =================================================== */
 
-  if (!name) {
+  if (!nombre) {
+
     showMessage(
       "Ingresá tu nombre y apellido.",
       "error"
     );
+
     return;
   }
 
-  if (!phone) {
+
+  if (!whatsapp) {
+
     showMessage(
       "Ingresá tu número de WhatsApp.",
       "error"
     );
+
     return;
   }
 
-  if (!date) {
+
+  if (!fecha) {
+
     showMessage(
       "Elegí una fecha.",
       "error"
     );
+
     return;
   }
 
-  if (!time) {
+
+  if (!horario) {
+
     showMessage(
       "Elegí un horario.",
       "error"
     );
+
     return;
   }
 
+
   if (
-    !Number.isFinite(players) ||
-    players < Number(cfg.minPlayers)
+    !Number.isFinite(jugadores) ||
+    jugadores < Number(cfg.minPlayers)
   ) {
+
     showMessage(
       `La reserva requiere un mínimo de ${cfg.minPlayers} jugadores.`,
       "error"
     );
+
     return;
   }
 
 
   /* ===================================================
-     PRECIOS
+     CÁLCULOS
   =================================================== */
 
-  const pricePerPlayer =
+  const precioPorJugador =
     Number(cfg.gamePrice) || 0;
 
   const total =
-    pricePerPlayer * players;
+    precioPorJugador * jugadores;
 
-  const deposit =
+  const senaRequerida =
     Number(cfg.deposit) || 0;
 
 
@@ -435,76 +544,91 @@ async function createReservation() {
       'button[type="submit"]'
     );
 
-  if (submitButton) {
-    submitButton.disabled = true;
+  let originalButtonText =
+    "Continuar con la reserva";
 
-    submitButton.dataset.original =
+
+  if (submitButton) {
+
+    originalButtonText =
       submitButton.innerHTML;
+
+    submitButton.disabled =
+      true;
 
     submitButton.innerHTML =
       "Guardando reserva...";
+
   }
 
 
   /* ===================================================
-     ENVIAR AL SERVIDOR
+     ENVIAR A LA API
   =================================================== */
 
   try {
 
-    const response = await fetch(
-      "/api/reservations",
-      {
-        method: "POST",
+    const response =
+      await fetch(
+        "/api/reservations",
+        {
+          method: "POST",
 
-        headers: {
-          "Content-Type":
-            "application/json",
+          headers: {
+            "Content-Type":
+              "application/json",
 
-          "Accept":
-            "application/json"
-        },
+            "Accept":
+              "application/json"
+          },
 
-        body: JSON.stringify({
+          body: JSON.stringify({
 
-          nombre: name,
+            nombre:
+              nombre,
 
-          whatsapp: phone,
+            whatsapp:
+              whatsapp,
 
-          fecha: date,
+            fecha:
+              fecha,
 
-          horario: time,
+            horario:
+              horario,
 
-          jugadores: players,
+            jugadores:
+              jugadores,
 
-          tipo_de_juego:
-            "Paintball",
+            tipo_de_juego:
+              "Paintball",
 
-          precio_por_jugador:
-            pricePerPlayer,
+            precio_por_jugador:
+              precioPorJugador,
 
-          total: total,
+            total:
+              total,
 
-          sena_requerida:
-            deposit,
+            sena_requerida:
+              senaRequerida,
 
-          monto_recibido:
-            0,
+            monto_recibido:
+              0,
 
-          estado_de_pago:
-            "pendiente",
+            estado_de_pago:
+              "pendiente",
 
-          estado_de_reserva:
-            "pendiente",
+            estado_de_reserva:
+              "pendiente",
 
-          fecha_de_transferencia:
-            null,
+            fecha_de_transferencia:
+              null,
 
-          observaciones:
-            notes
-        })
-      }
-    );
+            observaciones:
+              observaciones
+
+          })
+        }
+      );
 
 
     /* =================================================
@@ -514,23 +638,28 @@ async function createReservation() {
     const responseText =
       await response.text();
 
+
     let data = {};
 
     try {
+
       data =
         responseText
           ? JSON.parse(responseText)
           : {};
 
     } catch {
+
       data = {
-        message: responseText
+        message:
+          responseText
       };
+
     }
 
 
     /* =================================================
-       MOSTRAR ERROR REAL
+       ERROR REAL
     ================================================= */
 
     if (
@@ -539,37 +668,43 @@ async function createReservation() {
     ) {
 
       console.error(
-        "ERROR API RESERVATIONS:",
+        "ERROR API /api/reservations:",
         {
-          status: response.status,
-          response: data
+          status:
+            response.status,
+
+          response:
+            data
         }
       );
 
+
+      const errorMessage =
+        data?.message ||
+        data?.error?.message ||
+        data?.error ||
+        `Error del servidor (${response.status})`;
+
+
       throw new Error(
-        data.message ||
-        data.error?.message ||
-        data.error ||
-        `Error del servidor (${response.status})`
+        String(errorMessage)
       );
+
     }
 
 
     /* =================================================
-       ÉXITO
+       RESERVA CORRECTA
     ================================================= */
 
-    const visibleDate =
-      formatDate(date);
-
     showMessage(
-      `¡Reserva registrada correctamente! Fecha: ${visibleDate} — Horario: ${time}. Seña requerida: ${money(deposit)}.`,
+      `¡Reserva registrada correctamente! Fecha: ${formatDate(fecha)} — Horario: ${horario}. Seña requerida: ${money(senaRequerida)}.`,
       "success"
     );
 
 
     /* =================================================
-       LIMPIAR FORMULARIO
+       LIMPIAR
     ================================================= */
 
     if (nameInput) {
@@ -594,18 +729,7 @@ async function createReservation() {
     }
 
     if (timeSelect) {
-
-      timeSelect.innerHTML = "";
-
-      const option =
-        document.createElement("option");
-
-      option.value = "";
-
-      option.textContent =
-        "Elegí una fecha";
-
-      timeSelect.appendChild(option);
+      showSlots();
     }
 
 
@@ -617,10 +741,7 @@ async function createReservation() {
     );
 
 
-    /* =================================================
-       AHORA MOSTRAMOS EL ERROR REAL
-    ================================================= */
-
+    // Mostrar el error verdadero.
     showMessage(
       error?.message ||
       "No se pudo guardar la reserva.",
@@ -632,13 +753,16 @@ async function createReservation() {
 
     if (submitButton) {
 
-      submitButton.disabled = false;
+      submitButton.disabled =
+        false;
 
       submitButton.innerHTML =
-        submitButton.dataset.original ||
-        "Continuar con la reserva";
+        originalButtonText;
+
     }
+
   }
+
 }
 
 
@@ -655,8 +779,10 @@ if (bookingForm) {
       event.preventDefault();
 
       createReservation();
+
     }
   );
+
 }
 
 
@@ -676,6 +802,7 @@ const waMessage =
 const waUrl =
   `https://wa.me/${waNumber}?text=${waMessage}`;
 
+
 const whatsappHero =
   document.getElementById(
     "whatsappHero"
@@ -686,24 +813,32 @@ const whatsappBooking =
     "whatsappBooking"
   );
 
+
 if (whatsappHero) {
 
-  whatsappHero.href = waUrl;
+  whatsappHero.href =
+    waUrl;
 
-  whatsappHero.target = "_blank";
+  whatsappHero.target =
+    "_blank";
 
   whatsappHero.rel =
     "noopener noreferrer";
+
 }
+
 
 if (whatsappBooking) {
 
-  whatsappBooking.href = waUrl;
+  whatsappBooking.href =
+    waUrl;
 
-  whatsappBooking.target = "_blank";
+  whatsappBooking.target =
+    "_blank";
 
   whatsappBooking.rel =
     "noopener noreferrer";
+
 }
 
 
@@ -712,10 +847,14 @@ if (whatsappBooking) {
 ===================================================== */
 
 const lightbox =
-  document.getElementById("lightbox");
+  document.getElementById(
+    "lightbox"
+  );
 
 const lightboxImg =
-  document.getElementById("lightboxImg");
+  document.getElementById(
+    "lightboxImg"
+  );
 
 const closeLightbox =
   document.getElementById(
@@ -726,6 +865,7 @@ const galleryItems =
   document.querySelectorAll(
     ".gallery-item"
   );
+
 
 galleryItems.forEach(
   function (item) {
@@ -742,16 +882,23 @@ galleryItems.forEach(
           !lightbox ||
           !lightboxImg
         ) {
+
           return;
+
         }
 
-        lightboxImg.src = source;
+        lightboxImg.src =
+          source;
 
-        lightbox.hidden = false;
+        lightbox.hidden =
+          false;
+
       }
     );
+
   }
 );
+
 
 if (closeLightbox) {
 
@@ -760,11 +907,17 @@ if (closeLightbox) {
     function () {
 
       if (lightbox) {
-        lightbox.hidden = true;
+
+        lightbox.hidden =
+          true;
+
       }
+
     }
   );
+
 }
+
 
 if (lightbox) {
 
@@ -772,19 +925,31 @@ if (lightbox) {
     "click",
     function (event) {
 
-      if (event.target === lightbox) {
-        lightbox.hidden = true;
+      if (
+        event.target === lightbox
+      ) {
+
+        lightbox.hidden =
+          true;
+
       }
+
     }
   );
+
 }
 
 
 /* =====================================================
-   CONFIRMACIÓN
+   FINAL
 ===================================================== */
 
 console.log(
   "Aguará Paintball — script.js cargado correctamente."
+);
+
+console.log(
+  "Horarios disponibles:",
+  cfg.slots
 );
 ```
