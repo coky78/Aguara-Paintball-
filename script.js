@@ -272,33 +272,47 @@ if (timeSelect) {
    AL ELEGIR FECHA
 ===================================================== */
 
-if (dateInput) {
+if (dateInput && timeSelect) {
 
   dateInput.addEventListener("change", function () {
 
+    timeSelect.innerHTML = "";
+
     if (!dateInput.value) {
 
-      if (timeSelect) {
+      const option = document.createElement("option");
 
-        timeSelect.innerHTML = "";
+      option.value = "";
+      option.textContent = "Elegí una fecha";
 
-        const option =
-          document.createElement("option");
-
-        option.value = "";
-        option.textContent = "Elegí una fecha";
-
-        timeSelect.appendChild(option);
-      }
+      timeSelect.appendChild(option);
 
       return;
     }
 
-    /* Cargar horarios */
-    loadSlots();
-  });
-}
+    const firstOption = document.createElement("option");
 
+    firstOption.value = "";
+    firstOption.textContent = "Elegí un horario";
+
+    timeSelect.appendChild(firstOption);
+
+    cfg.slots.forEach(function (slot) {
+
+      const option = document.createElement("option");
+
+      option.value = slot;
+      option.textContent = slot;
+
+      timeSelect.appendChild(option);
+
+    });
+
+    console.log("Horarios mostrados:", cfg.slots);
+
+  });
+
+}
 
 /* =====================================================
    MENSAJES
