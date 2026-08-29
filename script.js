@@ -99,7 +99,22 @@ const notesInput =
 
 const bookingMessage =
   document.getElementById("bookingMessage");
+const receiptUpload =
+  document.getElementById("receiptUpload");
 
+const receiptFile =
+  document.getElementById("receiptFile");
+
+const receiptButton =
+  document.getElementById("receiptButton");
+
+const receiptMessage =
+  document.getElementById("receiptMessage");
+
+const receiptAmount =
+  document.getElementById("receiptAmount");
+
+let currentReservationId = null;
 
 /* =====================================================
    PRECIOS
