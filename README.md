@@ -25,3 +25,4 @@ Las claves secretas deben permanecer en variables de entorno del servidor. No de
 La reserva se guarda con las columnas definidas en `supabase-schema.sql`. La combinación de fecha y horario es única, por lo que dos usuarios no pueden guardar el mismo turno simultáneamente.
 
 La integración de Mercado Pago y el webhook de confirmación de pago no están implementados en este repositorio; no se presenta como una función activa hasta agregar esos endpoints y credenciales.
+Restauración Aguará
