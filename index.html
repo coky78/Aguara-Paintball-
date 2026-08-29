@@ -44,7 +44,10 @@
       <a href="#reservas">Reservar</a>
     </nav>
 
-    <a class="btn btn-outline" href="#reservas">
+    <a
+      class="btn btn-outline"
+      href="#reservas"
+    >
       Reservar ahora
     </a>
 
@@ -57,7 +60,10 @@
          INICIO
     ========================== -->
 
-    <section id="inicio" class="hero">
+    <section
+      id="inicio"
+      class="hero"
+    >
 
       <video
         class="hero-video"
@@ -66,10 +72,12 @@
         loop
         playsinline
       >
+
         <source
           src="assets/hero.mp4"
           type="video/mp4"
         >
+
       </video>
 
       <div class="hero-fallback"></div>
@@ -188,7 +196,6 @@
         </div>
 
       </div>
-
 
       <div class="feature-card">
 
@@ -462,12 +469,14 @@
 
       <div class="booking-layout">
 
+
         <form
           id="bookingForm"
           class="booking-card"
         >
 
           <div class="form-grid">
+
 
             <label>
               Nombre y apellido
@@ -519,7 +528,7 @@
               >
 
                 <option value="">
-                  Elegí una fecha
+                  Elegí un horario
                 </option>
 
               </select>
@@ -560,7 +569,42 @@
             class="form-message"
             hidden
           ></div>
+<div
+  id="receiptUpload"
+  class="receipt-upload"
+  hidden
+>
 
+  <h3>Enviar comprobante de seña</h3>
+
+  <p>
+    Tu reserva quedó pendiente.
+    Subí el comprobante de la seña de
+    <strong id="receiptAmount">$50.000</strong>.
+  </p>
+
+  <input
+    id="receiptFile"
+    type="file"
+    accept="image/jpeg,image/png,image/webp,application/pdf"
+  >
+
+  <button
+    id="receiptButton"
+    class="btn btn-primary full"
+    type="button"
+  >
+    Enviar comprobante
+    <span>→</span>
+  </button>
+
+  <div
+    id="receiptMessage"
+    class="form-message"
+    hidden
+  ></div>
+
+</div>
 
           <button
             class="btn btn-primary full"
@@ -613,29 +657,35 @@
           <div class="steps">
 
             <div>
+
               <b>01</b>
 
               <span>
                 Elegí fecha, hora y cantidad.
               </span>
+
             </div>
 
 
             <div>
+
               <b>02</b>
 
               <span>
                 Realizá la seña.
               </span>
+
             </div>
 
 
             <div>
+
               <b>03</b>
 
               <span>
                 Pago aprobado → horario bloqueado.
               </span>
+
             </div>
 
           </div>
@@ -651,75 +701,8 @@
             Consultar por WhatsApp
           </a>
 
+
         </aside>
-
-      </div>
-
-
-      <!-- =========================
-           COMPROBANTE DE SEÑA
-      ========================== -->
-
-      <div
-        id="receiptUpload"
-        class="booking-card"
-        hidden
-        style="margin-top:20px;"
-      >
-
-        <p class="eyebrow">
-          COMPROBANTE DE SEÑA
-        </p>
-
-        <h3>
-          Enviá tu comprobante
-        </h3>
-
-        <p class="muted">
-          Una vez realizada la transferencia,
-          subí el comprobante para que podamos
-          verificar el pago y confirmar tu turno.
-        </p>
-
-        <p>
-          Seña requerida:
-
-          <strong id="receiptAmount">
-            $50.000
-          </strong>
-
-        </p>
-
-
-        <label>
-          Comprobante de pago
-
-          <input
-            id="receiptFile"
-            type="file"
-            accept="image/jpeg,image/png,image/webp,application/pdf"
-          >
-
-        </label>
-
-
-        <button
-          id="receiptButton"
-          class="btn btn-primary full"
-          type="button"
-          style="margin-top:15px;"
-        >
-          Enviar comprobante
-          <span>→</span>
-        </button>
-
-
-        <div
-          id="receiptMessage"
-          class="form-message"
-          hidden
-          style="margin-top:15px;"
-        ></div>
 
       </div>
 
@@ -764,7 +747,6 @@
       ×
     </button>
 
-
     <img
       id="lightboxImg"
       alt="Aguará Paintball"
@@ -774,11 +756,11 @@
 
 
   <!-- =========================
-       SCRIPT PRINCIPAL
-       NO agregar calendar.js
+       SCRIPT
   ========================== -->
 
   <script src="script.js"></script>
-
+<script src="calendar.js"></script>
 </body>
+
 </html>
