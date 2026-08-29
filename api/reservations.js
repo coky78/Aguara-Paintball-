@@ -38,8 +38,12 @@ function createPublicId(fecha, horario) {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== "GET" && req.method !== "POST") {
-    res.setHeader("Allow", "GET, POST");
+if (
+  req.method !== "GET" &&
+  req.method !== "POST" &&
+  req.method !== "PATCH"
+) {
+   res.setHeader("Allow", "GET, POST, PATCH");
     return sendJson(res, 405, {
       ok: false,
       message: "Método no permitido"
