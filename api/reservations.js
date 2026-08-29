@@ -63,6 +63,100 @@ if (
 
   const { supabaseUrl, supabaseKey } = config;
   const baseUrl = supabaseUrl.replace(/\/$/, "");
+  if (req.method === "PATCH") {
+    try {
+      const body =
+        req.body && typeof req.body === "object"
+          ? req.body
+          : {};
+
+      const publicId = String(body.public_id ?? "").trim();
+      const status = String(body.status ?? "").trim();
+
+      if (!publicId) {
+        return sendJson(res, 400, {
+          ok: false,
+          message: "Falta el identificador de la reserva."
+        });
+      }
+
+      if (status !== "confirmed") {
+        return sendJson(res, 400, {
+          ok: false,
+          message: "Estado no válido."
+        });
+      }
+
+      const response = await fetch(
+        `${baseUrl}/rest/v1/reservations` +
+        `?public_id=eq.${encodeURIComponent(publicId)}`,
+        {
+          method: "PATCH",
+          headers: supabaseHeaders(
+            supabaseKey,
+            "return=representation"
+          ),
+          body: JSON.stringify({
+            status: "confirmed",
+            confirmed_at: new Date().toISOString()
+          })
+        }
+      );
+
+      const text = await response.text();
+
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = text;
+      }
+
+      if (!response.ok) {
+        console.error(
+          "ERROR CONFIRMANDO RESERVA:",
+          data
+        );
+
+        return sendJson(res, response.status, {
+          ok: false,
+          message:
+            data?.message ||
+            data?.hint ||
+            data?.details ||
+            "No se pudo confirmar la reserva.",
+          error: data
+        });
+      }
+
+      if (!Array.isArray(data) || data.length === 0) {
+        return sendJson(res, 404, {
+          ok: false,
+          message: "No encontramos esa reserva."
+        });
+      }
+
+      return sendJson(res, 200, {
+        ok: true,
+        message: "Reserva confirmada correctamente.",
+        reserva: data[0]
+      });
+
+    } catch (error) {
+      console.error(
+        "ERROR GENERAL CONFIRMANDO RESERVA:",
+        error
+      );
+
+      return sendJson(res, 500, {
+        ok: false,
+        message:
+          error?.message ||
+          "Error interno al confirmar la reserva."
+      });
+    }
+  }
 
   if (req.method === "GET") {
     try {
