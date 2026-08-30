@@ -72,6 +72,121 @@ footer{display:flex;justify-content:space-between;padding:30px 5vw;border-top:1p
   margin-top: 12px;
   font-size: 1.25rem;
   font-weight: 900;
+  ```css
+/* =====================================================
+   AGUARÁ PAINTBALL
+   AJUSTE BOTONES RESERVA + COMPROBANTE
+===================================================== */
+
+/* Separación entre el botón de reserva
+   y el bloque de comprobante */
+
+#receiptUpload {
+  margin-top: 55px !important;
+  padding-top: 35px !important;
+  border-top: 2px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+
+/* Espacio extra debajo del botón
+   CONTINUAR CON LA RESERVA */
+
+#bookingForm button[type="submit"] {
+  margin-bottom: 55px !important;
+}
+
+
+/* Botón normal de continuar reserva */
+
+#bookingForm button[type="submit"] {
+  display: block !important;
+  width: 100% !important;
+}
+
+
+/* Botón ENVIAR COMPROBANTE */
+
+#receiptButton {
+  display: block !important;
+  width: 100% !important;
+  margin-top: 25px !important;
+}
+
+
+/* =====================================================
+   RESERVA CONFIRMADA
+===================================================== */
+
+/* Cuando el botón tenga este estado */
+
+#bookingForm button.reserva-confirmada {
+  background: #25a244 !important;
+  background-color: #25a244 !important;
+  border-color: #25a244 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+
+/* Bloque completo del comprobante confirmado */
+
+#receiptUpload.reserva-confirmada {
+  background: #dff6e5 !important;
+  border: 2px solid #25a244 !important;
+  border-radius: 12px !important;
+  padding: 25px !important;
+}
+
+
+/* Botón comprobante enviado */
+
+#receiptButton.comprobante-enviado {
+  background: #25a244 !important;
+  background-color: #25a244 !important;
+  border-color: #25a244 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+
+/* =====================================================
+   MENSAJE DE RESERVA CONFIRMADA
+===================================================== */
+
+#receiptMessage.confirmada {
+  display: block !important;
+  background: #dff6e5 !important;
+  border: 2px solid #25a244 !important;
+  color: #176b2c !important;
+  font-weight: 700 !important;
+  padding: 15px !important;
+  border-radius: 10px !important;
+  margin-top: 20px !important;
+}
+
+
+/* =====================================================
+   MÓVIL
+===================================================== */
+
+@media (max-width: 600px) {
+
+  #bookingForm button[type="submit"] {
+    margin-bottom: 45px !important;
+  }
+
+  #receiptUpload {
+    margin-top: 45px !important;
+    padding-top: 30px !important;
+  }
+
+  #receiptButton {
+    margin-top: 25px !important;
+  }
+
+}
+```
+
   letter-spacing: 1px;
   color: #ff7a00;
   text-shadow: 0 0 10px rgba(255,122,0,.35);
