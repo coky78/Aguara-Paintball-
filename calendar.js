@@ -168,9 +168,7 @@
       btn.type = "button";
       btn.className = `aguara-day${key === today ? " is-today" : ""}${key === state.selectedDate ? " is-selected" : ""}${count ? " is-reserved" : ""}`;
       btn.title = count ? `${count} horario(s) reservado(s)` : "Día disponible";
-      btn.innerHTML = count
-        ? `<span class="aguara-day-x">✕</span><span class="aguara-day-number">${d}</span><span class="aguara-day-label">${count === 1 ? "RESERVADO" : "RESERVADOS"}</span>`
-        : `<span class="aguara-day-number">${d}</span>`;
+     btn.innerHTML = `<span class="aguara-day-number">${d}</span>`;
       btn.addEventListener("click", () => selectDate(key));
       grid.appendChild(btn);
     }
