@@ -163,7 +163,7 @@
     const today = dateKey(new Date());
     for (let d = 1; d <= days; d++) {
       const key = `${y}-${pad(m + 1)}-${pad(d)}`;
-      const count = state.byDate.get(key)?.size || 0;
+      const count = key >= today ? (state.byDate.get(key)?.size || 0) : 0;
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = `aguara-day${key === today ? " is-today" : ""}${key === state.selectedDate ? " is-selected" : ""}${count ? " is-reserved" : ""}`;
