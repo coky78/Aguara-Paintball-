@@ -1,3 +1,4 @@
+```javascript
 /* =====================================================
    AGUARÁ PAINTBALL
    API RESERVATIONS
@@ -12,12 +13,16 @@ import { randomBytes } from "node:crypto";
 ===================================================== */
 
 function sendJson(res, status, payload) {
-  return res.status(status).json(payload);
+
+  return res
+    .status(status)
+    .json(payload);
+
 }
 
 
 /* =====================================================
-   SUPABASE
+   CONFIGURACIÓN SUPABASE
 ===================================================== */
 
 function getSupabaseConfig() {
@@ -28,23 +33,36 @@ function getSupabaseConfig() {
   const supabaseKey =
     process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+  if (
+    !supabaseUrl ||
+    !supabaseKey
+  ) {
 
-  if (!supabaseUrl || !supabaseKey) {
     return null;
-  }
 
+  }
 
   return {
     supabaseUrl,
     supabaseKey
   };
+
 }
 
 
-function supabaseHeaders(key, prefer) {
+/* =====================================================
+   HEADERS SUPABASE
+===================================================== */
+
+function supabaseHeaders(
+  key,
+  prefer
+) {
 
   return {
-    apikey: key,
+
+    apikey:
+      key,
 
     Authorization:
       `Bearer ${key}`,
@@ -53,33 +71,47 @@ function supabaseHeaders(key, prefer) {
       "application/json",
 
     ...(prefer
-      ? { Prefer: prefer }
+      ? {
+          Prefer:
+            prefer
+        }
       : {})
+
   };
+
 }
 
 
 /* =====================================================
-   PUBLIC ID
+   ID PÚBLICO
 ===================================================== */
 
-function createPublicId(fecha, horario) {
+function createPublicId(
+  fecha,
+  horario
+) {
 
   const compactDate =
-    fecha.replaceAll("-", "");
+    fecha.replaceAll(
+      "-",
+      ""
+    );
 
   const compactTime =
-    horario.replaceAll(":", "");
+    horario.replaceAll(
+      ":",
+      ""
+    );
 
   const suffix =
     randomBytes(3)
       .toString("hex")
       .toUpperCase();
 
-
   return (
     `AG-${compactDate}-${compactTime}-${suffix}`
   );
+
 }
 
 
@@ -87,7 +119,14 @@ function createPublicId(fecha, horario) {
    HANDLER
 ===================================================== */
 
-export default async function handler(req, res) {
+export default async function handler(
+  req,
+  res
+) {
+
+  /*
+     MÉTODOS PERMITIDOS
+  */
 
   if (
     req.method !== "GET" &&
@@ -101,13 +140,22 @@ export default async function handler(req, res) {
       "GET, POST, PATCH, DELETE"
     );
 
+    return sendJson(
+      res,
+      405,
+      {
+        ok: false,
+        message:
+          "Método no permitido"
+      }
+    );
 
-    return sendJson(res, 405, {
-      ok: false,
-      message: "Método no permitido"
-    });
   }
 
+
+  /*
+     SUPABASE
+  */
 
   const config =
     getSupabaseConfig();
@@ -119,12 +167,16 @@ export default async function handler(req, res) {
       "FALTAN VARIABLES DE SUPABASE"
     );
 
+    return sendJson(
+      res,
+      500,
+      {
+        ok: false,
+        message:
+          "Faltan SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en Vercel."
+      }
+    );
 
-    return sendJson(res, 500, {
-      ok: false,
-      message:
-        "Faltan SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en Vercel."
-    });
   }
 
 
@@ -135,11 +187,14 @@ export default async function handler(req, res) {
 
 
   const baseUrl =
-    supabaseUrl.replace(/\/$/, "");
+    supabaseUrl.replace(
+      /\/$/,
+      ""
+    );
 
 
   /* ===================================================
-     GET
+     GET — LISTAR RESERVAS
   =================================================== */
 
   if (req.method === "GET") {
@@ -148,7 +203,9 @@ export default async function handler(req, res) {
 
       const response =
         await fetch(
-          `${baseUrl}/rest/v1/reservations?select=*&order=booking_date.asc,booking_time.asc`,
+          `${baseUrl}/rest/v1/reservations` +
+          `?select=*` +
+          `&order=booking_date.asc,booking_time.asc`,
           {
             method: "GET",
 
@@ -166,7 +223,6 @@ export default async function handler(req, res) {
 
       let data;
 
-
       try {
 
         data =
@@ -183,9 +239,8 @@ export default async function handler(req, res) {
 
         console.error(
           "SUPABASE GET ERROR:",
-          text
+          data
         );
-
 
         return sendJson(
           res,
@@ -194,9 +249,11 @@ export default async function handler(req, res) {
             ok: false,
             message:
               "Supabase no pudo consultar las reservas.",
-            error: data
+            error:
+              data
           }
         );
+
       }
 
 
@@ -221,7 +278,6 @@ export default async function handler(req, res) {
         error
       );
 
-
       return sendJson(
         res,
         500,
@@ -232,7 +288,9 @@ export default async function handler(req, res) {
             "Error consultando reservas."
         }
       );
+
     }
+
   }
 
 
@@ -251,9 +309,14 @@ export default async function handler(req, res) {
           : {};
 
 
+      /*
+         ID DE LA RESERVA
+      */
+
       const publicId =
         String(
-          body.public_id ?? ""
+          body.public_id ??
+          ""
         ).trim();
 
 
@@ -268,364 +331,107 @@ export default async function handler(req, res) {
               "Falta el identificador de la reserva."
           }
         );
+
       }
 
 
-      const update = {};
+      /*
+         DATOS NUEVOS
+      */
+
+      const nombre =
+        String(
+          body.nombre ??
+          body.name ??
+          ""
+        ).trim();
 
 
-      /* -----------------------------------------------
-         NOMBRE
-      ----------------------------------------------- */
+      const whatsapp =
+        String(
+          body.whatsapp ??
+          body.phone ??
+          ""
+        ).trim();
+
+
+      const fecha =
+        String(
+          body.fecha ??
+          body.booking_date ??
+          ""
+        ).trim();
+
+
+      const horario =
+        String(
+          body.horario ??
+          body.booking_time ??
+          ""
+        ).trim();
+
+
+      const jugadores =
+        Number(
+          body.jugadores ??
+          body.players
+        );
+
+
+      const notas =
+        String(
+          body.notas ??
+          body.notes ??
+          body.observaciones ??
+          ""
+        ).trim();
+
+
+      /*
+         VALIDAR NOMBRE
+      */
+
+      if (!nombre) {
+
+        return sendJson(
+          res,
+          400,
+          {
+            ok: false,
+            message:
+              "Falta el nombre."
+          }
+        );
+
+      }
+
+
+      /*
+         VALIDAR WHATSAPP
+      */
+
+      if (!whatsapp) {
+
+        return sendJson(
+          res,
+          400,
+          {
+            ok: false,
+            message:
+              "Falta el número de WhatsApp."
+          }
+        );
+
+      }
+
+
+      /*
+         VALIDAR FECHA
+      */
 
       if (
-        body.name !== undefined ||
-        body.nombre !== undefined
-      ) {
-
-        const name =
-          String(
-            body.name ??
-            body.nombre ??
-            ""
-          ).trim();
-
-
-        if (!name) {
-
-          return sendJson(
-            res,
-            400,
-            {
-              ok: false,
-              message:
-                "El nombre no puede estar vacío."
-            }
-          );
-        }
-
-
-        update.name = name;
-      }
-
-
-      /* -----------------------------------------------
-         WHATSAPP
-      ----------------------------------------------- */
-
-      if (
-        body.phone !== undefined ||
-        body.whatsapp !== undefined
-      ) {
-
-        const phone =
-          String(
-            body.phone ??
-            body.whatsapp ??
-            ""
-          ).trim();
-
-
-        if (!phone) {
-
-          return sendJson(
-            res,
-            400,
-            {
-              ok: false,
-              message:
-                "El WhatsApp no puede estar vacío."
-            }
-          );
-        }
-
-
-        update.phone = phone;
-      }
-
-
-      /* -----------------------------------------------
-         FECHA
-      ----------------------------------------------- */
-
-      if (
-        body.booking_date !== undefined ||
-        body.fecha !== undefined
-      ) {
-
-        const fecha =
-          String(
-            body.booking_date ??
-            body.fecha ??
-            ""
-          ).trim();
-
-
-        if (
-          !/^\d{4}-\d{2}-\d{2}$/.test(fecha)
-        ) {
-
-          return sendJson(
-            res,
-            400,
-            {
-              ok: false,
-              message:
-                "La fecha no es válida."
-            }
-          );
-        }
-
-
-        update.booking_date =
-          fecha;
-      }
-
-
-      /* -----------------------------------------------
-         HORARIO
-      ----------------------------------------------- */
-
-      if (
-        body.booking_time !== undefined ||
-        body.horario !== undefined
-      ) {
-
-        const horario =
-          String(
-            body.booking_time ??
-            body.horario ??
-            ""
-          ).trim();
-
-
-        if (
-          !/^\d{2}:\d{2}$/.test(horario)
-        ) {
-
-          return sendJson(
-            res,
-            400,
-            {
-              ok: false,
-              message:
-                "El horario no es válido."
-            }
-          );
-        }
-
-
-        update.booking_time =
-          horario;
-      }
-
-
-      /* -----------------------------------------------
-         JUGADORES
-      ----------------------------------------------- */
-
-      if (
-        body.players !== undefined ||
-        body.jugadores !== undefined
-      ) {
-
-        const players =
-          Number(
-            body.players ??
-            body.jugadores
-          );
-
-
-        if (
-          !Number.isInteger(players) ||
-          players < 10
-        ) {
-
-          return sendJson(
-            res,
-            400,
-            {
-              ok: false,
-              message:
-                "La reserva requiere un mínimo de 10 jugadores."
-            }
-          );
-        }
-
-
-        update.players =
-          players;
-      }
-
-
-      /* -----------------------------------------------
-         OBSERVACIONES
-      ----------------------------------------------- */
-
-      if (
-        body.notes !== undefined ||
-        body.observaciones !== undefined
-      ) {
-
-        const notes =
-          String(
-            body.notes ??
-            body.observaciones ??
-            ""
-          ).trim();
-
-
-        update.notes =
-          notes || null;
-      }
-
-
-      /* -----------------------------------------------
-         ESTADO
-      ----------------------------------------------- */
-
-      if (body.status !== undefined) {
-
-        const status =
-          String(
-            body.status
-          ).trim();
-
-
-        const allowedStatuses = [
-          "pending",
-          "confirmed"
-        ];
-
-
-        if (
-          !allowedStatuses.includes(status)
-        ) {
-
-          return sendJson(
-            res,
-            400,
-            {
-              ok: false,
-              message:
-                "Estado de reserva no válido."
-            }
-          );
-        }
-
-
-        update.status =
-          status;
-
-
-        if (status === "confirmed") {
-
-          update.confirmed_at =
-            new Date().toISOString();
-
-        } else {
-
-          update.confirmed_at =
-            null;
-        }
-      }
-
-
-      /* -----------------------------------------------
-         SEÑA
-      ----------------------------------------------- */
-
-      if (
-        body.deposit_amount !== undefined ||
-        body.sena_requerida !== undefined
-      ) {
-
-        const deposit =
-          Number(
-            body.deposit_amount ??
-            body.sena_requerida
-          );
-
-
-        if (
-          !Number.isFinite(deposit) ||
-          deposit < 0
-        ) {
-
-          return sendJson(
-            res,
-            400,
-            {
-              ok: false,
-              message:
-                "La seña no es válida."
-            }
-          );
-        }
-
-
-        update.deposit_amount =
-          deposit;
-      }
-
-
-      /* -----------------------------------------------
-         PRECIO
-      ----------------------------------------------- */
-
-      if (
-        body.game_price !== undefined ||
-        body.precio_por_jugador !== undefined
-      ) {
-
-        const price =
-          Number(
-            body.game_price ??
-            body.precio_por_jugador
-          );
-
-
-        if (
-          !Number.isFinite(price) ||
-          price < 0
-        ) {
-
-          return sendJson(
-            res,
-            400,
-            {
-              ok: false,
-              message:
-                "El precio no es válido."
-            }
-          );
-        }
-
-
-        update.game_price =
-          price;
-      }
-
-
-      /* -----------------------------------------------
-         PAYMENT ID
-      ----------------------------------------------- */
-
-      if (
-        body.payment_id !== undefined
-      ) {
-
-        update.payment_id =
-          body.payment_id || null;
-      }
-
-
-      /* -----------------------------------------------
-         EVITAR PATCH VACÍO
-      ----------------------------------------------- */
-
-      if (
-        Object.keys(update).length === 0
+        !/^\d{4}-\d{2}-\d{2}$/
+          .test(fecha)
       ) {
 
         return sendJson(
@@ -634,15 +440,172 @@ export default async function handler(req, res) {
           {
             ok: false,
             message:
-              "No hay datos para actualizar."
+              "La fecha no es válida."
           }
         );
+
       }
 
 
-      /* -----------------------------------------------
-         ACTUALIZAR SUPABASE
-      ----------------------------------------------- */
+      /*
+         VALIDAR HORARIO
+      */
+
+      if (
+        !/^\d{2}:\d{2}$/
+          .test(horario)
+      ) {
+
+        return sendJson(
+          res,
+          400,
+          {
+            ok: false,
+            message:
+              "El horario no es válido."
+          }
+        );
+
+      }
+
+
+      /*
+         VALIDAR JUGADORES
+      */
+
+      if (
+        !Number.isInteger(
+          jugadores
+        ) ||
+        jugadores < 10
+      ) {
+
+        return sendJson(
+          res,
+          400,
+          {
+            ok: false,
+            message:
+              "La reserva requiere un mínimo de 10 jugadores."
+          }
+        );
+
+      }
+
+
+      /*
+         COMPROBAR SI EL NUEVO
+         HORARIO YA ESTÁ OCUPADO
+      */
+
+      const duplicateResponse =
+        await fetch(
+          `${baseUrl}/rest/v1/reservations` +
+          `?booking_date=eq.${encodeURIComponent(fecha)}` +
+          `&booking_time=eq.${encodeURIComponent(horario)}` +
+          `&public_id=neq.${encodeURIComponent(publicId)}` +
+          `&select=public_id`,
+          {
+            method: "GET",
+
+            headers:
+              supabaseHeaders(
+                supabaseKey
+              )
+          }
+        );
+
+
+      const duplicateText =
+        await duplicateResponse.text();
+
+
+      let duplicateData = [];
+
+      try {
+
+        duplicateData =
+          JSON.parse(
+            duplicateText
+          );
+
+      } catch {
+
+        duplicateData = [];
+
+      }
+
+
+      if (
+        !duplicateResponse.ok
+      ) {
+
+        console.error(
+          "ERROR COMPROBANDO HORARIO:",
+          duplicateData
+        );
+
+        return sendJson(
+          res,
+          duplicateResponse.status,
+          {
+            ok: false,
+            message:
+              "No se pudo comprobar si el nuevo horario está disponible.",
+            error:
+              duplicateData
+          }
+        );
+
+      }
+
+
+      if (
+        Array.isArray(
+          duplicateData
+        ) &&
+        duplicateData.length > 0
+      ) {
+
+        return sendJson(
+          res,
+          409,
+          {
+            ok: false,
+            message:
+              "Ese horario ya está reservado. Elegí otra fecha u horario."
+          }
+        );
+
+      }
+
+
+      /*
+         ACTUALIZAR
+      */
+
+      const updateData = {
+
+        name:
+          nombre,
+
+        phone:
+          whatsapp,
+
+        booking_date:
+          fecha,
+
+        booking_time:
+          horario,
+
+        players:
+          jugadores,
+
+        notes:
+          notas || null
+
+      };
+
 
       const response =
         await fetch(
@@ -658,7 +621,9 @@ export default async function handler(req, res) {
               ),
 
             body:
-              JSON.stringify(update)
+              JSON.stringify(
+                updateData
+              )
           }
         );
 
@@ -668,7 +633,6 @@ export default async function handler(req, res) {
 
 
       let data;
-
 
       try {
 
@@ -685,35 +649,27 @@ export default async function handler(req, res) {
       if (!response.ok) {
 
         console.error(
-          "ERROR EDITANDO RESERVA:",
+          "ERROR ACTUALIZANDO RESERVA:",
           data
         );
 
-
-        const duplicate =
-          response.status === 409 ||
-          String(data?.code || "") === "23505";
-
-
         return sendJson(
           res,
-          duplicate
-            ? 409
-            : response.status,
+          response.status,
           {
             ok: false,
 
             message:
-              duplicate
-                ? "Ese horario ya está reservado. Elegí otro."
-                : data?.message ||
-                  data?.hint ||
-                  data?.details ||
-                  "No se pudo editar la reserva.",
+              data?.message ||
+              data?.hint ||
+              data?.details ||
+              "No se pudo modificar la reserva.",
 
-            error: data
+            error:
+              data
           }
         );
+
       }
 
 
@@ -731,6 +687,7 @@ export default async function handler(req, res) {
               "No encontramos esa reserva."
           }
         );
+
       }
 
 
@@ -741,7 +698,7 @@ export default async function handler(req, res) {
           ok: true,
 
           message:
-            "Reserva actualizada correctamente.",
+            "Reserva modificada correctamente.",
 
           reserva:
             data[0]
@@ -752,22 +709,24 @@ export default async function handler(req, res) {
     } catch (error) {
 
       console.error(
-        "ERROR GENERAL PATCH:",
+        "ERROR GENERAL EDITANDO RESERVA:",
         error
       );
-
 
       return sendJson(
         res,
         500,
         {
           ok: false,
+
           message:
             error?.message ||
-            "Error interno al editar la reserva."
+            "Error interno al modificar la reserva."
         }
       );
+
     }
+
   }
 
 
@@ -786,20 +745,11 @@ export default async function handler(req, res) {
           : {};
 
 
-      let publicId =
+      const publicId =
         String(
-          body.public_id ?? ""
+          body.public_id ??
+          ""
         ).trim();
-
-
-      /* Permite también ?public_id= */
-      if (!publicId && req.query) {
-
-        publicId =
-          String(
-            req.query.public_id ?? ""
-          ).trim();
-      }
 
 
       if (!publicId) {
@@ -813,8 +763,13 @@ export default async function handler(req, res) {
               "Falta el identificador de la reserva."
           }
         );
+
       }
 
+
+      /*
+         ELIMINAR POR PUBLIC_ID
+      */
 
       const response =
         await fetch(
@@ -838,7 +793,6 @@ export default async function handler(req, res) {
 
       let data;
 
-
       try {
 
         data =
@@ -858,7 +812,6 @@ export default async function handler(req, res) {
           data
         );
 
-
         return sendJson(
           res,
           response.status,
@@ -871,14 +824,16 @@ export default async function handler(req, res) {
               data?.details ||
               "No se pudo eliminar la reserva.",
 
-            error: data
+            error:
+              data
           }
         );
+
       }
 
 
       if (
-        Array.isArray(data) &&
+        !Array.isArray(data) ||
         data.length === 0
       ) {
 
@@ -891,6 +846,7 @@ export default async function handler(req, res) {
               "No encontramos esa reserva."
           }
         );
+
       }
 
 
@@ -904,9 +860,7 @@ export default async function handler(req, res) {
             "Reserva eliminada correctamente.",
 
           reserva:
-            Array.isArray(data)
-              ? data[0]
-              : data
+            data[0]
         }
       );
 
@@ -914,10 +868,9 @@ export default async function handler(req, res) {
     } catch (error) {
 
       console.error(
-        "ERROR GENERAL DELETE:",
+        "ERROR GENERAL ELIMINANDO RESERVA:",
         error
       );
-
 
       return sendJson(
         res,
@@ -930,7 +883,9 @@ export default async function handler(req, res) {
             "Error interno al eliminar la reserva."
         }
       );
+
     }
+
   }
 
 
@@ -995,6 +950,10 @@ export default async function handler(req, res) {
       ).trim();
 
 
+    /* -----------------------------------------------
+       VALIDACIONES
+    ----------------------------------------------- */
+
     if (!nombre) {
 
       return sendJson(
@@ -1006,6 +965,7 @@ export default async function handler(req, res) {
             "Falta el nombre."
         }
       );
+
     }
 
 
@@ -1020,11 +980,13 @@ export default async function handler(req, res) {
             "Falta el número de WhatsApp."
         }
       );
+
     }
 
 
     if (
-      !/^\d{4}-\d{2}-\d{2}$/.test(fecha)
+      !/^\d{4}-\d{2}-\d{2}$/
+        .test(fecha)
     ) {
 
       return sendJson(
@@ -1036,11 +998,13 @@ export default async function handler(req, res) {
             "La fecha no es válida."
         }
       );
+
     }
 
 
     if (
-      !/^\d{2}:\d{2}$/.test(horario)
+      !/^\d{2}:\d{2}$/
+        .test(horario)
     ) {
 
       return sendJson(
@@ -1052,11 +1016,14 @@ export default async function handler(req, res) {
             "El horario no es válido."
         }
       );
+
     }
 
 
     if (
-      !Number.isInteger(jugadores) ||
+      !Number.isInteger(
+        jugadores
+      ) ||
       jugadores < 10
     ) {
 
@@ -1069,8 +1036,13 @@ export default async function handler(req, res) {
             "La reserva requiere un mínimo de 10 jugadores."
         }
       );
+
     }
 
+
+    /* -----------------------------------------------
+       PRECIOS
+    ----------------------------------------------- */
 
     const precioPorJugador =
       Number(
@@ -1095,7 +1067,9 @@ export default async function handler(req, res) {
 
 
     if (
-      !Number.isFinite(precioPorJugador) ||
+      !Number.isFinite(
+        precioPorJugador
+      ) ||
       precioPorJugador < 0
     ) {
 
@@ -1108,11 +1082,14 @@ export default async function handler(req, res) {
             "El precio no es válido."
         }
       );
+
     }
 
 
     if (
-      !Number.isFinite(total) ||
+      !Number.isFinite(
+        total
+      ) ||
       total < 0
     ) {
 
@@ -1125,11 +1102,14 @@ export default async function handler(req, res) {
             "El total no es válido."
         }
       );
+
     }
 
 
     if (
-      !Number.isFinite(senaRequerida) ||
+      !Number.isFinite(
+        senaRequerida
+      ) ||
       senaRequerida < 0
     ) {
 
@@ -1142,8 +1122,13 @@ export default async function handler(req, res) {
             "La seña no es válida."
         }
       );
+
     }
 
+
+    /* -----------------------------------------------
+       CREAR RESERVA
+    ----------------------------------------------- */
 
     const reserva = {
 
@@ -1185,8 +1170,13 @@ export default async function handler(req, res) {
 
       confirmed_at:
         null
+
     };
 
+
+    /* -----------------------------------------------
+       INSERTAR EN SUPABASE
+    ----------------------------------------------- */
 
     const response =
       await fetch(
@@ -1201,7 +1191,9 @@ export default async function handler(req, res) {
             ),
 
           body:
-            JSON.stringify(reserva)
+            JSON.stringify(
+              reserva
+            )
         }
       );
 
@@ -1211,7 +1203,6 @@ export default async function handler(req, res) {
 
 
     let data;
-
 
     try {
 
@@ -1225,6 +1216,10 @@ export default async function handler(req, res) {
     }
 
 
+    /* -----------------------------------------------
+       ERROR SUPABASE
+    ----------------------------------------------- */
+
     if (!response.ok) {
 
       console.error(
@@ -1235,7 +1230,9 @@ export default async function handler(req, res) {
 
       const duplicate =
         response.status === 409 ||
-        String(data?.code || "") === "23505";
+        String(
+          data?.code || ""
+        ) === "23505";
 
 
       return sendJson(
@@ -1244,26 +1241,37 @@ export default async function handler(req, res) {
           ? 409
           : response.status,
         {
+
           ok: false,
 
           message:
             duplicate
               ? "Ese horario ya está reservado. Elegí otra fecha u horario."
-              : data?.message ||
-                data?.hint ||
-                data?.details ||
-                "Supabase rechazó la reserva.",
+              : (
+                  data?.message ||
+                  data?.hint ||
+                  data?.details ||
+                  "Supabase rechazó la reserva."
+                ),
 
-          error: data
+          error:
+            data
+
         }
       );
+
     }
 
+
+    /* -----------------------------------------------
+       RESPUESTA OK
+    ----------------------------------------------- */
 
     return sendJson(
       res,
       201,
       {
+
         ok: true,
 
         message:
@@ -1273,6 +1281,7 @@ export default async function handler(req, res) {
           Array.isArray(data)
             ? data[0]
             : data
+
       }
     );
 
@@ -1296,5 +1305,8 @@ export default async function handler(req, res) {
           "Error interno al procesar la reserva."
       }
     );
+
   }
+
 }
+```
