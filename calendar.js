@@ -222,19 +222,31 @@
   }
 
   function init() {
-    injectStyles();
-    if (!makeShell()) return;
-    const dateInput = document.getElementById("date");
-    if (dateInput?.value) state.selectedDate = dateInput.value;
-    if (state.selectedDate) {
-      const d = parseDate(state.selectedDate);
-      state.month = new Date(d.getFullYear(), d.getMonth(), 1);
-    }
-    renderCalendar();
-    renderTimes();
-    loadReservations();
-    setInterval(loadReservations, 30000);
+  injectStyles();
+  if (!makeShell()) return;
+
+  const dateInput = document.getElementById("date");
+
+  // Siempre comenzar con la fecha actual
+  const today = dateKey(new Date());
+
+  state.selectedDate = today;
+
+  if (dateInput) {
+    dateInput.value = today;
   }
+
+  // Mostrar automáticamente el mes actual
+  const d = parseDate(today);
+  state.month = new Date(d.getFullYear(), d.getMonth(), 1);
+
+  renderCalendar();
+  renderTimes();
+  loadReservations();
+
+  // Actualizar reservas periódicamente
+  setInterval(loadReservations, 30000);
+}
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
   else init();
