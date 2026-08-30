@@ -1,10 +1,8 @@
-```javascript
 /* =====================================================
    AGUARÁ PAINTBALL
    ADMIN.JS
    CONFIGURACIÓN + RESERVAS
    EDITAR + CONFIRMAR + CANCELAR + ELIMINAR
-   SOPORTE PARA RESERVAS ANTIGUAS SIN PUBLIC_ID
 ===================================================== */
 
 
@@ -106,57 +104,7 @@ function formatDate(date) {
 
 
 /* =====================================================
-   IDENTIFICADOR DE RESERVA
-===================================================== */
-
-/*
-   Las reservas nuevas tienen public_id.
-
-   La reserva antigua que quedó sin public_id
-   puede utilizar el id interno de Supabase.
-
-   NO modificamos los datos.
-   Solo elegimos qué identificador enviar a la API.
-*/
-
-function getReservationId(b) {
-
-  if (
-    b &&
-    b.public_id !== null &&
-    b.public_id !== undefined &&
-    String(b.public_id).trim() !== ""
-  ) {
-
-    return {
-      type: "public_id",
-      value: String(b.public_id).trim()
-    };
-
-  }
-
-
-  if (
-    b &&
-    b.id !== null &&
-    b.id !== undefined &&
-    String(b.id).trim() !== ""
-  ) {
-
-    return {
-      type: "id",
-      value: String(b.id).trim()
-    };
-
-  }
-
-
-  return null;
-}
-
-
-/* =====================================================
-   CONFIG LOCAL
+   CONFIGURACIÓN LOCAL
 ===================================================== */
 
 function loadConfig() {
@@ -288,7 +236,8 @@ if ($("configForm")) {
               .value
               .split(",")
               .map(
-                (x) => x.trim()
+                (x) =>
+                  x.trim()
               )
               .filter(Boolean)
         };
@@ -315,7 +264,7 @@ if ($("configForm")) {
 
 
 /* =====================================================
-   RESERVAS
+   CARGAR RESERVAS
 ===================================================== */
 
 async function render() {
@@ -362,6 +311,7 @@ async function render() {
 
     let data = {};
 
+
     try {
 
       data =
@@ -406,10 +356,13 @@ async function render() {
     container.innerHTML =
       bookings
         .map(
-          (booking) =>
-            reservationHtml(
+          function (booking) {
+
+            return reservationHtml(
               booking
-            )
+            );
+
+          }
         )
         .join("");
 
@@ -431,7 +384,10 @@ async function render() {
           border-radius:10px;
         "
       >
-        <strong>Error cargando reservas</strong>
+
+        <strong>
+          Error cargando reservas
+        </strong>
 
         <p class="muted">
           ${escapeHtml(
@@ -447,6 +403,7 @@ async function render() {
         >
           Reintentar
         </button>
+
       </div>
       `;
   }
@@ -454,15 +411,23 @@ async function render() {
 
 
 /* =====================================================
-   HTML DE CADA RESERVA
+   HTML DE RESERVA
 ===================================================== */
 
 function reservationHtml(b) {
 
+  const publicId =
+    String(
+      b.public_id ??
+      ""
+    ).trim();
+
+
   const status =
     String(
-      b.status || "pending"
-    );
+      b.status ??
+      "pending"
+    ).trim();
 
 
   let statusText =
@@ -472,6 +437,7 @@ function reservationHtml(b) {
   if (
     status === "confirmed"
   ) {
+
     statusText =
       "CONFIRMADA";
   }
@@ -480,29 +446,70 @@ function reservationHtml(b) {
   if (
     status === "cancelled"
   ) {
+
     statusText =
       "CANCELADA";
   }
 
 
-  const identifier =
-    getReservationId(b);
+  /* -------------------------------------------------
+     DATOS COMPATIBLES CON LA TABLA ACTUAL
+  ------------------------------------------------- */
+
+  const name =
+    b.name ??
+    b.nombre ??
+    "Sin nombre";
 
 
-  const identifierValue =
-    identifier
-      ? identifier.value
-      : "";
+  const phone =
+    b.phone ??
+    b.whatsapp ??
+    "Sin teléfono";
 
 
-  const identifierType =
-    identifier
-      ? identifier.type
-      : "";
+  const bookingDate =
+    b.booking_date ??
+    b.fecha ??
+    "";
 
 
-  const hasIdentifier =
-    Boolean(identifier);
+  const bookingTime =
+    b.booking_time ??
+    b.horario ??
+    "";
+
+
+  const players =
+    b.players ??
+    b.jugadores ??
+    0;
+
+
+  const deposit =
+    b.deposit_amount ??
+    b.sena_requerida ??
+    0;
+
+
+  const gamePrice =
+    b.game_price ??
+    b.precio_por_jugador ??
+    0;
+
+
+  const notes =
+    b.notes ??
+    b.observaciones ??
+    "";
+
+
+  /* -------------------------------------------------
+     RESERVA ANTIGUA SIN PUBLIC_ID
+  ------------------------------------------------- */
+
+  const oldReservation =
+    !publicId;
 
 
   return `
@@ -517,6 +524,8 @@ function reservationHtml(b) {
         background:#111;
       "
     >
+
+      <!-- CABECERA -->
 
       <div
         style="
@@ -534,15 +543,19 @@ function reservationHtml(b) {
             font-size:18px;
           "
         >
+
           ${escapeHtml(
             formatDate(
-              b.booking_date
+              bookingDate
             )
           )}
+
           ·
+
           ${escapeHtml(
-            b.booking_time
+            bookingTime
           )}
+
         </strong>
 
 
@@ -551,13 +564,17 @@ function reservationHtml(b) {
             font-weight:bold;
           "
         >
+
           ${escapeHtml(
             statusText
           )}
+
         </span>
 
       </div>
 
+
+      <!-- DATOS -->
 
       <div
         style="
@@ -566,58 +583,76 @@ function reservationHtml(b) {
       >
 
         <strong>
+
           ${escapeHtml(
-            b.name
+            name
           )}
+
         </strong>
 
         <br>
 
+
         📱
+
         ${escapeHtml(
-          b.phone
+          phone
         )}
 
         <br>
 
+
         👥
+
         ${escapeHtml(
-          b.players
+          players
         )}
+
         jugadores
 
         <br>
 
+
         💰
+
         Seña:
+
         ${money(
-          b.deposit_amount
+          deposit
         )}
 
         <br>
+
 
         🎯
+
         Precio por jugador:
+
         ${money(
-          b.game_price
+          gamePrice
         )}
 
         <br>
 
+
         🆔
-        ${
-          b.public_id
-            ? escapeHtml(b.public_id)
-            : "Reserva antigua — usando ID interno"
-        }
 
         ${
-          b.notes
+          publicId
+            ? escapeHtml(
+                publicId
+              )
+            : "<span style='color:#ff5555'>SIN IDENTIFICADOR</span>"
+        }
+
+
+        ${
+          notes
             ? `
               <br>
               📝
               ${escapeHtml(
-                b.notes
+                notes
               )}
             `
             : ""
@@ -625,6 +660,8 @@ function reservationHtml(b) {
 
       </div>
 
+
+      <!-- BOTONES -->
 
       <div
         style="
@@ -636,81 +673,101 @@ function reservationHtml(b) {
       >
 
         ${
-          hasIdentifier
+          !oldReservation
             ? `
+
               <button
                 type="button"
                 class="btn btn-outline"
                 onclick="editReservation(
-                  '${escapeHtml(identifierValue)}',
-                  '${escapeHtml(identifierType)}'
+                  '${escapeHtml(
+                    publicId
+                  )}'
                 )"
               >
                 ✏️ Editar
               </button>
+
             `
             : ""
         }
 
 
         ${
-          hasIdentifier &&
+          !oldReservation &&
           status !== "confirmed"
             ? `
+
               <button
                 type="button"
                 class="btn btn-primary"
                 onclick="changeStatus(
-                  '${escapeHtml(identifierValue)}',
-                  '${escapeHtml(identifierType)}',
+                  '${escapeHtml(
+                    publicId
+                  )}',
                   'confirmed'
                 )"
               >
                 ✓ Confirmar
               </button>
+
             `
             : ""
         }
 
 
         ${
-          hasIdentifier &&
+          !oldReservation &&
           status !== "cancelled"
             ? `
+
               <button
                 type="button"
                 class="btn btn-outline"
                 onclick="changeStatus(
-                  '${escapeHtml(identifierValue)}',
-                  '${escapeHtml(identifierType)}',
+                  '${escapeHtml(
+                    publicId
+                  )}',
                   'cancelled'
                 )"
               >
                 ✕ Cancelar
               </button>
+
             `
             : ""
         }
 
 
         ${
-          hasIdentifier
+          !oldReservation
             ? `
+
               <button
                 type="button"
                 class="btn btn-outline"
                 onclick="deleteReservation(
-                  '${escapeHtml(identifierValue)}',
-                  '${escapeHtml(identifierType)}'
+                  '${escapeHtml(
+                    publicId
+                  )}'
                 )"
               >
                 🗑️ Eliminar
               </button>
+
             `
             : `
-              <span style="color:#ff7777">
-                Esta reserva no tiene identificador disponible.
+
+              <span
+                style="
+                  color:#ff7777;
+                  font-size:14px;
+                  align-self:center;
+                "
+              >
+                Esta reserva antigua no tiene public_id.
               </span>
+
             `
         }
 
@@ -727,9 +784,18 @@ function reservationHtml(b) {
 ===================================================== */
 
 async function editReservation(
-  identifier,
-  identifierType = "public_id"
+  publicId
 ) {
+
+  if (!publicId) {
+
+    alert(
+      "Falta el identificador de la reserva."
+    );
+
+    return;
+  }
+
 
   const nombre =
     prompt(
@@ -773,6 +839,16 @@ async function editReservation(
 
   const phone =
     telefono.trim();
+
+
+  if (!phone) {
+
+    alert(
+      "El teléfono no puede estar vacío."
+    );
+
+    return;
+  }
 
 
   const fecha =
@@ -889,44 +965,6 @@ async function editReservation(
 
   try {
 
-    const body = {
-
-      name:
-        name,
-
-      phone:
-        phone,
-
-      booking_date:
-        bookingDate,
-
-      booking_time:
-        bookingTime,
-
-      players:
-        players,
-
-      notes:
-        notas.trim()
-
-    };
-
-
-    if (
-      identifierType === "id"
-    ) {
-
-      body.id =
-        identifier;
-
-    } else {
-
-      body.public_id =
-        identifier;
-
-    }
-
-
     const response =
       await fetch(
         "/api/reservations",
@@ -942,7 +980,30 @@ async function editReservation(
           },
 
           body:
-            JSON.stringify(body)
+            JSON.stringify({
+
+              public_id:
+                publicId,
+
+              name:
+                name,
+
+              phone:
+                phone,
+
+              booking_date:
+                bookingDate,
+
+              booking_time:
+                bookingTime,
+
+              players:
+                players,
+
+              notes:
+                notas.trim()
+
+            })
         }
       );
 
@@ -951,7 +1012,15 @@ async function editReservation(
       await response.text();
 
 
+    console.log(
+      "RESPUESTA EDITAR:",
+      response.status,
+      text
+    );
+
+
     let data = {};
+
 
     try {
 
@@ -1002,14 +1071,23 @@ async function editReservation(
 
 
 /* =====================================================
-   CAMBIAR ESTADO
+   CONFIRMAR / CANCELAR
 ===================================================== */
 
 async function changeStatus(
-  identifier,
-  identifierType,
+  publicId,
   status
 ) {
+
+  if (!publicId) {
+
+    alert(
+      "Falta el identificador de la reserva."
+    );
+
+    return;
+  }
+
 
   const texto =
     status === "confirmed"
@@ -1020,34 +1098,12 @@ async function changeStatus(
   if (
     !confirm(texto)
   ) {
+
     return;
   }
 
 
   try {
-
-    const body = {
-
-      status:
-        status
-
-    };
-
-
-    if (
-      identifierType === "id"
-    ) {
-
-      body.id =
-        identifier;
-
-    } else {
-
-      body.public_id =
-        identifier;
-
-    }
-
 
     const response =
       await fetch(
@@ -1064,7 +1120,15 @@ async function changeStatus(
           },
 
           body:
-            JSON.stringify(body)
+            JSON.stringify({
+
+              public_id:
+                publicId,
+
+              status:
+                status
+
+            })
         }
       );
 
@@ -1073,7 +1137,15 @@ async function changeStatus(
       await response.text();
 
 
+    console.log(
+      "RESPUESTA ESTADO:",
+      response.status,
+      text
+    );
+
+
     let data = {};
+
 
     try {
 
@@ -1097,6 +1169,13 @@ async function changeStatus(
         "No se pudo cambiar el estado."
       );
     }
+
+
+    alert(
+      status === "confirmed"
+        ? "Reserva confirmada correctamente."
+        : "Reserva cancelada correctamente."
+    );
 
 
     render();
@@ -1123,9 +1202,18 @@ async function changeStatus(
 ===================================================== */
 
 async function deleteReservation(
-  identifier,
-  identifierType = "public_id"
+  publicId
 ) {
+
+  if (!publicId) {
+
+    alert(
+      "Falta el identificador de la reserva."
+    );
+
+    return;
+  }
+
 
   const confirmar =
     confirm(
@@ -1143,24 +1231,6 @@ async function deleteReservation(
 
   try {
 
-    const body = {};
-
-
-    if (
-      identifierType === "id"
-    ) {
-
-      body.id =
-        identifier;
-
-    } else {
-
-      body.public_id =
-        identifier;
-
-    }
-
-
     const response =
       await fetch(
         "/api/reservations",
@@ -1176,7 +1246,12 @@ async function deleteReservation(
           },
 
           body:
-            JSON.stringify(body)
+            JSON.stringify({
+
+              public_id:
+                publicId
+
+            })
         }
       );
 
@@ -1185,7 +1260,15 @@ async function deleteReservation(
       await response.text();
 
 
+    console.log(
+      "RESPUESTA ELIMINAR:",
+      response.status,
+      text
+    );
+
+
     let data = {};
+
 
     try {
 
@@ -1236,7 +1319,7 @@ async function deleteReservation(
 
 
 /* =====================================================
-   FUNCIONES DISPONIBLES PARA LOS BOTONES
+   FUNCIONES GLOBALES
 ===================================================== */
 
 window.render =
@@ -1257,9 +1340,8 @@ window.deleteReservation =
 ===================================================== */
 
 console.log(
-  "Aguará Paintball — admin.js cargado."
+  "Aguará Paintball — admin.js cargado correctamente."
 );
 
 
 render();
-```
