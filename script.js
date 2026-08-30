@@ -1,3 +1,4 @@
+```javascript
 /* =====================================================
    AGUARÁ PAINTBALL
    SCRIPT.JS — RESERVAS + COMPROBANTE
@@ -121,13 +122,40 @@ const receiptAmount =
   document.getElementById("receiptAmount");
 
 
+/* =====================================================
+   BOTÓN CONTINUAR RESERVA
+===================================================== */
+
+const submitButton =
+  bookingForm
+    ? bookingForm.querySelector('button[type="submit"]')
+    : null;
+
+
 /*
    Guarda el public_id de la última reserva creada.
-   Ese ID permite asociar el comprobante
-   exactamente con la reserva correcta.
 */
 
 let currentReservationId = null;
+
+
+/*
+   Indica si el comprobante fue enviado correctamente.
+*/
+
+let receiptSent = false;
+
+
+/* =====================================================
+   SEPARACIÓN VISUAL ENTRE RESERVA Y COMPROBANTE
+===================================================== */
+
+if (receiptUpload) {
+
+  receiptUpload.style.marginTop = "40px";
+  receiptUpload.style.paddingTop = "30px";
+  receiptUpload.style.borderTop = "2px solid rgba(255,255,255,0.15)";
+}
 
 
 /* =====================================================
@@ -242,6 +270,7 @@ if (dateInput) {
 
 /* =====================================================
    CARGAR HORARIOS
+   NO MODIFICAR
 ===================================================== */
 
 function cargarHorarios() {
@@ -466,6 +495,108 @@ function fileToBase64(file) {
 
 
 /* =====================================================
+   MARCAR RESERVA COMO CONFIRMADA VISUALMENTE
+===================================================== */
+
+function marcarReservaConfirmada() {
+
+  receiptSent = true;
+
+
+  /* -----------------------------------------------
+     BOTÓN CONTINUAR CON LA RESERVA
+  ----------------------------------------------- */
+
+  if (submitButton) {
+
+    submitButton.disabled = true;
+
+    submitButton.style.background =
+      "#25a244";
+
+    submitButton.style.borderColor =
+      "#25a244";
+
+    submitButton.style.color =
+      "#ffffff";
+
+    submitButton.style.cursor =
+      "default";
+
+    submitButton.style.opacity =
+      "1";
+
+    submitButton.innerHTML =
+      "RESERVA CONFIRMADA ✓";
+  }
+
+
+  /* -----------------------------------------------
+     BOTÓN COMPROBANTE
+  ----------------------------------------------- */
+
+  if (receiptButton) {
+
+    receiptButton.disabled = true;
+
+    receiptButton.style.background =
+      "#25a244";
+
+    receiptButton.style.borderColor =
+      "#25a244";
+
+    receiptButton.style.color =
+      "#ffffff";
+
+    receiptButton.style.cursor =
+      "default";
+
+    receiptButton.style.opacity =
+      "1";
+
+    receiptButton.innerHTML =
+      "COMPROBANTE ENVIADO ✓";
+  }
+
+
+  /* -----------------------------------------------
+     CONTENEDOR DEL COMPROBANTE
+  ----------------------------------------------- */
+
+  if (receiptUpload) {
+
+    receiptUpload.style.background =
+      "#dff6e5";
+
+    receiptUpload.style.border =
+      "2px solid #25a244";
+
+    receiptUpload.style.borderRadius =
+      "12px";
+
+    receiptUpload.style.padding =
+      "25px";
+
+    receiptUpload.style.marginTop =
+      "40px";
+
+    receiptUpload.style.transition =
+      "all 0.3s ease";
+  }
+
+
+  /* -----------------------------------------------
+     MENSAJE VERDE
+  ----------------------------------------------- */
+
+  showReceiptMessage(
+    "🟢 RESERVA CONFIRMADA — Comprobante recibido correctamente.",
+    "success"
+  );
+}
+
+
+/* =====================================================
    ENVIAR COMPROBANTE
 ===================================================== */
 
@@ -477,6 +608,12 @@ async function uploadReceipt() {
       "Primero tenés que realizar una reserva.",
       "error"
     );
+
+    return;
+  }
+
+
+  if (receiptSent) {
 
     return;
   }
@@ -516,11 +653,9 @@ async function uploadReceipt() {
   }
 
 
-  /*
-    Limitamos el archivo a 3 MB.
-    Esto evita problemas con el tamaño
-    de la petición hacia Vercel.
-  */
+  /* -----------------------------------------------
+     LÍMITE DE 3 MB
+  ----------------------------------------------- */
 
   if (file.size > 3 * 1024 * 1024) {
 
@@ -601,6 +736,7 @@ async function uploadReceipt() {
 
     let data = {};
 
+
     try {
 
       data =
@@ -622,37 +758,22 @@ async function uploadReceipt() {
     }
 
 
-    showReceiptMessage(
-  "🟢 RESERVA CONFIRMADA — ¡Comprobante recibido correctamente! Aguará revisará el pago.",
-  "success"
-);
-
-if (receiptUpload) {
-  receiptUpload.style.background = "#dff6e5";
-  receiptUpload.style.border = "2px solid #25a244";
-  receiptUpload.style.borderRadius = "12px";
-  receiptUpload.style.padding = "20px";
-}
-
-if (receiptButton) {
-  receiptButton.style.background = "#25a244";
-  receiptButton.style.borderColor = "#25a244";
-  receiptButton.innerHTML = "RESERVA CONFIRMADA ✓";
-  receiptButton.disabled = true;
-}
-
+    /* -----------------------------------------------
+       COMPROBANTE ENVIADO CORRECTAMENTE
+    ----------------------------------------------- */
 
     if (receiptFile) {
+
       receiptFile.value = "";
     }
 
 
-    if (receiptButton) {
+    /*
+       ACÁ SE MARCA TODA LA RESERVA COMO CONFIRMADA
+       VISUALMENTE.
+    */
 
-      receiptButton.innerHTML =
-        "Comprobante enviado ✓";
-
-    }
+    marcarReservaConfirmada();
 
 
   } catch (error) {
@@ -677,7 +798,6 @@ if (receiptButton) {
 
       receiptButton.innerHTML =
         originalText;
-
     }
 
   }
@@ -847,12 +967,6 @@ async function createReservation() {
      BOTÓN
   ------------------------------------------------- */
 
-  const submitButton =
-    bookingForm.querySelector(
-      'button[type="submit"]'
-    );
-
-
   let textoOriginal =
     "Continuar con la reserva";
 
@@ -956,6 +1070,7 @@ async function createReservation() {
 
     let data = {};
 
+
     try {
 
       data =
@@ -1037,6 +1152,15 @@ async function createReservation() {
       receiptUpload.hidden =
         false;
 
+      receiptUpload.style.marginTop =
+        "40px";
+
+      receiptUpload.style.paddingTop =
+        "30px";
+
+      receiptUpload.style.borderTop =
+        "2px solid rgba(255,255,255,0.15)";
+
       receiptUpload.scrollIntoView({
         behavior: "smooth",
         block: "center"
@@ -1110,7 +1234,16 @@ async function createReservation() {
 
   } finally {
 
-    if (submitButton) {
+    /*
+       IMPORTANTE:
+       Si el comprobante ya fue enviado,
+       NO volvemos a activar el botón.
+    */
+
+    if (
+      submitButton &&
+      !receiptSent
+    ) {
 
       submitButton.disabled =
         false;
@@ -1118,7 +1251,9 @@ async function createReservation() {
       submitButton.innerHTML =
         textoOriginal;
     }
+
   }
+
 }
 
 
@@ -1307,3 +1442,4 @@ console.log(
   "Horarios disponibles:",
   CONFIG.slots
 );
+```
