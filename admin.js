@@ -1,20 +1,33 @@
-```javascript
 /* =====================================================
    AGUARÁ PAINTBALL
    ADMIN.JS
-   RESERVAS + EDITAR + ELIMINAR
+   CONFIGURACIÓN + RESERVAS
+   EDITAR + CONFIRMAR + CANCELAR + ELIMINAR
+===================================================== */
+
+
+/* =====================================================
+   CONFIGURACIÓN
 ===================================================== */
 
 const DEFAULTS = {
   gamePrice: 29000,
-  shotsText: "100 TIROS INCLUIDOS",
-  hydrogelPrice: 0,
-  hydrogelShotsText: "MUNICIÓN INCLUIDA",
-  deposit: 50000,
-  minPlayers: 10,
-  whatsapp: "5493794250285",
 
-  /* HORARIOS — NO MODIFICAR */
+  shotsText:
+    "100 TIROS INCLUIDOS",
+
+  hydrogelPrice: 0,
+
+  hydrogelShotsText:
+    "MUNICIÓN INCLUIDA",
+
+  deposit: 50000,
+
+  minPlayers: 10,
+
+  whatsapp:
+    "5493794250285",
+
   slots: [
     "10:00",
     "11:00",
@@ -34,7 +47,7 @@ const DEFAULTS = {
 
 
 /* =====================================================
-   UTILIDADES
+   HELPERS
 ===================================================== */
 
 const $ = (id) =>
@@ -43,12 +56,16 @@ const $ = (id) =>
 
 function money(value) {
 
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0
-  }).format(Number(value) || 0);
-
+  return new Intl.NumberFormat(
+    "es-AR",
+    {
+      style: "currency",
+      currency: "ARS",
+      maximumFractionDigits: 0
+    }
+  ).format(
+    Number(value) || 0
+  );
 }
 
 
@@ -60,7 +77,6 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
-
 }
 
 
@@ -84,12 +100,11 @@ function formatDate(date) {
     "/" +
     parts[0]
   );
-
 }
 
 
 /* =====================================================
-   CONFIGURACIÓN
+   CONFIG LOCAL
 ===================================================== */
 
 function loadConfig() {
@@ -98,6 +113,7 @@ function loadConfig() {
 
     return {
       ...DEFAULTS,
+
       ...JSON.parse(
         localStorage.getItem(
           "aguaraConfig"
@@ -112,55 +128,55 @@ function loadConfig() {
     };
 
   }
-
 }
 
 
-function loadConfigForm() {
+const cfg =
+  loadConfig();
 
-  const cfg =
-    loadConfig();
 
-  if ($("gamePrice")) {
-    $("gamePrice").value =
-      cfg.gamePrice;
-  }
+/* =====================================================
+   CARGAR CONFIGURACIÓN EN FORMULARIO
+===================================================== */
 
-  if ($("shotsText")) {
-    $("shotsText").value =
-      cfg.shotsText;
-  }
+if ($("gamePrice")) {
+  $("gamePrice").value =
+    cfg.gamePrice;
+}
 
-  if ($("hydrogelPrice")) {
-    $("hydrogelPrice").value =
-      cfg.hydrogelPrice;
-  }
+if ($("shotsText")) {
+  $("shotsText").value =
+    cfg.shotsText;
+}
 
-  if ($("hydrogelShotsText")) {
-    $("hydrogelShotsText").value =
-      cfg.hydrogelShotsText;
-  }
+if ($("hydrogelPrice")) {
+  $("hydrogelPrice").value =
+    cfg.hydrogelPrice;
+}
 
-  if ($("deposit")) {
-    $("deposit").value =
-      cfg.deposit;
-  }
+if ($("hydrogelShotsText")) {
+  $("hydrogelShotsText").value =
+    cfg.hydrogelShotsText;
+}
 
-  if ($("minPlayers")) {
-    $("minPlayers").value =
-      cfg.minPlayers;
-  }
+if ($("deposit")) {
+  $("deposit").value =
+    cfg.deposit;
+}
 
-  if ($("whatsapp")) {
-    $("whatsapp").value =
-      cfg.whatsapp;
-  }
+if ($("minPlayers")) {
+  $("minPlayers").value =
+    cfg.minPlayers;
+}
 
-  if ($("slots")) {
-    $("slots").value =
-      cfg.slots.join(", ");
-  }
+if ($("whatsapp")) {
+  $("whatsapp").value =
+    cfg.whatsapp;
+}
 
+if ($("slots")) {
+  $("slots").value =
+    cfg.slots.join(", ");
 }
 
 
@@ -168,93 +184,91 @@ function loadConfigForm() {
    GUARDAR CONFIGURACIÓN
 ===================================================== */
 
-const configForm =
-  $("configForm");
+if ($("configForm")) {
+
+  $("configForm")
+    .addEventListener(
+      "submit",
+      function (event) {
+
+        event.preventDefault();
 
 
-if (configForm) {
+        const next = {
 
-  configForm.addEventListener(
-    "submit",
-    function (event) {
+          gamePrice:
+            Number(
+              $("gamePrice").value
+            ),
 
-      event.preventDefault();
+          shotsText:
+            $("shotsText").value.trim(),
 
-      const next = {
+          hydrogelPrice:
+            Number(
+              $("hydrogelPrice").value
+            ),
 
-        gamePrice:
-          Number(
-            $("gamePrice").value
-          ),
+          hydrogelShotsText:
+            $("hydrogelShotsText")
+              .value
+              .trim(),
 
-        shotsText:
-          $("shotsText").value.trim(),
+          deposit:
+            Number(
+              $("deposit").value
+            ),
 
-        hydrogelPrice:
-          Number(
-            $("hydrogelPrice").value
-          ),
+          minPlayers:
+            Number(
+              $("minPlayers").value
+            ),
 
-        hydrogelShotsText:
-          $("hydrogelShotsText")
-            .value.trim(),
+          whatsapp:
+            $("whatsapp")
+              .value
+              .replace(/\D/g, ""),
 
-        deposit:
-          Number(
-            $("deposit").value
-          ),
-
-        minPlayers:
-          Number(
-            $("minPlayers").value
-          ),
-
-        whatsapp:
-          $("whatsapp")
-            .value
-            .replace(/\D/g, ""),
-
-        slots:
-          $("slots")
-            .value
-            .split(",")
-            .map(
-              function (x) {
-                return x.trim();
-              }
-            )
-            .filter(Boolean)
-
-      };
+          slots:
+            $("slots")
+              .value
+              .split(",")
+              .map(
+                (x) => x.trim()
+              )
+              .filter(Boolean)
+        };
 
 
-      localStorage.setItem(
-        "aguaraConfig",
-        JSON.stringify(next)
-      );
+        localStorage.setItem(
+          "aguaraConfig",
+          JSON.stringify(next)
+        );
 
 
-      if ($("saved")) {
+        if ($("saved")) {
 
-        $("saved").hidden =
-          false;
+          $("saved").hidden =
+            false;
+
+          $("saved").textContent =
+            "Configuración guardada correctamente.";
+        }
 
       }
-
-    }
-  );
-
+    );
 }
 
 
 /* =====================================================
-   CARGAR RESERVAS
+   RESERVAS
 ===================================================== */
 
 async function render() {
 
   const container =
     $("bookings");
+
 
   if (!container) {
     return;
@@ -276,9 +290,7 @@ async function render() {
           headers: {
             Accept:
               "application/json"
-          },
-
-          cache: "no-store"
+          }
         }
       );
 
@@ -317,7 +329,6 @@ async function render() {
         data.message ||
         "No se pudieron cargar las reservas."
       );
-
     }
 
 
@@ -335,156 +346,289 @@ async function render() {
         "<p class='muted'>No hay reservas todavía.</p>";
 
       return;
-
     }
 
 
     container.innerHTML =
       bookings
         .map(
-          function (b) {
-
-            return `
-
-              <div
-                style="
-                  border-top:1px solid #333;
-                  padding:18px 0;
-                "
-              >
-
-                <strong>
-                  ${escapeHtml(
-                    formatDate(
-                      b.booking_date
-                    )
-                  )}
-                  ·
-                  ${escapeHtml(
-                    b.booking_time
-                  )}
-                </strong>
-
-                <br>
-
-                <strong>
-                  ${escapeHtml(
-                    b.name
-                  )}
-                </strong>
-
-                ·
-                ${escapeHtml(
-                  b.players
-                )}
-                jugadores
-
-                <br>
-
-                <small>
-                  WhatsApp:
-                  ${escapeHtml(
-                    b.phone
-                  )}
-                </small>
-
-                <br>
-
-                <small>
-                  ID:
-                  ${escapeHtml(
-                    b.public_id
-                  )}
-                </small>
-
-                <br>
-
-                <small>
-                  Seña:
-                  ${money(
-                    b.deposit_amount
-                  )}
-                </small>
-
-                <br>
-
-                <small>
-                  Estado:
-                  ${escapeHtml(
-                    b.status
-                  )}
-                </small>
-
-                <div
-                  style="
-                    display:flex;
-                    gap:8px;
-                    flex-wrap:wrap;
-                    margin-top:12px;
-                  "
-                >
-
-                  <button
-                    type="button"
-                    class="btn btn-primary"
-                    onclick="editarReserva('${escapeHtml(
-                      b.public_id
-                    )}')"
-                  >
-                    EDITAR
-                  </button>
-
-
-                  <button
-                    type="button"
-                    class="btn btn-outline"
-                    onclick="eliminarReserva('${escapeHtml(
-                      b.public_id
-                    )}')"
-                  >
-                    ELIMINAR
-                  </button>
-
-                </div>
-
-              </div>
-
-            `;
-
-          }
+          (booking) =>
+            reservationHtml(
+              booking
+            )
         )
         .join("");
+
 
   } catch (error) {
 
     console.error(
-      "Error cargando reservas:",
+      "ERROR CARGANDO RESERVAS:",
       error
     );
 
 
-    container.innerHTML = `
-
-      <p class="muted">
-        ${escapeHtml(
-          error.message ||
-          "Error cargando reservas."
-        )}
-      </p>
-
-      <button
-        type="button"
-        class="btn btn-primary"
-        onclick="render()"
-        style="margin-top:10px"
+    container.innerHTML =
+      `
+      <div
+        style="
+          padding:20px;
+          border:1px solid #663333;
+          border-radius:10px;
+        "
       >
-        RECARGAR RESERVAS
-      </button>
+        <strong>Error cargando reservas</strong>
 
-    `;
+        <p class="muted">
+          ${escapeHtml(
+            error.message ||
+            "Error desconocido."
+          )}
+        </p>
 
+        <button
+          type="button"
+          class="btn btn-primary"
+          onclick="render()"
+        >
+          Reintentar
+        </button>
+      </div>
+      `;
+  }
+}
+
+
+/* =====================================================
+   HTML DE CADA RESERVA
+===================================================== */
+
+function reservationHtml(b) {
+
+  const status =
+    String(
+      b.status || "pending"
+    );
+
+
+  let statusText =
+    "PENDIENTE";
+
+
+  if (
+    status === "confirmed"
+  ) {
+    statusText =
+      "CONFIRMADA";
   }
 
+
+  if (
+    status === "cancelled"
+  ) {
+    statusText =
+      "CANCELADA";
+  }
+
+
+  return `
+
+    <div
+      class="admin-reservation"
+      style="
+        border:1px solid #333;
+        border-radius:14px;
+        padding:20px;
+        margin-bottom:18px;
+        background:#111;
+      "
+    >
+
+      <div
+        style="
+          display:flex;
+          justify-content:space-between;
+          gap:15px;
+          flex-wrap:wrap;
+          align-items:center;
+          margin-bottom:15px;
+        "
+      >
+
+        <strong
+          style="
+            font-size:18px;
+          "
+        >
+          ${escapeHtml(
+            formatDate(
+              b.booking_date
+            )
+          )}
+          ·
+          ${escapeHtml(
+            b.booking_time
+          )}
+        </strong>
+
+
+        <span
+          style="
+            font-weight:bold;
+          "
+        >
+          ${escapeHtml(
+            statusText
+          )}
+        </span>
+
+      </div>
+
+
+      <div
+        style="
+          line-height:1.8;
+        "
+      >
+
+        <strong>
+          ${escapeHtml(
+            b.name
+          )}
+        </strong>
+
+        <br>
+
+        📱
+        ${escapeHtml(
+          b.phone
+        )}
+
+        <br>
+
+        👥
+        ${escapeHtml(
+          b.players
+        )}
+        jugadores
+
+        <br>
+
+        💰
+        Seña:
+        ${money(
+          b.deposit_amount
+        )}
+
+        <br>
+
+        🎯
+        Precio por jugador:
+        ${money(
+          b.game_price
+        )}
+
+        <br>
+
+        🆔
+        ${escapeHtml(
+          b.public_id
+        )}
+
+        ${
+          b.notes
+            ? `
+              <br>
+              📝
+              ${escapeHtml(
+                b.notes
+              )}
+            `
+            : ""
+        }
+
+      </div>
+
+
+      <div
+        style="
+          display:flex;
+          gap:10px;
+          flex-wrap:wrap;
+          margin-top:18px;
+        "
+      >
+
+        <button
+          type="button"
+          class="btn btn-outline"
+          onclick="editReservation(
+            '${escapeHtml(
+              b.public_id
+            )}'
+          )"
+        >
+          ✏️ Editar
+        </button>
+
+
+        ${
+          status !== "confirmed"
+            ? `
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="changeStatus(
+                  '${escapeHtml(
+                    b.public_id
+                  )}',
+                  'confirmed'
+                )"
+              >
+                ✓ Confirmar
+              </button>
+            `
+            : ""
+        }
+
+
+        ${
+          status !== "cancelled"
+            ? `
+              <button
+                type="button"
+                class="btn btn-outline"
+                onclick="changeStatus(
+                  '${escapeHtml(
+                    b.public_id
+                  )}',
+                  'cancelled'
+                )"
+              >
+                ✕ Cancelar
+              </button>
+            `
+            : ""
+        }
+
+
+        <button
+          type="button"
+          class="btn btn-outline"
+          onclick="deleteReservation(
+            '${escapeHtml(
+              b.public_id
+            )}'
+          )"
+        >
+          🗑️ Eliminar
+        </button>
+
+      </div>
+
+    </div>
+
+  `;
 }
 
 
@@ -492,176 +636,169 @@ async function render() {
    EDITAR RESERVA
 ===================================================== */
 
-async function editarReserva(
+async function editReservation(
   publicId
 ) {
+
+  const nombre =
+    prompt(
+      "Nombre y apellido:"
+    );
+
+
+  if (
+    nombre === null
+  ) {
+    return;
+  }
+
+
+  const name =
+    nombre.trim();
+
+
+  if (!name) {
+
+    alert(
+      "El nombre no puede estar vacío."
+    );
+
+    return;
+  }
+
+
+  const telefono =
+    prompt(
+      "Número de WhatsApp:"
+    );
+
+
+  if (
+    telefono === null
+  ) {
+    return;
+  }
+
+
+  const phone =
+    telefono.trim();
+
+
+  const fecha =
+    prompt(
+      "Fecha (AAAA-MM-DD):"
+    );
+
+
+  if (
+    fecha === null
+  ) {
+    return;
+  }
+
+
+  const bookingDate =
+    fecha.trim();
+
+
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(
+      bookingDate
+    )
+  ) {
+
+    alert(
+      "La fecha no es válida."
+    );
+
+    return;
+  }
+
+
+  const hora =
+    prompt(
+      "Horario (HH:MM):"
+    );
+
+
+  if (
+    hora === null
+  ) {
+    return;
+  }
+
+
+  const bookingTime =
+    hora.trim();
+
+
+  if (
+    !/^\d{2}:\d{2}$/.test(
+      bookingTime
+    )
+  ) {
+
+    alert(
+      "El horario no es válido."
+    );
+
+    return;
+  }
+
+
+  const jugadores =
+    prompt(
+      "Cantidad de jugadores:"
+    );
+
+
+  if (
+    jugadores === null
+  ) {
+    return;
+  }
+
+
+  const players =
+    Number(
+      jugadores
+    );
+
+
+  if (
+    !Number.isInteger(
+      players
+    ) ||
+    players < cfg.minPlayers
+  ) {
+
+    alert(
+      "La reserva requiere un mínimo de " +
+      cfg.minPlayers +
+      " jugadores."
+    );
+
+    return;
+  }
+
+
+  const notas =
+    prompt(
+      "Observaciones:",
+      ""
+    );
+
+
+  if (
+    notas === null
+  ) {
+    return;
+  }
+
 
   try {
 
     const response =
-      await fetch(
-        "/api/reservations",
-        {
-          method: "GET",
-
-          headers: {
-            Accept:
-              "application/json"
-          },
-
-          cache: "no-store"
-        }
-      );
-
-
-    const data =
-      await response.json();
-
-
-    if (
-      !response.ok ||
-      !data.ok
-    ) {
-
-      throw new Error(
-        data.message ||
-        "No se pudieron cargar las reservas."
-      );
-
-    }
-
-
-    const reservas =
-      Array.isArray(
-        data.reservas
-      )
-        ? data.reservas
-        : [];
-
-
-    const reserva =
-      reservas.find(
-        function (item) {
-
-          return (
-            item.public_id ===
-            publicId
-          );
-
-        }
-      );
-
-
-    if (!reserva) {
-
-      alert(
-        "No encontramos esa reserva."
-      );
-
-      return;
-
-    }
-
-
-    const nombre =
-      prompt(
-        "Nombre y apellido:",
-        reserva.name || ""
-      );
-
-
-    if (nombre === null) {
-      return;
-    }
-
-
-    const whatsapp =
-      prompt(
-        "WhatsApp:",
-        reserva.phone || ""
-      );
-
-
-    if (whatsapp === null) {
-      return;
-    }
-
-
-    const fecha =
-      prompt(
-        "Fecha (AAAA-MM-DD):",
-        reserva.booking_date || ""
-      );
-
-
-    if (fecha === null) {
-      return;
-    }
-
-
-    const horario =
-      prompt(
-        "Horario:",
-        reserva.booking_time || ""
-      );
-
-
-    if (horario === null) {
-      return;
-    }
-
-
-    const jugadores =
-      prompt(
-        "Cantidad de jugadores:",
-        reserva.players || 10
-      );
-
-
-    if (jugadores === null) {
-      return;
-    }
-
-
-    const notas =
-      prompt(
-        "Observaciones:",
-        reserva.notes || ""
-      );
-
-
-    if (notas === null) {
-      return;
-    }
-
-
-    const body = {
-
-      public_id:
-        publicId,
-
-      name:
-        nombre.trim(),
-
-      phone:
-        whatsapp.trim(),
-
-      booking_date:
-        fecha.trim(),
-
-      booking_time:
-        horario.trim(),
-
-      players:
-        Number(jugadores),
-
-      notes:
-        notas.trim()
-
-    };
-
-
-    const updateResponse =
       await fetch(
         "/api/reservations",
         {
@@ -676,44 +813,66 @@ async function editarReserva(
           },
 
           body:
-            JSON.stringify(body)
+            JSON.stringify({
+
+              public_id:
+                publicId,
+
+              name:
+                name,
+
+              phone:
+                phone,
+
+              booking_date:
+                bookingDate,
+
+              booking_time:
+                bookingTime,
+
+              players:
+                players,
+
+              notes:
+                notas.trim()
+
+            })
         }
       );
 
 
     const text =
-      await updateResponse.text();
+      await response.text();
 
 
-    let result = {};
+    let data = {};
 
     try {
 
-      result =
+      data =
         JSON.parse(text);
 
     } catch {
 
-      result = {};
+      data = {};
 
     }
 
 
     if (
-      !updateResponse.ok ||
-      !result.ok
+      !response.ok ||
+      !data.ok
     ) {
 
       throw new Error(
-        result.message ||
-        "No se pudo modificar la reserva."
+        data.message ||
+        "No se pudo editar la reserva."
       );
-
     }
 
 
     alert(
-      "Reserva modificada correctamente."
+      "Reserva actualizada correctamente."
     );
 
 
@@ -730,11 +889,110 @@ async function editarReserva(
 
     alert(
       error.message ||
-      "No se pudo modificar la reserva."
+      "No se pudo editar la reserva."
     );
+  }
+}
 
+
+/* =====================================================
+   CAMBIAR ESTADO
+===================================================== */
+
+async function changeStatus(
+  publicId,
+  status
+) {
+
+  const texto =
+    status === "confirmed"
+      ? "¿Confirmar esta reserva?"
+      : "¿Cancelar esta reserva?";
+
+
+  if (
+    !confirm(texto)
+  ) {
+    return;
   }
 
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/reservations",
+        {
+          method: "PATCH",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            Accept:
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+
+              public_id:
+                publicId,
+
+              status:
+                status
+
+            })
+        }
+      );
+
+
+    const text =
+      await response.text();
+
+
+    let data = {};
+
+    try {
+
+      data =
+        JSON.parse(text);
+
+    } catch {
+
+      data = {};
+
+    }
+
+
+    if (
+      !response.ok ||
+      !data.ok
+    ) {
+
+      throw new Error(
+        data.message ||
+        "No se pudo cambiar el estado."
+      );
+    }
+
+
+    render();
+
+
+  } catch (error) {
+
+    console.error(
+      "ERROR CAMBIANDO ESTADO:",
+      error
+    );
+
+
+    alert(
+      error.message ||
+      "No se pudo cambiar el estado."
+    );
+  }
 }
 
 
@@ -742,14 +1000,16 @@ async function editarReserva(
    ELIMINAR RESERVA
 ===================================================== */
 
-async function eliminarReserva(
+async function deleteReservation(
   publicId
 ) {
 
   const confirmar =
     confirm(
-      "¿Seguro que querés eliminar esta reserva?\n\n" +
-      "Esta acción liberará el horario."
+      "¿ESTÁS SEGURO?\n\n" +
+      "Esta acción eliminará definitivamente " +
+      "la reserva.\n\n" +
+      "No se puede deshacer."
     );
 
 
@@ -776,8 +1036,10 @@ async function eliminarReserva(
 
           body:
             JSON.stringify({
+
               public_id:
                 publicId
+
             })
         }
       );
@@ -810,7 +1072,6 @@ async function eliminarReserva(
         data.message ||
         "No se pudo eliminar la reserva."
       );
-
     }
 
 
@@ -834,35 +1095,34 @@ async function eliminarReserva(
       error.message ||
       "No se pudo eliminar la reserva."
     );
-
   }
-
 }
 
 
 /* =====================================================
-   EXPONER FUNCIONES
+   HACER FUNCIONES DISPONIBLES PARA LOS BOTONES
 ===================================================== */
 
-window.editarReserva =
-  editarReserva;
-
-window.eliminarReserva =
-  eliminarReserva;
-
-window.renderReservas =
+window.render =
   render;
+
+window.editReservation =
+  editReservation;
+
+window.changeStatus =
+  changeStatus;
+
+window.deleteReservation =
+  deleteReservation;
 
 
 /* =====================================================
    INICIO
 ===================================================== */
 
-loadConfigForm();
+console.log(
+  "Aguará Paintball — admin.js cargado."
+);
+
 
 render();
-
-console.log(
-  "Aguará Paintball — admin.js cargado correctamente."
-);
-```
