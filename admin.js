@@ -1,8 +1,10 @@
+```javascript
 /* =====================================================
    AGUARÁ PAINTBALL
    ADMIN.JS
    CONFIGURACIÓN + RESERVAS
    EDITAR + CONFIRMAR + CANCELAR + ELIMINAR
+   SOPORTE PARA RESERVAS ANTIGUAS SIN PUBLIC_ID
 ===================================================== */
 
 
@@ -104,6 +106,56 @@ function formatDate(date) {
 
 
 /* =====================================================
+   IDENTIFICADOR DE RESERVA
+===================================================== */
+
+/*
+   Las reservas nuevas tienen public_id.
+
+   La reserva antigua que quedó sin public_id
+   puede utilizar el id interno de Supabase.
+
+   NO modificamos los datos.
+   Solo elegimos qué identificador enviar a la API.
+*/
+
+function getReservationId(b) {
+
+  if (
+    b &&
+    b.public_id !== null &&
+    b.public_id !== undefined &&
+    String(b.public_id).trim() !== ""
+  ) {
+
+    return {
+      type: "public_id",
+      value: String(b.public_id).trim()
+    };
+
+  }
+
+
+  if (
+    b &&
+    b.id !== null &&
+    b.id !== undefined &&
+    String(b.id).trim() !== ""
+  ) {
+
+    return {
+      type: "id",
+      value: String(b.id).trim()
+    };
+
+  }
+
+
+  return null;
+}
+
+
+/* =====================================================
    CONFIG LOCAL
 ===================================================== */
 
@@ -136,7 +188,7 @@ const cfg =
 
 
 /* =====================================================
-   CARGAR CONFIGURACIÓN EN FORMULARIO
+   CARGAR CONFIGURACIÓN
 ===================================================== */
 
 if ($("gamePrice")) {
@@ -202,7 +254,9 @@ if ($("configForm")) {
             ),
 
           shotsText:
-            $("shotsText").value.trim(),
+            $("shotsText")
+              .value
+              .trim(),
 
           hydrogelPrice:
             Number(
@@ -431,6 +485,26 @@ function reservationHtml(b) {
   }
 
 
+  const identifier =
+    getReservationId(b);
+
+
+  const identifierValue =
+    identifier
+      ? identifier.value
+      : "";
+
+
+  const identifierType =
+    identifier
+      ? identifier.type
+      : "";
+
+
+  const hasIdentifier =
+    Boolean(identifier);
+
+
   return `
 
     <div
@@ -531,9 +605,11 @@ function reservationHtml(b) {
         <br>
 
         🆔
-        ${escapeHtml(
+        ${
           b.public_id
-        )}
+            ? escapeHtml(b.public_id)
+            : "Reserva antigua — usando ID interno"
+        }
 
         ${
           b.notes
@@ -559,29 +635,34 @@ function reservationHtml(b) {
         "
       >
 
-        <button
-          type="button"
-          class="btn btn-outline"
-          onclick="editReservation(
-            '${escapeHtml(
-              b.public_id
-            )}'
-          )"
-        >
-          ✏️ Editar
-        </button>
+        ${
+          hasIdentifier
+            ? `
+              <button
+                type="button"
+                class="btn btn-outline"
+                onclick="editReservation(
+                  '${escapeHtml(identifierValue)}',
+                  '${escapeHtml(identifierType)}'
+                )"
+              >
+                ✏️ Editar
+              </button>
+            `
+            : ""
+        }
 
 
         ${
+          hasIdentifier &&
           status !== "confirmed"
             ? `
               <button
                 type="button"
                 class="btn btn-primary"
                 onclick="changeStatus(
-                  '${escapeHtml(
-                    b.public_id
-                  )}',
+                  '${escapeHtml(identifierValue)}',
+                  '${escapeHtml(identifierType)}',
                   'confirmed'
                 )"
               >
@@ -593,15 +674,15 @@ function reservationHtml(b) {
 
 
         ${
+          hasIdentifier &&
           status !== "cancelled"
             ? `
               <button
                 type="button"
                 class="btn btn-outline"
                 onclick="changeStatus(
-                  '${escapeHtml(
-                    b.public_id
-                  )}',
+                  '${escapeHtml(identifierValue)}',
+                  '${escapeHtml(identifierType)}',
                   'cancelled'
                 )"
               >
@@ -612,17 +693,26 @@ function reservationHtml(b) {
         }
 
 
-        <button
-          type="button"
-          class="btn btn-outline"
-          onclick="deleteReservation(
-            '${escapeHtml(
-              b.public_id
-            )}'
-          )"
-        >
-          🗑️ Eliminar
-        </button>
+        ${
+          hasIdentifier
+            ? `
+              <button
+                type="button"
+                class="btn btn-outline"
+                onclick="deleteReservation(
+                  '${escapeHtml(identifierValue)}',
+                  '${escapeHtml(identifierType)}'
+                )"
+              >
+                🗑️ Eliminar
+              </button>
+            `
+            : `
+              <span style="color:#ff7777">
+                Esta reserva no tiene identificador disponible.
+              </span>
+            `
+        }
 
       </div>
 
@@ -637,7 +727,8 @@ function reservationHtml(b) {
 ===================================================== */
 
 async function editReservation(
-  publicId
+  identifier,
+  identifierType = "public_id"
 ) {
 
   const nombre =
@@ -798,6 +889,44 @@ async function editReservation(
 
   try {
 
+    const body = {
+
+      name:
+        name,
+
+      phone:
+        phone,
+
+      booking_date:
+        bookingDate,
+
+      booking_time:
+        bookingTime,
+
+      players:
+        players,
+
+      notes:
+        notas.trim()
+
+    };
+
+
+    if (
+      identifierType === "id"
+    ) {
+
+      body.id =
+        identifier;
+
+    } else {
+
+      body.public_id =
+        identifier;
+
+    }
+
+
     const response =
       await fetch(
         "/api/reservations",
@@ -813,30 +942,7 @@ async function editReservation(
           },
 
           body:
-            JSON.stringify({
-
-              public_id:
-                publicId,
-
-              name:
-                name,
-
-              phone:
-                phone,
-
-              booking_date:
-                bookingDate,
-
-              booking_time:
-                bookingTime,
-
-              players:
-                players,
-
-              notes:
-                notas.trim()
-
-            })
+            JSON.stringify(body)
         }
       );
 
@@ -900,7 +1006,8 @@ async function editReservation(
 ===================================================== */
 
 async function changeStatus(
-  publicId,
+  identifier,
+  identifierType,
   status
 ) {
 
@@ -919,6 +1026,29 @@ async function changeStatus(
 
   try {
 
+    const body = {
+
+      status:
+        status
+
+    };
+
+
+    if (
+      identifierType === "id"
+    ) {
+
+      body.id =
+        identifier;
+
+    } else {
+
+      body.public_id =
+        identifier;
+
+    }
+
+
     const response =
       await fetch(
         "/api/reservations",
@@ -934,15 +1064,7 @@ async function changeStatus(
           },
 
           body:
-            JSON.stringify({
-
-              public_id:
-                publicId,
-
-              status:
-                status
-
-            })
+            JSON.stringify(body)
         }
       );
 
@@ -1001,7 +1123,8 @@ async function changeStatus(
 ===================================================== */
 
 async function deleteReservation(
-  publicId
+  identifier,
+  identifierType = "public_id"
 ) {
 
   const confirmar =
@@ -1020,6 +1143,24 @@ async function deleteReservation(
 
   try {
 
+    const body = {};
+
+
+    if (
+      identifierType === "id"
+    ) {
+
+      body.id =
+        identifier;
+
+    } else {
+
+      body.public_id =
+        identifier;
+
+    }
+
+
     const response =
       await fetch(
         "/api/reservations",
@@ -1035,12 +1176,7 @@ async function deleteReservation(
           },
 
           body:
-            JSON.stringify({
-
-              public_id:
-                publicId
-
-            })
+            JSON.stringify(body)
         }
       );
 
@@ -1100,7 +1236,7 @@ async function deleteReservation(
 
 
 /* =====================================================
-   HACER FUNCIONES DISPONIBLES PARA LOS BOTONES
+   FUNCIONES DISPONIBLES PARA LOS BOTONES
 ===================================================== */
 
 window.render =
@@ -1126,3 +1262,4 @@ console.log(
 
 
 render();
+```
