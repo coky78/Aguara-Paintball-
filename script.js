@@ -623,9 +623,23 @@ async function uploadReceipt() {
 
 
     showReceiptMessage(
-      "¡Comprobante recibido correctamente! Aguará revisará el pago y confirmará tu turno.",
-      "success"
-    );
+  "🟢 RESERVA CONFIRMADA — ¡Comprobante recibido correctamente! Aguará revisará el pago.",
+  "success"
+);
+
+if (receiptUpload) {
+  receiptUpload.style.background = "#dff6e5";
+  receiptUpload.style.border = "2px solid #25a244";
+  receiptUpload.style.borderRadius = "12px";
+  receiptUpload.style.padding = "20px";
+}
+
+if (receiptButton) {
+  receiptButton.style.background = "#25a244";
+  receiptButton.style.borderColor = "#25a244";
+  receiptButton.innerHTML = "RESERVA CONFIRMADA ✓";
+  receiptButton.disabled = true;
+}
 
 
     if (receiptFile) {
