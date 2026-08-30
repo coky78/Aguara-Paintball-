@@ -711,3 +711,48 @@ a {
   border-color: #25a244 !important;
   color: #ffffff !important;
 }
+/* =====================================================
+   RESERVAS - BOTONES Y CONFIRMACIÓN
+===================================================== */
+
+/* Separación entre comprobante y continuar */
+#receiptButton {
+  margin-bottom: 35px !important;
+}
+
+#continueReservationButton {
+  margin-top: 35px !important;
+}
+
+/* Estado normal del botón continuar */
+#continueReservationButton {
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease,
+    transform 0.2s ease;
+}
+
+/* BOTÓN VERDE - RESERVA CONFIRMADA */
+#continueReservationButton.reserva-confirmada {
+  background-color: #25a244 !important;
+  border-color: #25a244 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 15px rgba(37, 162, 68, 0.45);
+}
+
+/* COMPROBANTE ENVIADO */
+#receiptButton.comprobante-enviado {
+  background-color: #25a244 !important;
+  border-color: #25a244 !important;
+  color: #ffffff !important;
+}
+
+/* CAJA COMPLETA VERDE */
+#receiptUpload.comprobante-confirmado {
+  background: #dff6e5 !important;
+  border: 2px solid #25a244 !important;
+  border-radius: 12px;
+  padding: 20px !important;
+  transition: all 0.3s ease;
+}
