@@ -940,3 +940,265 @@ a {
   color: #ffffff !important;
   transform: translateY(-1px);
 }
+/* =====================================================
+   AGUARÁ PAINTBALL
+   CORRECCIÓN FINAL — BOTONES RESERVA
+   ===================================================== */
+
+
+/* -----------------------------------------------------
+   SEPARACIÓN ENTRE COMPROBANTE Y CONTINUAR
+----------------------------------------------------- */
+
+#receiptUpload {
+  margin-bottom: 40px !important;
+}
+
+
+/* -----------------------------------------------------
+   BOTÓN CONTINUAR CON LA RESERVA
+----------------------------------------------------- */
+
+#continueReservationButton {
+  display: flex !important;
+  width: 100% !important;
+  min-height: 56px !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+
+  margin-top: 40px !important;
+  margin-bottom: 25px !important;
+
+  padding: 16px 24px !important;
+
+  border-radius: 12px !important;
+
+  background: #f28c18 !important;
+  border: 2px solid #f28c18 !important;
+  color: #ffffff !important;
+
+  font-weight: 800 !important;
+  cursor: pointer !important;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease !important;
+}
+
+
+/* Hover normal */
+
+#continueReservationButton:hover {
+  background: #ff9d2e !important;
+  border-color: #ff9d2e !important;
+  transform: translateY(-2px) !important;
+}
+
+
+/* -----------------------------------------------------
+   CUANDO LA RESERVA FUE CREADA
+----------------------------------------------------- */
+
+#continueReservationButton.reservation-confirmed,
+#continueReservationButton.confirmed,
+#continueReservationButton.btn-success,
+#continueReservationButton[style*="rgb(37, 162, 68)"] {
+  background: #25a244 !important;
+  background-color: #25a244 !important;
+
+  border: 2px solid #25a244 !important;
+  border-color: #25a244 !important;
+
+  color: #ffffff !important;
+
+  box-shadow:
+    0 6px 18px rgba(37, 162, 68, 0.35) !important;
+
+  cursor: default !important;
+}
+
+
+/* -----------------------------------------------------
+   CAJA DEL COMPROBANTE
+----------------------------------------------------- */
+
+#receiptUpload {
+  width: 100% !important;
+  box-sizing: border-box !important;
+
+  margin-top: 35px !important;
+  margin-bottom: 40px !important;
+
+  padding: 25px !important;
+
+  border-radius: 14px !important;
+
+  border: 2px solid rgba(255,255,255,0.12) !important;
+
+  background: rgba(255,255,255,0.04) !important;
+}
+
+
+/* -----------------------------------------------------
+   CAJA DEL COMPROBANTE CONFIRMADA
+----------------------------------------------------- */
+
+#receiptUpload.receipt-confirmed,
+#receiptUpload.reservation-confirmed,
+#receiptUpload.confirmed {
+  background: #dff6e5 !important;
+
+  border: 3px solid #25a244 !important;
+
+  border-color: #25a244 !important;
+
+  border-radius: 14px !important;
+
+  box-shadow:
+    0 8px 25px rgba(37, 162, 68, 0.25) !important;
+
+  color: #155d27 !important;
+}
+
+
+/* -----------------------------------------------------
+   TÍTULO DE LA CAJA CONFIRMADA
+----------------------------------------------------- */
+
+#receiptUpload.receipt-confirmed h3,
+#receiptUpload.reservation-confirmed h3,
+#receiptUpload.confirmed h3 {
+  color: #155d27 !important;
+}
+
+
+/* -----------------------------------------------------
+   TEXTO DE LA CAJA CONFIRMADA
+----------------------------------------------------- */
+
+#receiptUpload.receipt-confirmed p,
+#receiptUpload.reservation-confirmed p,
+#receiptUpload.confirmed p {
+  color: #155d27 !important;
+}
+
+
+/* -----------------------------------------------------
+   BOTÓN ENVIAR COMPROBANTE
+----------------------------------------------------- */
+
+#receiptButton {
+  display: flex !important;
+  width: 100% !important;
+  min-height: 56px !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+
+  margin-top: 25px !important;
+  margin-bottom: 30px !important;
+
+  padding: 16px 24px !important;
+
+  border-radius: 12px !important;
+
+  background: #f28c18 !important;
+  border: 2px solid #f28c18 !important;
+
+  color: #ffffff !important;
+
+  font-weight: 800 !important;
+  cursor: pointer !important;
+}
+
+
+/* -----------------------------------------------------
+   BOTÓN COMPROBANTE CONFIRMADO
+----------------------------------------------------- */
+
+#receiptButton.receipt-confirmed,
+#receiptButton.reservation-confirmed,
+#receiptButton.confirmed,
+#receiptButton.btn-success {
+  background: #25a244 !important;
+  background-color: #25a244 !important;
+
+  border: 2px solid #25a244 !important;
+  border-color: #25a244 !important;
+
+  color: #ffffff !important;
+
+  box-shadow:
+    0 6px 18px rgba(37, 162, 68, 0.35) !important;
+
+  cursor: default !important;
+}
+
+
+/* -----------------------------------------------------
+   MENSAJE DE COMPROBANTE CONFIRMADO
+----------------------------------------------------- */
+
+#receiptMessage {
+  margin-top: 15px !important;
+}
+
+
+#receiptUpload.receipt-confirmed #receiptMessage,
+#receiptUpload.reservation-confirmed #receiptMessage,
+#receiptUpload.confirmed #receiptMessage {
+  background: #bdecc8 !important;
+
+  border: 2px solid #25a244 !important;
+
+  color: #155d27 !important;
+
+  border-radius: 10px !important;
+
+  padding: 14px !important;
+
+  font-weight: 800 !important;
+}
+
+
+/* -----------------------------------------------------
+   EVITAR QUE LOS BOTONES QUEDEN PEGADOS
+----------------------------------------------------- */
+
+#receiptButton + #receiptMessage {
+  margin-bottom: 20px !important;
+}
+
+
+#receiptUpload + #continueReservationButton {
+  margin-top: 40px !important;
+}
+
+
+/* -----------------------------------------------------
+   MÓVIL
+----------------------------------------------------- */
+
+@media (max-width: 700px) {
+
+  #receiptUpload {
+    margin-top: 30px !important;
+    margin-bottom: 35px !important;
+    padding: 20px !important;
+  }
+
+  #receiptButton {
+    margin-top: 20px !important;
+    margin-bottom: 25px !important;
+  }
+
+  #continueReservationButton {
+    margin-top: 35px !important;
+    margin-bottom: 25px !important;
+  }
+
+}
