@@ -756,3 +756,187 @@ a {
   padding: 20px !important;
   transition: all 0.3s ease;
 }
+/* =====================================================
+   AGUARÁ PAINTBALL
+   ESTILOS DE RESERVA Y CONFIRMACIÓN
+   ESTOS ESTILOS VAN AL FINAL DEL CSS
+===================================================== */
+
+
+/* =====================================================
+   SEPARACIÓN ENTRE BOTONES
+===================================================== */
+
+/* Botón continuar */
+#continueReservationButton {
+  display: block !important;
+  width: 100% !important;
+  margin-top: 30px !important;
+  margin-bottom: 30px !important;
+}
+
+/* Caja del comprobante */
+#receiptUpload {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin-top: 40px !important;
+  margin-bottom: 30px !important;
+  padding: 25px !important;
+}
+
+/* Botón comprobante */
+#receiptButton {
+  display: block !important;
+  width: 100% !important;
+  margin-top: 25px !important;
+  margin-bottom: 30px !important;
+}
+
+
+/* =====================================================
+   CONTINUAR CON LA RESERVA — NORMAL
+===================================================== */
+
+#continueReservationButton.btn-primary {
+  background: #f26a21 !important;
+  border-color: #f26a21 !important;
+  color: #ffffff !important;
+}
+
+
+/* =====================================================
+   CONTINUAR CON LA RESERVA — RESERVA CREADA
+===================================================== */
+
+#continueReservationButton.reservation-confirmed,
+#continueReservationButton.confirmed,
+#continueReservationButton.btn-success,
+#continueReservationButton.reservation-created {
+  background: #25a244 !important;
+  background-color: #25a244 !important;
+  border: 2px solid #25a244 !important;
+  border-color: #25a244 !important;
+  color: #ffffff !important;
+  box-shadow: 0 5px 18px rgba(37, 162, 68, 0.35) !important;
+}
+
+
+/* =====================================================
+   COMPROBANTE — CAJA VERDE
+===================================================== */
+
+#receiptUpload.receipt-confirmed,
+#receiptUpload.reservation-confirmed,
+#receiptUpload.confirmed {
+  background: #dff6e5 !important;
+  background-color: #dff6e5 !important;
+  border: 3px solid #25a244 !important;
+  border-color: #25a244 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 8px 25px rgba(37, 162, 68, 0.22) !important;
+}
+
+
+/* =====================================================
+   BOTÓN COMPROBANTE — VERDE
+===================================================== */
+
+#receiptButton.receipt-confirmed,
+#receiptButton.reservation-confirmed,
+#receiptButton.confirmed,
+#receiptButton.btn-success {
+  background: #25a244 !important;
+  background-color: #25a244 !important;
+  border: 2px solid #25a244 !important;
+  border-color: #25a244 !important;
+  color: #ffffff !important;
+  box-shadow: 0 5px 18px rgba(37, 162, 68, 0.35) !important;
+}
+
+
+/* =====================================================
+   MUY IMPORTANTE:
+   EL BOTÓN VERDE SIGUE VERDE AUNQUE ESTÉ DESHABILITADO
+===================================================== */
+
+#receiptButton.receipt-confirmed:disabled,
+#receiptButton.reservation-confirmed:disabled,
+#receiptButton.confirmed:disabled,
+#receiptButton.btn-success:disabled,
+
+#continueReservationButton.reservation-confirmed:disabled,
+#continueReservationButton.confirmed:disabled,
+#continueReservationButton.btn-success:disabled {
+  background: #25a244 !important;
+  background-color: #25a244 !important;
+  border-color: #25a244 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  cursor: default !important;
+}
+
+
+/* =====================================================
+   MENSAJE VERDE DEL COMPROBANTE
+===================================================== */
+
+#receiptMessage {
+  margin-top: 20px !important;
+}
+
+#receiptMessage.success {
+  background: #dff6e5 !important;
+  border: 2px solid #25a244 !important;
+  color: #155d27 !important;
+  border-radius: 10px !important;
+  padding: 15px !important;
+  font-weight: 800 !important;
+}
+
+
+/* =====================================================
+   TEXTOS DENTRO DE LA CAJA VERDE
+===================================================== */
+
+#receiptUpload.receipt-confirmed h3,
+#receiptUpload.reservation-confirmed h3 {
+  color: #155d27 !important;
+}
+
+#receiptUpload.receipt-confirmed p,
+#receiptUpload.reservation-confirmed p {
+  color: #155d27 !important;
+}
+
+
+/* =====================================================
+   SEPARACIÓN VISUAL
+===================================================== */
+
+#bookingMessage {
+  margin-bottom: 25px !important;
+}
+
+#receiptUpload + #continueReservationButton {
+  margin-top: 40px !important;
+}
+
+
+/* =====================================================
+   EVITAR QUE EL HOVER CAMBIE EL VERDE
+===================================================== */
+
+#receiptButton.receipt-confirmed:hover,
+#receiptButton.reservation-confirmed:hover,
+#receiptButton.confirmed:hover,
+#receiptButton.btn-success:hover,
+
+#continueReservationButton.reservation-confirmed:hover,
+#continueReservationButton.confirmed:hover,
+#continueReservationButton.btn-success:hover {
+  background: #25a244 !important;
+  background-color: #25a244 !important;
+  border-color: #25a244 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
