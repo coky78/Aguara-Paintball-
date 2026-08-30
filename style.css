@@ -1118,3 +1118,35 @@ footer a:hover{
 #bookingForm.reservation-confirmed {
   --confirmation-green: #25a244;
 }
+/* =====================================================
+COMPROBANTE ENVIADO — ESTADO VERDE
+NO TOCAR SCRIPT.JS
+===================================================== */
+
+#receiptButton:disabled {
+background: #25a244 !important;
+background-color: #25a244 !important;
+border-color: #25a244 !important;
+color: #ffffff !important;
+box-shadow: 0 8px 25px rgba(37, 162, 68, 0.25) !important;
+cursor: default !important;
+opacity: 1 !important;
+}
+
+/* MENSAJE "COMPROBANTE RECIBIDO" */
+
+#receiptMessage.form-message.success {
+background: #bdecc8 !important;
+border: 2px solid #25a244 !important;
+color: #155d27 !important;
+font-weight: 800 !important;
+}
+
+/* CAJA DEL COMPROBANTE */
+
+#receiptUpload {
+transition:
+background .25s ease,
+border-color .25s ease,
+box-shadow .25s ease;
+}
