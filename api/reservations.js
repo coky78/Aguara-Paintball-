@@ -1,7 +1,8 @@
+```javascript
 /* =====================================================
    AGUARÁ PAINTBALL
    API RESERVATIONS
-   GET + POST
+   GET + POST + PATCH + DELETE
 ===================================================== */
 
 import { randomBytes } from "node:crypto";
@@ -34,16 +35,20 @@ function createPublicId(fecha, horario) {
   const compactDate = fecha.replaceAll("-", "");
   const compactTime = horario.replaceAll(":", "");
   const suffix = randomBytes(3).toString("hex").toUpperCase();
+
   return `AG-${compactDate}-${compactTime}-${suffix}`;
 }
 
 export default async function handler(req, res) {
-if (
-  req.method !== "GET" &&
-  req.method !== "POST" &&
-  req.method !== "PATCH"
-) {
-   res.setHeader("Allow", "GET, POST, PATCH");
+
+  if (
+    req.method !== "GET" &&
+    req.method !== "POST" &&
+    req.method !== "PATCH" &&
+    req.method !== "DELETE"
+  ) {
+    res.setHeader("Allow", "GET, POST, PATCH, DELETE");
+
     return sendJson(res, 405, {
       ok: false,
       message: "Método no permitido"
@@ -54,6 +59,7 @@ if (
 
   if (!config) {
     console.error("FALTAN VARIABLES DE SUPABASE");
+
     return sendJson(res, 500, {
       ok: false,
       message:
@@ -63,15 +69,24 @@ if (
 
   const { supabaseUrl, supabaseKey } = config;
   const baseUrl = supabaseUrl.replace(/\/$/, "");
+
+
+  /* =====================================================
+     PATCH
+     CONFIRMAR O EDITAR RESERVA
+  ===================================================== */
+
   if (req.method === "PATCH") {
+
     try {
+
       const body =
         req.body && typeof req.body === "object"
           ? req.body
           : {};
 
-      const publicId = String(body.public_id ?? "").trim();
-      const status = String(body.status ?? "").trim();
+      const publicId =
+        String(body.public_id ?? "").trim();
 
       if (!publicId) {
         return sendJson(res, 400, {
@@ -80,25 +95,191 @@ if (
         });
       }
 
-      if (status !== "confirmed") {
-        return sendJson(res, 400, {
-          ok: false,
-          message: "Estado no válido."
+
+      /* =================================================
+         CONFIRMAR RESERVA
+      ================================================= */
+
+      if (
+        body.status !== undefined &&
+        body.status !== ""
+      ) {
+
+        const status =
+          String(body.status).trim();
+
+        if (status !== "confirmed") {
+          return sendJson(res, 400, {
+            ok: false,
+            message: "Estado no válido."
+          });
+        }
+
+        const response = await fetch(
+          `${baseUrl}/rest/v1/reservations` +
+          `?public_id=eq.${encodeURIComponent(publicId)}`,
+          {
+            method: "PATCH",
+
+            headers: supabaseHeaders(
+              supabaseKey,
+              "return=representation"
+            ),
+
+            body: JSON.stringify({
+              status: "confirmed",
+              confirmed_at: new Date().toISOString()
+            })
+          }
+        );
+
+        const text = await response.text();
+
+        let data;
+
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = text;
+        }
+
+        if (!response.ok) {
+
+          console.error(
+            "ERROR CONFIRMANDO RESERVA:",
+            data
+          );
+
+          return sendJson(res, response.status, {
+            ok: false,
+            message:
+              data?.message ||
+              data?.hint ||
+              data?.details ||
+              "No se pudo confirmar la reserva.",
+            error: data
+          });
+        }
+
+        if (
+          !Array.isArray(data) ||
+          data.length === 0
+        ) {
+          return sendJson(res, 404, {
+            ok: false,
+            message: "No encontramos esa reserva."
+          });
+        }
+
+        return sendJson(res, 200, {
+          ok: true,
+          message: "Reserva confirmada correctamente.",
+          reserva: data[0]
         });
       }
+
+
+      /* =================================================
+         EDITAR RESERVA
+      ================================================= */
+
+      const nombre =
+        String(body.nombre ?? body.name ?? "").trim();
+
+      const whatsapp =
+        String(body.whatsapp ?? body.phone ?? "").trim();
+
+      const fecha =
+        String(
+          body.fecha ??
+          body.booking_date ??
+          ""
+        ).trim();
+
+      const horario =
+        String(
+          body.horario ??
+          body.booking_time ??
+          ""
+        ).trim();
+
+      const jugadores =
+        Number(
+          body.jugadores ??
+          body.players
+        );
+
+      const notas =
+        String(
+          body.notas ??
+          body.notes ??
+          body.observaciones ??
+          ""
+        ).trim();
+
+
+      if (!nombre) {
+        return sendJson(res, 400, {
+          ok: false,
+          message: "Falta el nombre."
+        });
+      }
+
+      if (!whatsapp) {
+        return sendJson(res, 400, {
+          ok: false,
+          message: "Falta el número de WhatsApp."
+        });
+      }
+
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+        return sendJson(res, 400, {
+          ok: false,
+          message: "La fecha no es válida."
+        });
+      }
+
+      if (!/^\d{2}:\d{2}$/.test(horario)) {
+        return sendJson(res, 400, {
+          ok: false,
+          message: "El horario no es válido."
+        });
+      }
+
+      if (
+        !Number.isInteger(jugadores) ||
+        jugadores < 10
+      ) {
+        return sendJson(res, 400, {
+          ok: false,
+          message:
+            "La reserva requiere un mínimo de 10 jugadores."
+        });
+      }
+
+
+      /* ================================================
+         ACTUALIZAR
+      ================================================= */
 
       const response = await fetch(
         `${baseUrl}/rest/v1/reservations` +
         `?public_id=eq.${encodeURIComponent(publicId)}`,
         {
           method: "PATCH",
+
           headers: supabaseHeaders(
             supabaseKey,
             "return=representation"
           ),
+
           body: JSON.stringify({
-            status: "confirmed",
-            confirmed_at: new Date().toISOString()
+            name: nombre,
+            phone: whatsapp,
+            booking_date: fecha,
+            booking_time: horario,
+            players: jugadores,
+            notes: notas || null
           })
         }
       );
@@ -113,9 +294,135 @@ if (
         data = text;
       }
 
+
       if (!response.ok) {
+
         console.error(
-          "ERROR CONFIRMANDO RESERVA:",
+          "ERROR EDITANDO RESERVA:",
+          data
+        );
+
+        const duplicate =
+          response.status === 409 ||
+          String(data?.code || "") === "23505";
+
+        return sendJson(
+          res,
+          duplicate
+            ? 409
+            : response.status,
+          {
+            ok: false,
+
+            message:
+              duplicate
+                ? "Ese horario ya está reservado. Elegí otra fecha u horario."
+                : data?.message ||
+                  data?.hint ||
+                  data?.details ||
+                  "No se pudo editar la reserva.",
+
+            error: data
+          }
+        );
+      }
+
+
+      if (
+        !Array.isArray(data) ||
+        data.length === 0
+      ) {
+        return sendJson(res, 404, {
+          ok: false,
+          message: "No encontramos esa reserva."
+        });
+      }
+
+
+      return sendJson(res, 200, {
+        ok: true,
+        message: "Reserva editada correctamente.",
+        reserva: data[0]
+      });
+
+
+    } catch (error) {
+
+      console.error(
+        "ERROR GENERAL PATCH:",
+        error
+      );
+
+      return sendJson(res, 500, {
+        ok: false,
+        message:
+          error?.message ||
+          "Error interno al editar la reserva."
+      });
+    }
+  }
+
+
+  /* =====================================================
+     DELETE
+     ELIMINAR RESERVA
+  ===================================================== */
+
+  if (req.method === "DELETE") {
+
+    try {
+
+      const body =
+        req.body && typeof req.body === "object"
+          ? req.body
+          : {};
+
+      const publicId =
+        String(
+          body.public_id ??
+          req.query?.public_id ??
+          ""
+        ).trim();
+
+
+      if (!publicId) {
+        return sendJson(res, 400, {
+          ok: false,
+          message:
+            "Falta el identificador de la reserva."
+        });
+      }
+
+
+      const response = await fetch(
+        `${baseUrl}/rest/v1/reservations` +
+        `?public_id=eq.${encodeURIComponent(publicId)}`,
+        {
+          method: "DELETE",
+
+          headers: supabaseHeaders(
+            supabaseKey,
+            "return=representation"
+          )
+        }
+      );
+
+
+      const text = await response.text();
+
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = text;
+      }
+
+
+      if (!response.ok) {
+
+        console.error(
+          "ERROR ELIMINANDO RESERVA:",
           data
         );
 
@@ -125,27 +432,34 @@ if (
             data?.message ||
             data?.hint ||
             data?.details ||
-            "No se pudo confirmar la reserva.",
+            "No se pudo eliminar la reserva.",
           error: data
         });
       }
 
-      if (!Array.isArray(data) || data.length === 0) {
+
+      if (
+        !Array.isArray(data) ||
+        data.length === 0
+      ) {
         return sendJson(res, 404, {
           ok: false,
           message: "No encontramos esa reserva."
         });
       }
 
+
       return sendJson(res, 200, {
         ok: true,
-        message: "Reserva confirmada correctamente.",
+        message: "Reserva eliminada correctamente.",
         reserva: data[0]
       });
 
+
     } catch (error) {
+
       console.error(
-        "ERROR GENERAL CONFIRMANDO RESERVA:",
+        "ERROR GENERAL DELETE:",
         error
       );
 
@@ -153,13 +467,21 @@ if (
         ok: false,
         message:
           error?.message ||
-          "Error interno al confirmar la reserva."
+          "Error interno al eliminar la reserva."
       });
     }
   }
 
+
+  /* =====================================================
+     GET
+     LISTAR RESERVAS
+  ===================================================== */
+
   if (req.method === "GET") {
+
     try {
+
       const response = await fetch(
         `${baseUrl}/rest/v1/reservations?select=*&order=booking_date.asc,booking_time.asc`,
         {
@@ -169,6 +491,7 @@ if (
       );
 
       const text = await response.text();
+
       let data;
 
       try {
@@ -177,136 +500,349 @@ if (
         data = [];
       }
 
+
       if (!response.ok) {
-        console.error("SUPABASE GET ERROR:", text);
+
+        console.error(
+          "SUPABASE GET ERROR:",
+          text
+        );
+
         return sendJson(res, response.status, {
           ok: false,
-          message: "Supabase no pudo consultar las reservas.",
+          message:
+            "Supabase no pudo consultar las reservas.",
           error: data
         });
       }
 
+
       return sendJson(res, 200, {
         ok: true,
-        reservas: Array.isArray(data) ? data : []
+        reservas:
+          Array.isArray(data)
+            ? data
+            : []
       });
+
+
     } catch (error) {
-      console.error("ERROR GET RESERVATIONS:", error);
+
+      console.error(
+        "ERROR GET RESERVATIONS:",
+        error
+      );
+
       return sendJson(res, 500, {
         ok: false,
-        message: error?.message || "Error consultando reservas."
+        message:
+          error?.message ||
+          "Error consultando reservas."
       });
     }
   }
 
-  try {
-    const body = req.body && typeof req.body === "object" ? req.body : {};
 
-    const nombre = String(body.nombre ?? body.name ?? "").trim();
-    const whatsapp = String(body.whatsapp ?? body.phone ?? "").trim();
-    const fecha = String(body.fecha ?? body.booking_date ?? "").trim();
-    const horario = String(body.horario ?? body.booking_time ?? "").trim();
-    const jugadores = Number(body.jugadores ?? body.players);
-    const notas = String(body.notas ?? body.notes ?? body.observaciones ?? "").trim();
+  /* =====================================================
+     POST
+     CREAR RESERVA
+  ===================================================== */
+
+  try {
+
+    const body =
+      req.body &&
+      typeof req.body === "object"
+        ? req.body
+        : {};
+
+
+    const nombre =
+      String(
+        body.nombre ??
+        body.name ??
+        ""
+      ).trim();
+
+    const whatsapp =
+      String(
+        body.whatsapp ??
+        body.phone ??
+        ""
+      ).trim();
+
+    const fecha =
+      String(
+        body.fecha ??
+        body.booking_date ??
+        ""
+      ).trim();
+
+    const horario =
+      String(
+        body.horario ??
+        body.booking_time ??
+        ""
+      ).trim();
+
+    const jugadores =
+      Number(
+        body.jugadores ??
+        body.players
+      );
+
+    const notas =
+      String(
+        body.notas ??
+        body.notes ??
+        body.observaciones ??
+        ""
+      ).trim();
+
 
     if (!nombre) {
-      return sendJson(res, 400, { ok: false, message: "Falta el nombre." });
+      return sendJson(res, 400, {
+        ok: false,
+        message: "Falta el nombre."
+      });
     }
 
     if (!whatsapp) {
       return sendJson(res, 400, {
         ok: false,
-        message: "Falta el número de WhatsApp."
+        message:
+          "Falta el número de WhatsApp."
       });
     }
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
-      return sendJson(res, 400, { ok: false, message: "La fecha no es válida." });
-    }
-
-    if (!/^\d{2}:\d{2}$/.test(horario)) {
-      return sendJson(res, 400, { ok: false, message: "El horario no es válido." });
-    }
-
-    if (!Number.isInteger(jugadores) || jugadores < 10) {
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(fecha)
+    ) {
       return sendJson(res, 400, {
         ok: false,
-        message: "La reserva requiere un mínimo de 10 jugadores."
+        message:
+          "La fecha no es válida."
       });
     }
 
-    const precioPorJugador = Number(body.precio_por_jugador ?? 29000);
-    const total = Number(body.total ?? precioPorJugador * jugadores);
-    const senaRequerida = Number(body.sena_requerida ?? 50000);
-
-    if (!Number.isFinite(precioPorJugador) || precioPorJugador < 0) {
-      return sendJson(res, 400, { ok: false, message: "El precio no es válido." });
+    if (
+      !/^\d{2}:\d{2}$/.test(horario)
+    ) {
+      return sendJson(res, 400, {
+        ok: false,
+        message:
+          "El horario no es válido."
+      });
     }
 
-    if (!Number.isFinite(total) || total < 0) {
-      return sendJson(res, 400, { ok: false, message: "El total no es válido." });
+    if (
+      !Number.isInteger(jugadores) ||
+      jugadores < 10
+    ) {
+      return sendJson(res, 400, {
+        ok: false,
+        message:
+          "La reserva requiere un mínimo de 10 jugadores."
+      });
     }
 
-    if (!Number.isFinite(senaRequerida) || senaRequerida < 0) {
-      return sendJson(res, 400, { ok: false, message: "La seña no es válida." });
+
+    const precioPorJugador =
+      Number(
+        body.precio_por_jugador ??
+        29000
+      );
+
+    const total =
+      Number(
+        body.total ??
+        precioPorJugador * jugadores
+      );
+
+    const senaRequerida =
+      Number(
+        body.sena_requerida ??
+        50000
+      );
+
+
+    if (
+      !Number.isFinite(precioPorJugador) ||
+      precioPorJugador < 0
+    ) {
+      return sendJson(res, 400, {
+        ok: false,
+        message:
+          "El precio no es válido."
+      });
     }
+
+    if (
+      !Number.isFinite(total) ||
+      total < 0
+    ) {
+      return sendJson(res, 400, {
+        ok: false,
+        message:
+          "El total no es válido."
+      });
+    }
+
+    if (
+      !Number.isFinite(senaRequerida) ||
+      senaRequerida < 0
+    ) {
+      return sendJson(res, 400, {
+        ok: false,
+        message:
+          "La seña no es válida."
+      });
+    }
+
 
     const reserva = {
-      public_id: createPublicId(fecha, horario),
+
+      public_id:
+        createPublicId(
+          fecha,
+          horario
+        ),
+
       name: nombre,
+
       phone: whatsapp,
+
       booking_date: fecha,
+
       booking_time: horario,
+
       players: jugadores,
-      notes: notas || null,
-      deposit_amount: senaRequerida,
-      game_price: precioPorJugador,
-      status: "pending",
-      payment_id: null,
-      confirmed_at: null
+
+      notes:
+        notas || null,
+
+      deposit_amount:
+        senaRequerida,
+
+      game_price:
+        precioPorJugador,
+
+      status:
+        "pending",
+
+      payment_id:
+        null,
+
+      confirmed_at:
+        null
     };
 
-    const response = await fetch(`${baseUrl}/rest/v1/reservations`, {
-      method: "POST",
-      headers: supabaseHeaders(supabaseKey, "return=representation"),
-      body: JSON.stringify(reserva)
-    });
 
-    const text = await response.text();
+    const response =
+      await fetch(
+        `${baseUrl}/rest/v1/reservations`,
+        {
+          method: "POST",
+
+          headers:
+            supabaseHeaders(
+              supabaseKey,
+              "return=representation"
+            ),
+
+          body:
+            JSON.stringify(
+              reserva
+            )
+        }
+      );
+
+
+    const text =
+      await response.text();
+
     let data;
 
     try {
-      data = JSON.parse(text);
+      data =
+        JSON.parse(text);
     } catch {
       data = text;
     }
 
+
     if (!response.ok) {
-      console.error("ERROR REAL DE SUPABASE:", data);
+
+      console.error(
+        "ERROR REAL DE SUPABASE:",
+        data
+      );
+
 
       const duplicate =
         response.status === 409 ||
-        String(data?.code || "") === "23505";
+        String(
+          data?.code || ""
+        ) === "23505";
 
-      return sendJson(res, duplicate ? 409 : response.status, {
-        ok: false,
-        message: duplicate
-          ? "Ese horario ya está reservado. Elegí otra fecha u horario."
-          : data?.message || data?.hint || data?.details || "Supabase rechazó la reserva.",
-        error: data
-      });
+
+      return sendJson(
+        res,
+        duplicate
+          ? 409
+          : response.status,
+        {
+          ok: false,
+
+          message:
+            duplicate
+              ? "Ese horario ya está reservado. Elegí otra fecha u horario."
+              : data?.message ||
+                data?.hint ||
+                data?.details ||
+                "Supabase rechazó la reserva.",
+
+          error: data
+        }
+      );
     }
 
-    return sendJson(res, 201, {
-      ok: true,
-      message: "Reserva guardada correctamente.",
-      reserva: Array.isArray(data) ? data[0] : data
-    });
+
+    return sendJson(
+      res,
+      201,
+      {
+        ok: true,
+
+        message:
+          "Reserva guardada correctamente.",
+
+        reserva:
+          Array.isArray(data)
+            ? data[0]
+            : data
+      }
+    );
+
+
   } catch (error) {
-    console.error("ERROR GENERAL RESERVATIONS:", error);
-    return sendJson(res, 500, {
-      ok: false,
-      message: error?.message || "Error interno al procesar la reserva."
-    });
+
+    console.error(
+      "ERROR GENERAL RESERVATIONS:",
+      error
+    );
+
+    return sendJson(
+      res,
+      500,
+      {
+        ok: false,
+
+        message:
+          error?.message ||
+          "Error interno al procesar la reserva."
+      }
+    );
   }
 }
+```
