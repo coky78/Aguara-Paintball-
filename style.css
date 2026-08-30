@@ -1,151 +1,452 @@
-:root{--orange:#f28b24;--orange2:#ffad45;--bg:#090909;--panel:#111;--line:#353535;--text:#f5f2ed;--muted:#aaa;--radius:18px}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}a{text-decoration:none;color:inherit}button,input,select,textarea{font:inherit}
-.nav{position:fixed;z-index:20;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:18px 5vw;background:linear-gradient(#050505dd,transparent);backdrop-filter:blur(7px)}
-.brand{display:flex;align-items:center;gap:9px;font-weight:800}.brand img{width:58px;height:58px;object-fit:contain}.brand b{color:var(--orange)}nav{display:flex;gap:28px;color:#ddd;font-size:.92rem}nav a:hover{color:var(--orange)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;border:1px solid #777;border-radius:999px;padding:13px 21px;font-weight:800;transition:.25s;cursor:pointer}.btn:hover{transform:translateY(-2px);border-color:#ddd}.btn-primary{background:var(--orange);border-color:var(--orange);color:#111}.btn-primary:hover{background:var(--orange2);border-color:var(--orange2)}.btn-outline{background:#111a;color:#fff}.btn-ghost{background:#09090999;color:#fff}.full{width:100%}
-.hero{height:100svh;min-height:680px;position:relative;display:grid;place-items:center;overflow:hidden}.hero-video,.hero-fallback,.hero-overlay{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.hero-fallback{background:radial-gradient(circle at 60% 40%,#4d2a12 0,#17100b 35%,#050505 75%)}.hero-overlay{background:linear-gradient(90deg,#050505dd 0,#05050588 45%,#05050533 100%),linear-gradient(0deg,#090909 0,transparent 35%)}.hero-content{position:relative;z-index:2;width:min(900px,90vw);margin-top:70px}.eyebrow{letter-spacing:.22em;color:var(--orange);font-size:.75rem;font-weight:900}.hero h1{font-size:clamp(3.2rem,8vw,7.5rem);line-height:.88;margin:15px 0 24px;letter-spacing:-.06em}.hero h1 span{color:var(--orange)}.lead{max-width:620px;color:#ddd;font-size:1.1rem;line-height:1.6}.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}.scroll-hint{position:absolute;bottom:24px;left:5vw;color:#aaa;font-size:.72rem;letter-spacing:.15em}
-.section{padding:100px 5vw;max-width:1250px;margin:auto}.split{display:grid;grid-template-columns:1.2fr .8fr;gap:70px;align-items:center}.section h2{font-size:clamp(2.2rem,5vw,4.4rem);line-height:.95;letter-spacing:-.05em;margin:10px 0 24px}.muted{color:var(--muted);line-height:1.6}.stats{display:flex;gap:40px;margin-top:45px}.stats div{display:grid}.stats strong{font-size:2rem;color:var(--orange)}.stats span{font-size:.8rem;color:#999}.feature-card{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:#101010}.feature-image{height:330px;background:center/cover no-repeat}.feature-copy{padding:24px}.feature-copy span{color:var(--orange);font-weight:900}.feature-copy h3{font-size:2rem;margin:8px 0}.section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:35px}
-.gallery{display:grid;grid-template-columns:1.2fr 1fr 1fr;grid-auto-rows:250px;gap:12px}.gallery-item{padding:0;border:0;border-radius:15px;overflow:hidden;background:#111;cursor:pointer}.gallery-item img{width:100%;height:100%;object-fit:cover;transition:.5s}.gallery-item:hover img{transform:scale(1.05)}.gallery-item.tall{grid-row:span 2}.gallery-item.wide{grid-column:span 2}
-.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.price-card{border:1px solid var(--line);padding:32px;border-radius:var(--radius);background:linear-gradient(145deg,#151515,#0d0d0d)}.price-card span{font-size:.72rem;letter-spacing:.18em;color:#aaa}.price-card strong{display:block;font-size:3rem;margin:15px 0 4px;color:#fff}.price-card small{color:#999}.price-card.accent{border-color:#7c471b}.price-card.accent strong{color:var(--orange)}
-.booking-section{max-width:1300px}.booking-layout{display:grid;grid-template-columns:1.25fr .75fr;gap:20px}.booking-card,.booking-side{border:1px solid var(--line);background:#0f0f0f;border-radius:var(--radius);padding:28px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px}label{display:grid;gap:8px;color:#ccc;font-size:.86rem}input,select,textarea{width:100%;background:#080808;border:1px solid #333;color:#fff;border-radius:11px;padding:13px;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--orange)}label:nth-last-child(1){grid-column:1/-1}.reservation-rule{color:var(--orange);font-weight:800}.form-message{margin:16px 0;padding:13px;border-radius:10px;background:#25170b;border:1px solid #704318;color:#ffc98d}.fine{font-size:.78rem;color:#777;line-height:1.5}.secure{display:flex;gap:14px;padding-bottom:25px;border-bottom:1px solid var(--line)}.secure>span{width:35px;height:35px;display:grid;place-items:center;background:#1c3a24;color:#7ee09b;border-radius:50%;font-weight:900}.secure p,.steps span{color:#999;font-size:.85rem;line-height:1.5}.steps{display:grid;gap:22px;padding:25px 0}.steps div{display:flex;gap:15px;align-items:center}.steps b{color:var(--orange)}
-footer{display:flex;justify-content:space-between;padding:30px 5vw;border-top:1px solid #222;color:#777;font-size:.8rem}footer a:hover{color:var(--orange)}
-.lightbox{position:fixed;inset:0;z-index:50;background:#000e;display:none;place-items:center;padding:30px}
-.lightbox:not([hidden]){display:grid}.lightbox img{max-width:95vw;max-height:90vh;object-fit:contain}.lightbox button{position:absolute;top:20px;right:25px;background:none;border:0;color:#fff;font-size:3rem;cursor:pointer}
-@media(max-width:800px){.nav nav,.nav>.btn{display:none}.nav{padding:14px 5vw}.hero{min-height:700px}.split,.booking-layout{grid-template-columns:1fr}.stats{gap:22px}.gallery{grid-template-columns:1fr 1fr;grid-auto-rows:180px}.gallery-item.tall{grid-row:span 2}.gallery-item.wide{grid-column:span 2}.price-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.section{padding:75px 5vw}.section-head{display:block}.section-head>.muted,.reservation-rule{display:block;margin-top:12px}}
-/* LOGO AGUARÁ - SPLASH DERECHA */
-.hero-logo-splash{
-  position:absolute;
-  z-index:1;
-  top:50%;
-  right:5%;
-  width:min(420px,32vw);
-  display:flex;
-  justify-content:center;
-  pointer-events:none;
-  transform:translateY(-50%);
-  animation:aguaraSplash 3s ease-in-out forwards;
-}
-
-.hero-logo-splash img{
-  width:100%;
-  height:auto;
-  object-fit:contain;
-  filter:drop-shadow(0 8px 25px rgba(0,0,0,.8));
-}
-
-@keyframes aguaraSplash{
-  0%{
-    opacity:0;
-    transform:translateY(-50%) scale(.75);
-  }
-
-  100%{
-    opacity:1;
-    transform:translateY(-50%) scale(1);
-  }
-}
-
-  20%{
-    opacity:1;
-    transform:translateY(-50%) scale(1);
-  }
-
-  53%{
-    opacity:1;
-    transform:translateY(-50%) scale(1);
-  }
-
-  100%{
-    opacity:.10;
-    transform:translateY(-50%) scale(.72);
-  }
-}
-
-@media(max-width:700px){
-  .hero-logo-splash{
-    right:3%;
-    width:min(300px,45vw);
-  }
-}
-.shots-highlight {
-  display: block;
-  margin-top: 12px;
-  font-size: 1.25rem;
-  font-weight: 900;
-  ```css
 /* =====================================================
    AGUARÁ PAINTBALL
-   AJUSTE BOTONES RESERVA + COMPROBANTE
+   STYLE.CSS
+   DISEÑO + RESERVAS + COMPROBANTE
 ===================================================== */
 
-/* Separación entre el botón de reserva
-   y el bloque de comprobante */
 
-#receiptUpload {
-  margin-top: 55px !important;
-  padding-top: 35px !important;
-  border-top: 2px solid rgba(255, 255, 255, 0.18) !important;
+/* =====================================================
+   RESET
+===================================================== */
+
+* {
+  box-sizing: border-box;
 }
 
-
-/* Espacio extra debajo del botón
-   CONTINUAR CON LA RESERVA */
-
-#bookingForm button[type="submit"] {
-  margin-bottom: 55px !important;
+html {
+  scroll-behavior: smooth;
 }
 
-
-/* Botón normal de continuar reserva */
-
-#bookingForm button[type="submit"] {
-  display: block !important;
-  width: 100% !important;
+body {
+  margin: 0;
+  padding: 0;
+  background: #050505;
+  color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-
-/* Botón ENVIAR COMPROBANTE */
-
-#receiptButton {
-  display: block !important;
-  width: 100% !important;
-  margin-top: 25px !important;
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 
 /* =====================================================
-   RESERVA CONFIRMADA
+   VARIABLES
 ===================================================== */
 
-/* Cuando el botón tenga este estado */
-
-#bookingForm button.reserva-confirmada {
-  background: #25a244 !important;
-  background-color: #25a244 !important;
-  border-color: #25a244 !important;
-  color: #ffffff !important;
-  opacity: 1 !important;
+:root {
+  --orange: #ff6a00;
+  --orange-dark: #d95300;
+  --green: #25a244;
+  --green-dark: #1b7f35;
+  --green-light: #dff6e5;
+  --white: #ffffff;
+  --black: #050505;
+  --dark: #101010;
+  --dark-2: #171717;
+  --gray: #bdbdbd;
+  --border: #333333;
+  --red: #d62828;
 }
 
 
-/* Bloque completo del comprobante confirmado */
+/* =====================================================
+   GENERAL
+===================================================== */
 
-#receiptUpload.reserva-confirmada {
-  background: #dff6e5 !important;
-  border: 2px solid #25a244 !important;
-  border-radius: 12px !important;
-  padding: 25px !important;
+section {
+  width: 100%;
+}
+
+.container {
+  width: min(1100px, 92%);
+  margin: 0 auto;
+}
+
+.hidden {
+  display: none !important;
 }
 
 
-/* Botón comprobante enviado */
+/* =====================================================
+   BOTONES
+===================================================== */
 
-#receiptButton.comprobante-enviado {
-  background: #25a244 !important;
-  background-color: #25a244 !important;
-  border-color: #25a244 !important;
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  min-height: 52px;
+
+  padding: 14px 24px;
+
+  border: 2px solid transparent;
+  border-radius: 10px;
+
+  font-weight: 700;
+  font-size: 16px;
+
+  cursor: pointer;
+
+  text-decoration: none;
+
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.85;
+  transform: none;
+}
+
+
+/* =====================================================
+   BOTÓN PRINCIPAL
+===================================================== */
+
+.btn-primary {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: var(--orange-dark);
+  border-color: var(--orange-dark);
+}
+
+
+/* =====================================================
+   BOTÓN VERDE
+   SE USA PARA RESERVA CONFIRMADA
+===================================================== */
+
+.btn-success,
+.btn.confirmed,
+.btn.reservation-confirmed,
+.reservation-confirmed .btn-primary {
+  background: var(--green) !important;
+  border-color: var(--green) !important;
   color: #ffffff !important;
-  opacity: 1 !important;
+
+  box-shadow:
+    0 0 0 2px rgba(37, 162, 68, 0.18),
+    0 6px 18px rgba(37, 162, 68, 0.25);
+}
+
+.btn-success:hover,
+.btn.confirmed:hover,
+.btn.reservation-confirmed:hover {
+  background: var(--green-dark) !important;
+  border-color: var(--green-dark) !important;
+}
+
+
+/* =====================================================
+   BOTONES DE ANCHO COMPLETO
+===================================================== */
+
+.full {
+  width: 100%;
+}
+
+
+/* =====================================================
+   FORMULARIO DE RESERVA
+===================================================== */
+
+#bookingForm {
+  width: 100%;
+}
+
+#bookingForm button[type="submit"] {
+  width: 100%;
+}
+
+
+/* =====================================================
+   SEPARACIÓN DEL BOTÓN CONTINUAR
+===================================================== */
+
+#bookingForm button[type="submit"] {
+  margin-top: 20px;
+  margin-bottom: 35px;
+}
+
+
+/* =====================================================
+   CUANDO LA RESERVA FUE CREADA
+   EL BOTÓN CONTINUAR SE VUELVE VERDE
+===================================================== */
+
+#bookingForm.reservation-created button[type="submit"],
+#bookingForm.reservation-confirmed button[type="submit"],
+#bookingForm.confirmed button[type="submit"] {
+  background: var(--green) !important;
+  border-color: var(--green) !important;
+  color: #ffffff !important;
+
+  box-shadow:
+    0 0 0 2px rgba(37, 162, 68, 0.18),
+    0 6px 18px rgba(37, 162, 68, 0.25);
+}
+
+
+/* =====================================================
+   MENSAJES
+===================================================== */
+
+.form-message {
+  width: 100%;
+  margin-top: 15px;
+  margin-bottom: 20px;
+
+  padding: 14px 16px;
+
+  border-radius: 10px;
+
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.form-message.success {
+  background: rgba(37, 162, 68, 0.14);
+  border: 1px solid var(--green);
+  color: #ffffff;
+}
+
+.form-message.error {
+  background: rgba(214, 40, 40, 0.14);
+  border: 1px solid var(--red);
+  color: #ffffff;
+}
+
+
+/* =====================================================
+   CAJA DEL COMPROBANTE
+===================================================== */
+
+#receiptUpload {
+  width: 100%;
+
+  margin-top: 45px;
+  margin-bottom: 30px;
+
+  padding: 25px;
+
+  background: #111111;
+
+  border: 2px solid #333333;
+
+  border-radius: 14px;
+
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+
+/* =====================================================
+   CAJA DEL COMPROBANTE CONFIRMADA
+===================================================== */
+
+#receiptUpload.receipt-confirmed,
+#receiptUpload.confirmed,
+#receiptUpload.reservation-confirmed {
+  background: var(--green-light) !important;
+
+  border: 3px solid var(--green) !important;
+
+  box-shadow:
+    0 0 0 3px rgba(37, 162, 68, 0.12),
+    0 8px 25px rgba(37, 162, 68, 0.22);
+}
+
+
+/* =====================================================
+   TÍTULO DEL COMPROBANTE
+===================================================== */
+
+#receiptUpload h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+
+  color: #ffffff;
+
+  font-size: 22px;
+}
+
+#receiptUpload.receipt-confirmed h3,
+#receiptUpload.confirmed h3,
+#receiptUpload.reservation-confirmed h3 {
+  color: #155d27 !important;
+}
+
+
+/* =====================================================
+   TEXTO DEL COMPROBANTE
+===================================================== */
+
+#receiptUpload p {
+  margin-top: 0;
+  margin-bottom: 20px;
+
+  color: #dddddd;
+
+  line-height: 1.6;
+}
+
+#receiptUpload.receipt-confirmed p,
+#receiptUpload.confirmed p,
+#receiptUpload.reservation-confirmed p {
+  color: #155d27 !important;
+}
+
+
+/* =====================================================
+   IMPORTE DE LA SEÑA
+===================================================== */
+
+#receiptAmount {
+  font-weight: 800;
+}
+
+
+/* =====================================================
+   INPUT ARCHIVO
+===================================================== */
+
+#receiptFile {
+  display: block;
+
+  width: 100%;
+
+  margin-bottom: 30px;
+
+  padding: 12px;
+
+  background: #1a1a1a;
+
+  border: 1px solid #444444;
+
+  border-radius: 8px;
+
+  color: #ffffff;
+
+  cursor: pointer;
+}
+
+#receiptUpload.receipt-confirmed #receiptFile,
+#receiptUpload.confirmed #receiptFile,
+#receiptUpload.reservation-confirmed #receiptFile {
+  background: #ffffff;
+
+  border-color: var(--green);
+
+  color: #155d27;
+}
+
+
+/* =====================================================
+   BOTÓN ENVIAR COMPROBANTE
+===================================================== */
+
+#receiptButton {
+  display: flex;
+
+  width: 100%;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  min-height: 52px;
+
+  margin-top: 10px;
+  margin-bottom: 30px;
+
+  padding: 14px 24px;
+
+  background: var(--orange);
+
+  border: 2px solid var(--orange);
+
+  border-radius: 10px;
+
+  color: #ffffff;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s ease;
+}
+
+#receiptButton:hover {
+  background: var(--orange-dark);
+  border-color: var(--orange-dark);
+}
+
+
+/* =====================================================
+   BOTÓN COMPROBANTE CONFIRMADO
+===================================================== */
+
+#receiptButton.receipt-confirmed,
+#receiptButton.confirmed,
+#receiptButton.reservation-confirmed,
+#receiptUpload.receipt-confirmed #receiptButton,
+#receiptUpload.confirmed #receiptButton,
+#receiptUpload.reservation-confirmed #receiptButton {
+  background: var(--green) !important;
+
+  border-color: var(--green) !important;
+
+  color: #ffffff !important;
+
+  box-shadow:
+    0 0 0 2px rgba(37, 162, 68, 0.18),
+    0 6px 18px rgba(37, 162, 68, 0.25);
+
+  cursor: default;
+}
+
+
+/* =====================================================
+   MENSAJE COMPROBANTE
+===================================================== */
+
+#receiptMessage {
+  width: 100%;
+
+  margin-top: 15px;
+  margin-bottom: 5px;
+
+  padding: 14px 16px;
+
+  border-radius: 10px;
+
+  line-height: 1.5;
 }
 
 
@@ -153,41 +454,260 @@ footer{display:flex;justify-content:space-between;padding:30px 5vw;border-top:1p
    MENSAJE DE RESERVA CONFIRMADA
 ===================================================== */
 
-#receiptMessage.confirmada {
-  display: block !important;
-  background: #dff6e5 !important;
-  border: 2px solid #25a244 !important;
-  color: #176b2c !important;
-  font-weight: 700 !important;
-  padding: 15px !important;
-  border-radius: 10px !important;
-  margin-top: 20px !important;
+#receiptUpload.receipt-confirmed #receiptMessage,
+#receiptUpload.confirmed #receiptMessage,
+#receiptUpload.reservation-confirmed #receiptMessage {
+  background: #bdecc8 !important;
+
+  border: 2px solid var(--green) !important;
+
+  color: #155d27 !important;
+
+  font-weight: 800;
 }
 
 
 /* =====================================================
-   MÓVIL
+   CLASE GLOBAL PARA RESERVA CONFIRMADA
+   EL SCRIPT PUEDE AGREGAR ESTA CLASE AL BODY
 ===================================================== */
 
-@media (max-width: 600px) {
+body.reservation-confirmed #receiptUpload {
+  background: var(--green-light) !important;
+
+  border: 3px solid var(--green) !important;
+
+  box-shadow:
+    0 0 0 3px rgba(37, 162, 68, 0.12),
+    0 8px 25px rgba(37, 162, 68, 0.22);
+}
+
+body.reservation-confirmed #receiptButton {
+  background: var(--green) !important;
+
+  border-color: var(--green) !important;
+
+  color: #ffffff !important;
+}
+
+body.reservation-confirmed #bookingForm button[type="submit"] {
+  background: var(--green) !important;
+
+  border-color: var(--green) !important;
+
+  color: #ffffff !important;
+}
+
+
+/* =====================================================
+   CAMPOS DEL FORMULARIO
+===================================================== */
+
+input,
+select,
+textarea {
+  width: 100%;
+
+  padding: 13px 14px;
+
+  background: #111111;
+
+  border: 1px solid #444444;
+
+  border-radius: 8px;
+
+  color: #ffffff;
+
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--orange);
+
+  box-shadow:
+    0 0 0 2px rgba(255, 106, 0, 0.15);
+}
+
+textarea {
+  min-height: 110px;
+
+  resize: vertical;
+}
+
+
+/* =====================================================
+   LABELS
+===================================================== */
+
+label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #ffffff;
+
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   GRUPOS DEL FORMULARIO
+===================================================== */
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+
+/* =====================================================
+   SELECT
+===================================================== */
+
+select {
+  appearance: auto;
+}
+
+
+/* =====================================================
+   LINKS
+===================================================== */
+
+a {
+  color: inherit;
+}
+
+
+/* =====================================================
+   WHATSAPP
+===================================================== */
+
+#whatsappHero,
+#whatsappBooking {
+  text-decoration: none;
+}
+
+
+/* =====================================================
+   GALERÍA
+===================================================== */
+
+.gallery-item {
+  cursor: pointer;
+}
+
+
+/* =====================================================
+   LIGHTBOX
+===================================================== */
+
+#lightbox {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 9999;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.92);
+}
+
+#lightbox[hidden] {
+  display: none;
+}
+
+#lightboxImg {
+  max-width: 95%;
+  max-height: 90vh;
+
+  object-fit: contain;
+
+  border-radius: 8px;
+}
+
+#closeLightbox {
+  position: absolute;
+
+  top: 20px;
+  right: 25px;
+
+  width: 45px;
+  height: 45px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  color: #000000;
+
+  font-size: 28px;
+
+  cursor: pointer;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 700px) {
+
+  .btn {
+    width: 100%;
+
+    min-height: 50px;
+  }
 
   #bookingForm button[type="submit"] {
-    margin-bottom: 45px !important;
+    margin-top: 20px;
+    margin-bottom: 40px;
   }
 
   #receiptUpload {
-    margin-top: 45px !important;
-    padding-top: 30px !important;
+    margin-top: 50px;
+
+    padding: 20px;
   }
 
   #receiptButton {
-    margin-top: 25px !important;
+    margin-top: 15px;
+    margin-bottom: 30px;
   }
 
 }
-```
 
-  letter-spacing: 1px;
-  color: #ff7a00;
-  text-shadow: 0 0 10px rgba(255,122,0,.35);
+
+/* =====================================================
+   CONFIRMACIÓN — MÁXIMA PRIORIDAD
+===================================================== */
+
+#receiptUpload.confirmed,
+#receiptUpload.receipt-confirmed,
+#receiptUpload.reservation-confirmed {
+  background-color: #dff6e5 !important;
+  border-color: #25a244 !important;
+}
+
+#receiptUpload.confirmed #receiptButton,
+#receiptUpload.receipt-confirmed #receiptButton,
+#receiptUpload.reservation-confirmed #receiptButton {
+  background-color: #25a244 !important;
+  border-color: #25a244 !important;
+  color: #ffffff !important;
+}
+
+#bookingForm.confirmed button[type="submit"],
+#bookingForm.receipt-confirmed button[type="submit"],
+#bookingForm.reservation-confirmed button[type="submit"] {
+  background-color: #25a244 !important;
+  border-color: #25a244 !important;
+  color: #ffffff !important;
 }
