@@ -1,9 +1,7 @@
-```javascript
 /* =====================================================
    AGUARÁ PAINTBALL
    API RESERVATIONS
    GET + POST + PATCH + DELETE
-   COMPATIBLE CON ADMIN.JS
 ===================================================== */
 
 import { randomBytes } from "node:crypto";
@@ -14,11 +12,7 @@ import { randomBytes } from "node:crypto";
 ===================================================== */
 
 function sendJson(res, status, payload) {
-
-  return res
-    .status(status)
-    .json(payload);
-
+  return res.status(status).json(payload);
 }
 
 
@@ -35,13 +29,8 @@ function getSupabaseConfig() {
     process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 
-  if (
-    !supabaseUrl ||
-    !supabaseKey
-  ) {
-
+  if (!supabaseUrl || !supabaseKey) {
     return null;
-
   }
 
 
@@ -49,7 +38,6 @@ function getSupabaseConfig() {
     supabaseUrl,
     supabaseKey
   };
-
 }
 
 
@@ -57,36 +45,26 @@ function getSupabaseConfig() {
    HEADERS SUPABASE
 ===================================================== */
 
-function supabaseHeaders(
-  key,
-  prefer
-) {
+function supabaseHeaders(key, prefer) {
 
-  return {
-
-    apikey:
-      key,
-
-    Authorization:
-      `Bearer ${key}`,
-
-    "Content-Type":
-      "application/json",
-
-    ...(prefer
-      ? {
-          Prefer:
-            prefer
-        }
-      : {})
-
+  const headers = {
+    apikey: key,
+    Authorization: "Bearer " + key,
+    "Content-Type": "application/json"
   };
 
+
+  if (prefer) {
+    headers.Prefer = prefer;
+  }
+
+
+  return headers;
 }
 
 
 /* =====================================================
-   PUBLIC ID
+   ID PÚBLICO
 ===================================================== */
 
 function createPublicId(
@@ -95,18 +73,10 @@ function createPublicId(
 ) {
 
   const compactDate =
-    fecha.replaceAll(
-      "-",
-      ""
-    );
-
+    fecha.replaceAll("-", "");
 
   const compactTime =
-    horario.replaceAll(
-      ":",
-      ""
-    );
-
+    horario.replaceAll(":", "");
 
   const suffix =
     randomBytes(3)
@@ -115,55 +85,13 @@ function createPublicId(
 
 
   return (
-    `AG-${compactDate}-` +
-    `${compactTime}-${suffix}`
+    "AG-" +
+    compactDate +
+    "-" +
+    compactTime +
+    "-" +
+    suffix
   );
-
-}
-
-
-/* =====================================================
-   OBTENER IDENTIFICADOR
-===================================================== */
-
-function getIdentifier(body) {
-
-  const publicId =
-    String(
-      body.public_id ??
-      ""
-    ).trim();
-
-
-  if (publicId) {
-
-    return {
-      type: "public_id",
-      value: publicId
-    };
-
-  }
-
-
-  const id =
-    String(
-      body.id ??
-      ""
-    ).trim();
-
-
-  if (id) {
-
-    return {
-      type: "id",
-      value: id
-    };
-
-  }
-
-
-  return null;
-
 }
 
 
@@ -175,11 +103,6 @@ export default async function handler(
   req,
   res
 ) {
-
-
-  /* =================================================
-     MÉTODOS PERMITIDOS
-  ================================================= */
 
   if (
     req.method !== "GET" &&
@@ -199,17 +122,11 @@ export default async function handler(
       405,
       {
         ok: false,
-        message:
-          "Método no permitido"
+        message: "Método no permitido."
       }
     );
-
   }
 
-
-  /* =================================================
-     CONFIGURACIÓN
-  ================================================= */
 
   const config =
     getSupabaseConfig();
@@ -231,7 +148,6 @@ export default async function handler(
           "Faltan SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en Vercel."
       }
     );
-
   }
 
 
@@ -242,39 +158,27 @@ export default async function handler(
 
 
   const baseUrl =
-    supabaseUrl.replace(
-      /\/$/,
-      ""
-    );
+    supabaseUrl.replace(/\/$/, "");
 
 
-  /* =================================================
-     GET — LISTAR RESERVAS
-  ================================================= */
+/* =====================================================
+   GET — LISTAR RESERVAS
+===================================================== */
 
-  if (
-    req.method === "GET"
-  ) {
+  if (req.method === "GET") {
 
     try {
 
       const response =
         await fetch(
-
-          `${baseUrl}` +
-          `/rest/v1/reservations` +
-          `?select=*` +
-          `&order=booking_date.asc,booking_time.asc`,
-
+          `${baseUrl}/rest/v1/reservations?select=*&order=booking_date.asc,booking_time.asc`,
           {
             method: "GET",
-
             headers:
               supabaseHeaders(
                 supabaseKey
               )
           }
-
         );
 
 
@@ -297,9 +201,7 @@ export default async function handler(
       }
 
 
-      if (
-        !response.ok
-      ) {
+      if (!response.ok) {
 
         console.error(
           "SUPABASE GET ERROR:",
@@ -312,15 +214,11 @@ export default async function handler(
           response.status,
           {
             ok: false,
-
             message:
               "Supabase no pudo consultar las reservas.",
-
-            error:
-              data
+            error: data
           }
         );
-
       }
 
 
@@ -329,11 +227,8 @@ export default async function handler(
         200,
         {
           ok: true,
-
           reservas:
-            Array.isArray(
-              data
-            )
+            Array.isArray(data)
               ? data
               : []
         }
@@ -353,25 +248,20 @@ export default async function handler(
         500,
         {
           ok: false,
-
           message:
             error?.message ||
             "Error consultando reservas."
         }
       );
-
     }
-
   }
 
 
-  /* =================================================
-     PATCH — EDITAR / CAMBIAR ESTADO
-  ================================================= */
+/* =====================================================
+   DELETE — ELIMINAR RESERVA
+===================================================== */
 
-  if (
-    req.method === "PATCH"
-  ) {
+  if (req.method === "DELETE") {
 
     try {
 
@@ -382,264 +272,179 @@ export default async function handler(
           : {};
 
 
-      const identifier =
-        getIdentifier(
-          body
-        );
+      const publicId =
+        String(
+          body.public_id ??
+          ""
+        ).trim();
 
 
-      if (
-        !identifier
-      ) {
+      if (!publicId) {
 
         return sendJson(
           res,
           400,
           {
             ok: false,
-
             message:
               "Falta el identificador de la reserva."
           }
         );
+      }
+
+
+      const response =
+        await fetch(
+          `${baseUrl}/rest/v1/reservations?public_id=eq.${encodeURIComponent(publicId)}`,
+          {
+            method: "DELETE",
+
+            headers:
+              supabaseHeaders(
+                supabaseKey,
+                "return=representation"
+              )
+          }
+        );
+
+
+      const text =
+        await response.text();
+
+
+      let data;
+
+
+      try {
+
+        data =
+          JSON.parse(text);
+
+      } catch {
+
+        data = text;
 
       }
 
 
-      /* =============================================
-         DATOS RECIBIDOS
-      ============================================= */
+      if (!response.ok) {
 
-      const updateData = {};
+        console.error(
+          "ERROR ELIMINANDO RESERVA:",
+          data
+        );
 
 
-      /* =============================================
-         EDITAR NOMBRE
-      ============================================= */
+        return sendJson(
+          res,
+          response.status,
+          {
+            ok: false,
+            message:
+              data?.message ||
+              data?.hint ||
+              data?.details ||
+              "No se pudo eliminar la reserva.",
+            error: data
+          }
+        );
+      }
+
 
       if (
-        body.name !== undefined ||
-        body.nombre !== undefined
+        !Array.isArray(data) ||
+        data.length === 0
       ) {
 
-        const name =
-          String(
-            body.name ??
-            body.nombre ??
-            ""
-          ).trim();
+        return sendJson(
+          res,
+          404,
+          {
+            ok: false,
+            message:
+              "No encontramos esa reserva."
+          }
+        );
+      }
 
 
-        if (!name) {
-
-          return sendJson(
-            res,
-            400,
-            {
-              ok: false,
-              message:
-                "El nombre no puede estar vacío."
-            }
-          );
-
+      return sendJson(
+        res,
+        200,
+        {
+          ok: true,
+          message:
+            "Reserva eliminada correctamente.",
+          reserva:
+            data[0]
         }
+      );
 
 
-        updateData.name =
-          name;
+    } catch (error) {
 
-      }
-
-
-      /* =============================================
-         EDITAR TELÉFONO
-      ============================================= */
-
-      if (
-        body.phone !== undefined ||
-        body.whatsapp !== undefined
-      ) {
-
-        const phone =
-          String(
-            body.phone ??
-            body.whatsapp ??
-            ""
-          ).trim();
+      console.error(
+        "ERROR GENERAL DELETE:",
+        error
+      );
 
 
-        if (!phone) {
-
-          return sendJson(
-            res,
-            400,
-            {
-              ok: false,
-              message:
-                "El número de WhatsApp no puede estar vacío."
-            }
-          );
-
+      return sendJson(
+        res,
+        500,
+        {
+          ok: false,
+          message:
+            error?.message ||
+            "Error interno eliminando la reserva."
         }
+      );
+    }
+  }
 
 
-        updateData.phone =
-          phone;
+/* =====================================================
+   PATCH — EDITAR / CAMBIAR ESTADO
+===================================================== */
 
+  if (req.method === "PATCH") {
+
+    try {
+
+      const body =
+        req.body &&
+        typeof req.body === "object"
+          ? req.body
+          : {};
+
+
+      const publicId =
+        String(
+          body.public_id ??
+          ""
+        ).trim();
+
+
+      if (!publicId) {
+
+        return sendJson(
+          res,
+          400,
+          {
+            ok: false,
+            message:
+              "Falta el identificador de la reserva."
+          }
+        );
       }
 
 
-      /* =============================================
-         EDITAR FECHA
-      ============================================= */
-
-      if (
-        body.booking_date !== undefined ||
-        body.fecha !== undefined
-      ) {
-
-        const bookingDate =
-          String(
-            body.booking_date ??
-            body.fecha ??
-            ""
-          ).trim();
+      const update = {};
 
 
-        if (
-          !/^\d{4}-\d{2}-\d{2}$/.test(
-            bookingDate
-          )
-        ) {
-
-          return sendJson(
-            res,
-            400,
-            {
-              ok: false,
-              message:
-                "La fecha no es válida."
-            }
-          );
-
-        }
-
-
-        updateData.booking_date =
-          bookingDate;
-
-      }
-
-
-      /* =============================================
-         EDITAR HORARIO
-      ============================================= */
-
-      if (
-        body.booking_time !== undefined ||
-        body.horario !== undefined
-      ) {
-
-        const bookingTime =
-          String(
-            body.booking_time ??
-            body.horario ??
-            ""
-          ).trim();
-
-
-        if (
-          !/^\d{2}:\d{2}$/.test(
-            bookingTime
-          )
-        ) {
-
-          return sendJson(
-            res,
-            400,
-            {
-              ok: false,
-              message:
-                "El horario no es válido."
-            }
-          );
-
-        }
-
-
-        updateData.booking_time =
-          bookingTime;
-
-      }
-
-
-      /* =============================================
-         EDITAR JUGADORES
-      ============================================= */
-
-      if (
-        body.players !== undefined ||
-        body.jugadores !== undefined
-      ) {
-
-        const players =
-          Number(
-            body.players ??
-            body.jugadores
-          );
-
-
-        if (
-          !Number.isInteger(
-            players
-          ) ||
-          players < 10
-        ) {
-
-          return sendJson(
-            res,
-            400,
-            {
-              ok: false,
-
-              message:
-                "La reserva requiere un mínimo de 10 jugadores."
-            }
-          );
-
-        }
-
-
-        updateData.players =
-          players;
-
-      }
-
-
-      /* =============================================
-         EDITAR OBSERVACIONES
-      ============================================= */
-
-      if (
-        body.notes !== undefined ||
-        body.notas !== undefined ||
-        body.observaciones !== undefined
-      ) {
-
-        updateData.notes =
-          String(
-            body.notes ??
-            body.notas ??
-            body.observaciones ??
-            ""
-          ).trim() || null;
-
-      }
-
-
-      /* =============================================
-         CAMBIAR ESTADO
-      ============================================= */
+      /* -----------------------------------------------
+         ESTADO
+      ----------------------------------------------- */
 
       if (
         body.status !== undefined
@@ -666,11 +471,10 @@ export default async function handler(
                 "Estado no válido."
             }
           );
-
         }
 
 
-        updateData.status =
+        update.status =
           status;
 
 
@@ -678,32 +482,212 @@ export default async function handler(
           status === "confirmed"
         ) {
 
-          updateData.confirmed_at =
+          update.confirmed_at =
             new Date().toISOString();
 
         }
 
 
         if (
-          status !== "confirmed"
+          status === "cancelled"
         ) {
 
-          updateData.confirmed_at =
+          update.confirmed_at =
             null;
 
         }
 
+
+        if (
+          status === "pending"
+        ) {
+
+          update.confirmed_at =
+            null;
+
+        }
       }
 
 
-      /* =============================================
-         NADA PARA ACTUALIZAR
-      ============================================= */
+      /* -----------------------------------------------
+         DATOS DE EDICIÓN
+      ----------------------------------------------- */
 
       if (
-        Object.keys(
-          updateData
-        ).length === 0
+        body.name !== undefined
+      ) {
+
+        const name =
+          String(
+            body.name
+          ).trim();
+
+
+        if (!name) {
+
+          return sendJson(
+            res,
+            400,
+            {
+              ok: false,
+              message:
+                "El nombre no puede estar vacío."
+            }
+          );
+        }
+
+
+        update.name =
+          name;
+      }
+
+
+      if (
+        body.phone !== undefined
+      ) {
+
+        const phone =
+          String(
+            body.phone
+          ).trim();
+
+
+        if (!phone) {
+
+          return sendJson(
+            res,
+            400,
+            {
+              ok: false,
+              message:
+                "El número de WhatsApp no puede estar vacío."
+            }
+          );
+        }
+
+
+        update.phone =
+          phone;
+      }
+
+
+      if (
+        body.booking_date !== undefined
+      ) {
+
+        const bookingDate =
+          String(
+            body.booking_date
+          ).trim();
+
+
+        if (
+          !/^\d{4}-\d{2}-\d{2}$/.test(
+            bookingDate
+          )
+        ) {
+
+          return sendJson(
+            res,
+            400,
+            {
+              ok: false,
+              message:
+                "La fecha no es válida."
+            }
+          );
+        }
+
+
+        update.booking_date =
+          bookingDate;
+      }
+
+
+      if (
+        body.booking_time !== undefined
+      ) {
+
+        const bookingTime =
+          String(
+            body.booking_time
+          ).trim();
+
+
+        if (
+          !/^\d{2}:\d{2}$/.test(
+            bookingTime
+          )
+        ) {
+
+          return sendJson(
+            res,
+            400,
+            {
+              ok: false,
+              message:
+                "El horario no es válido."
+            }
+          );
+        }
+
+
+        update.booking_time =
+          bookingTime;
+      }
+
+
+      if (
+        body.players !== undefined
+      ) {
+
+        const players =
+          Number(
+            body.players
+          );
+
+
+        if (
+          !Number.isInteger(
+            players
+          ) ||
+          players < 10
+        ) {
+
+          return sendJson(
+            res,
+            400,
+            {
+              ok: false,
+              message:
+                "La reserva requiere un mínimo de 10 jugadores."
+            }
+          );
+        }
+
+
+        update.players =
+          players;
+      }
+
+
+      if (
+        body.notes !== undefined
+      ) {
+
+        update.notes =
+          String(
+            body.notes
+          ).trim() || null;
+      }
+
+
+      /* -----------------------------------------------
+         NADA PARA ACTUALIZAR
+      ----------------------------------------------- */
+
+      if (
+        Object.keys(update).length === 0
       ) {
 
         return sendJson(
@@ -711,42 +695,20 @@ export default async function handler(
           400,
           {
             ok: false,
-
             message:
               "No hay datos para actualizar."
           }
         );
-
       }
 
 
-      /* =============================================
-         CONSTRUIR FILTRO
-      ============================================= */
-
-      const filter =
-        identifier.type === "id"
-
-          ? `id=eq.${encodeURIComponent(
-              identifier.value
-            )}`
-
-          : `public_id=eq.${encodeURIComponent(
-              identifier.value
-            )}`;
-
-
-      /* =============================================
+      /* -----------------------------------------------
          ACTUALIZAR SUPABASE
-      ============================================= */
+      ----------------------------------------------- */
 
       const response =
         await fetch(
-
-          `${baseUrl}` +
-          `/rest/v1/reservations` +
-          `?${filter}`,
-
+          `${baseUrl}/rest/v1/reservations?public_id=eq.${encodeURIComponent(publicId)}`,
           {
             method: "PATCH",
 
@@ -758,10 +720,9 @@ export default async function handler(
 
             body:
               JSON.stringify(
-                updateData
+                update
               )
           }
-
         );
 
 
@@ -784,9 +745,7 @@ export default async function handler(
       }
 
 
-      if (
-        !response.ok
-      ) {
+      if (!response.ok) {
 
         console.error(
           "ERROR ACTUALIZANDO RESERVA:",
@@ -799,25 +758,19 @@ export default async function handler(
           response.status,
           {
             ok: false,
-
             message:
               data?.message ||
               data?.hint ||
               data?.details ||
               "No se pudo actualizar la reserva.",
-
-            error:
-              data
+            error: data
           }
         );
-
       }
 
 
       if (
-        !Array.isArray(
-          data
-        ) ||
+        !Array.isArray(data) ||
         data.length === 0
       ) {
 
@@ -826,12 +779,10 @@ export default async function handler(
           404,
           {
             ok: false,
-
             message:
               "No encontramos esa reserva."
           }
         );
-
       }
 
 
@@ -840,10 +791,8 @@ export default async function handler(
         200,
         {
           ok: true,
-
           message:
             "Reserva actualizada correctamente.",
-
           reserva:
             data[0]
         }
@@ -863,212 +812,18 @@ export default async function handler(
         500,
         {
           ok: false,
-
           message:
             error?.message ||
-            "Error interno al actualizar la reserva."
+            "Error interno actualizando la reserva."
         }
       );
-
     }
-
   }
 
 
-  /* =================================================
-     DELETE — ELIMINAR RESERVA
-  ================================================= */
-
-  if (
-    req.method === "DELETE"
-  ) {
-
-    try {
-
-      const body =
-        req.body &&
-        typeof req.body === "object"
-          ? req.body
-          : {};
-
-
-      const identifier =
-        getIdentifier(
-          body
-        );
-
-
-      if (
-        !identifier
-      ) {
-
-        return sendJson(
-          res,
-          400,
-          {
-            ok: false,
-
-            message:
-              "Falta el identificador de la reserva."
-          }
-        );
-
-      }
-
-
-      /* =============================================
-         CONSTRUIR FILTRO
-      ============================================= */
-
-      const filter =
-        identifier.type === "id"
-
-          ? `id=eq.${encodeURIComponent(
-              identifier.value
-            )}`
-
-          : `public_id=eq.${encodeURIComponent(
-              identifier.value
-            )}`;
-
-
-      /* =============================================
-         ELIMINAR
-      ============================================= */
-
-      const response =
-        await fetch(
-
-          `${baseUrl}` +
-          `/rest/v1/reservations` +
-          `?${filter}`,
-
-          {
-            method: "DELETE",
-
-            headers:
-              supabaseHeaders(
-                supabaseKey,
-                "return=representation"
-              )
-          }
-
-        );
-
-
-      const text =
-        await response.text();
-
-
-      let data;
-
-
-      try {
-
-        data =
-          JSON.parse(text);
-
-      } catch {
-
-        data = text;
-
-      }
-
-
-      if (
-        !response.ok
-      ) {
-
-        console.error(
-          "ERROR ELIMINANDO RESERVA:",
-          data
-        );
-
-
-        return sendJson(
-          res,
-          response.status,
-          {
-            ok: false,
-
-            message:
-              data?.message ||
-              data?.hint ||
-              data?.details ||
-              "No se pudo eliminar la reserva.",
-
-            error:
-              data
-          }
-        );
-
-      }
-
-
-      if (
-        !Array.isArray(
-          data
-        ) ||
-        data.length === 0
-      ) {
-
-        return sendJson(
-          res,
-          404,
-          {
-            ok: false,
-
-            message:
-              "No encontramos esa reserva."
-          }
-        );
-
-      }
-
-
-      return sendJson(
-        res,
-        200,
-        {
-          ok: true,
-
-          message:
-            "Reserva eliminada correctamente.",
-
-          reserva:
-            data[0]
-        }
-      );
-
-
-    } catch (error) {
-
-      console.error(
-        "ERROR GENERAL DELETE:",
-        error
-      );
-
-
-      return sendJson(
-        res,
-        500,
-        {
-          ok: false,
-
-          message:
-            error?.message ||
-            "Error interno al eliminar la reserva."
-        }
-      );
-
-    }
-
-  }
-
-
-  /* =================================================
-     POST — CREAR RESERVA
-  ================================================= */
+/* =====================================================
+   POST — CREAR RESERVA
+===================================================== */
 
   try {
 
@@ -1127,9 +882,9 @@ export default async function handler(
       ).trim();
 
 
-    /* =============================================
+    /* -----------------------------------------------
        VALIDACIONES
-    ============================================= */
+    ----------------------------------------------- */
 
     if (!nombre) {
 
@@ -1142,7 +897,6 @@ export default async function handler(
             "Falta el nombre."
         }
       );
-
     }
 
 
@@ -1157,7 +911,6 @@ export default async function handler(
             "Falta el número de WhatsApp."
         }
       );
-
     }
 
 
@@ -1176,7 +929,6 @@ export default async function handler(
             "La fecha no es válida."
         }
       );
-
     }
 
 
@@ -1195,7 +947,6 @@ export default async function handler(
             "El horario no es válido."
         }
       );
-
     }
 
 
@@ -1215,9 +966,12 @@ export default async function handler(
             "La reserva requiere un mínimo de 10 jugadores."
         }
       );
-
     }
 
+
+    /* -----------------------------------------------
+       PRECIOS
+    ----------------------------------------------- */
 
     const precioPorJugador =
       Number(
@@ -1259,7 +1013,6 @@ export default async function handler(
             "El precio no es válido."
         }
       );
-
     }
 
 
@@ -1279,7 +1032,6 @@ export default async function handler(
             "El total no es válido."
         }
       );
-
     }
 
 
@@ -1299,13 +1051,12 @@ export default async function handler(
             "La seña no es válida."
         }
       );
-
     }
 
 
-    /* =============================================
+    /* -----------------------------------------------
        CREAR RESERVA
-    ============================================= */
+    ----------------------------------------------- */
 
     const reserva = {
 
@@ -1347,20 +1098,12 @@ export default async function handler(
 
       confirmed_at:
         null
-
     };
 
 
-    /* =============================================
-       INSERTAR EN SUPABASE
-    ============================================= */
-
     const response =
       await fetch(
-
-        `${baseUrl}` +
-        `/rest/v1/reservations`,
-
+        `${baseUrl}/rest/v1/reservations`,
         {
           method: "POST",
 
@@ -1375,7 +1118,6 @@ export default async function handler(
               reserva
             )
         }
-
       );
 
 
@@ -1398,13 +1140,11 @@ export default async function handler(
     }
 
 
-    /* =============================================
+    /* -----------------------------------------------
        ERROR SUPABASE
-    ============================================= */
+    ----------------------------------------------- */
 
-    if (
-      !response.ok
-    ) {
+    if (!response.ok) {
 
       console.error(
         "ERROR REAL DE SUPABASE:",
@@ -1425,14 +1165,11 @@ export default async function handler(
           ? 409
           : response.status,
         {
-
           ok: false,
 
           message:
             duplicate
-
               ? "Ese horario ya está reservado. Elegí otra fecha u horario."
-
               : data?.message ||
                 data?.hint ||
                 data?.details ||
@@ -1440,34 +1177,36 @@ export default async function handler(
 
           error:
             data
-
         }
       );
-
     }
 
 
-    /* =============================================
-       RESPUESTA EXITOSA
-    ============================================= */
+    /* -----------------------------------------------
+       RESERVA CREADA
+    ----------------------------------------------- */
+
+    const reservaCreada =
+      Array.isArray(data)
+        ? data[0]
+        : data;
+
 
     return sendJson(
       res,
       201,
       {
-
         ok: true,
 
         message:
           "Reserva guardada correctamente.",
 
         reserva:
-          Array.isArray(
-            data
-          )
-            ? data[0]
-            : data
+          reservaCreada,
 
+        public_id:
+          reservaCreada?.public_id ||
+          null
       }
     );
 
@@ -1484,17 +1223,12 @@ export default async function handler(
       res,
       500,
       {
-
         ok: false,
 
         message:
           error?.message ||
           "Error interno al procesar la reserva."
-
       }
     );
-
   }
-
 }
-```
