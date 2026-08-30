@@ -1,4 +1,3 @@
-```javascript
 /* =====================================================
    AGUARÁ PAINTBALL
    SCRIPT.JS — RESERVAS + COMPROBANTE
@@ -124,6 +123,8 @@ const receiptAmount =
 
 /*
    Guarda el public_id de la última reserva creada.
+   Ese ID permite asociar el comprobante
+   exactamente con la reserva correcta.
 */
 
 let currentReservationId = null;
@@ -241,7 +242,6 @@ if (dateInput) {
 
 /* =====================================================
    CARGAR HORARIOS
-   NO MODIFICADO
 ===================================================== */
 
 function cargarHorarios() {
@@ -319,7 +319,6 @@ if (timeSelect) {
 
 /* =====================================================
    CUANDO SE ELIGE UNA FECHA
-   NO MODIFICADO
 ===================================================== */
 
 if (dateInput) {
@@ -517,6 +516,12 @@ async function uploadReceipt() {
   }
 
 
+  /*
+    Limitamos el archivo a 3 MB.
+    Esto evita problemas con el tamaño
+    de la petición hacia Vercel.
+  */
+
   if (file.size > 3 * 1024 * 1024) {
 
     showReceiptMessage(
@@ -617,10 +622,6 @@ async function uploadReceipt() {
     }
 
 
-    /* =================================================
-       COMPROBANTE RECIBIDO CORRECTAMENTE
-    ================================================= */
-
     showReceiptMessage(
       "¡Comprobante recibido correctamente! Aguará revisará el pago y confirmará tu turno.",
       "success"
@@ -634,53 +635,8 @@ async function uploadReceipt() {
 
     if (receiptButton) {
 
-      /*
-        AQUÍ ESTABA EL PROBLEMA:
-        agregamos la clase que activa
-        el CSS VERDE.
-      */
-
-      receiptButton.classList.add(
-        "receipt-confirmed"
-      );
-
-      receiptButton.classList.remove(
-        "btn-primary"
-      );
-
       receiptButton.innerHTML =
         "Comprobante enviado ✓";
-
-      receiptButton.disabled =
-        true;
-
-    }
-
-
-    /*
-      También marcamos visualmente
-      toda la caja del comprobante.
-    */
-
-    if (receiptUpload) {
-
-      receiptUpload.classList.add(
-        "receipt-confirmed"
-      );
-
-    }
-
-
-    /*
-      Y el mensaje queda marcado
-      como confirmado.
-    */
-
-    if (receiptMessage) {
-
-      receiptMessage.classList.add(
-        "receipt-confirmed"
-      );
 
     }
 
@@ -707,10 +663,6 @@ async function uploadReceipt() {
 
       receiptButton.innerHTML =
         originalText;
-
-      receiptButton.classList.remove(
-        "receipt-confirmed"
-      );
 
     }
 
@@ -784,7 +736,7 @@ async function createReservation() {
 
 
   /* -------------------------------------------------
-     VALIDACIONES
+     VALIDAR NOMBRE
   ------------------------------------------------- */
 
   if (!name) {
@@ -798,6 +750,10 @@ async function createReservation() {
   }
 
 
+  /* -------------------------------------------------
+     VALIDAR WHATSAPP
+  ------------------------------------------------- */
+
   if (!phone) {
 
     showMessage(
@@ -808,6 +764,10 @@ async function createReservation() {
     return;
   }
 
+
+  /* -------------------------------------------------
+     VALIDAR FECHA
+  ------------------------------------------------- */
 
   if (!date) {
 
@@ -820,6 +780,10 @@ async function createReservation() {
   }
 
 
+  /* -------------------------------------------------
+     VALIDAR HORARIO
+  ------------------------------------------------- */
+
   if (!time) {
 
     showMessage(
@@ -830,6 +794,10 @@ async function createReservation() {
     return;
   }
 
+
+  /* -------------------------------------------------
+     VALIDAR JUGADORES
+  ------------------------------------------------- */
 
   if (
     !Number.isFinite(players) ||
@@ -986,6 +954,10 @@ async function createReservation() {
     }
 
 
+    /* =================================================
+       ERROR
+    ================================================= */
+
     if (!response.ok) {
 
       throw new Error(
@@ -1043,35 +1015,6 @@ async function createReservation() {
 
 
     /* =================================================
-       CAMBIAR BOTÓN A VERDE
-    ================================================= */
-
-    if (submitButton) {
-
-      /*
-        AQUÍ ESTABA EL SEGUNDO PROBLEMA:
-        agregamos la clase que activa
-        el CSS VERDE.
-      */
-
-      submitButton.classList.add(
-        "reservation-confirmed"
-      );
-
-      submitButton.classList.remove(
-        "btn-primary"
-      );
-
-      submitButton.innerHTML =
-        "Reserva registrada ✓";
-
-      submitButton.disabled =
-        true;
-
-    }
-
-
-    /* =================================================
        MOSTRAR COMPROBANTE
     ================================================= */
 
@@ -1079,29 +1022,6 @@ async function createReservation() {
 
       receiptUpload.hidden =
         false;
-
-      /*
-        El comprobante vuelve a empezar
-        en naranja porque todavía falta enviarlo.
-      */
-
-      if (receiptButton) {
-
-        receiptButton.classList.remove(
-          "receipt-confirmed"
-        );
-
-        receiptButton.classList.add(
-          "btn-primary"
-        );
-
-        receiptButton.disabled =
-          false;
-
-        receiptButton.innerHTML =
-          "Enviar comprobante <span>→</span>";
-      }
-
 
       receiptUpload.scrollIntoView({
         behavior: "smooth",
@@ -1176,20 +1096,7 @@ async function createReservation() {
 
   } finally {
 
-    /*
-      IMPORTANTE:
-      Si la reserva fue correcta, NO volvemos
-      a poner el botón en naranja.
-
-      Solo se restaura si hubo un error.
-    */
-
-    if (
-      submitButton &&
-      !submitButton.classList.contains(
-        "reservation-confirmed"
-      )
-    ) {
+    if (submitButton) {
 
       submitButton.disabled =
         false;
@@ -1197,7 +1104,6 @@ async function createReservation() {
       submitButton.innerHTML =
         textoOriginal;
     }
-
   }
 }
 
@@ -1387,4 +1293,3 @@ console.log(
   "Horarios disponibles:",
   CONFIG.slots
 );
-```
