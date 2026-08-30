@@ -1013,3 +1013,108 @@ footer a:hover{
   }
 
 }
+/* =====================================================
+   CONFIRMACIÓN DE RESERVA — VERDE
+   ===================================================== */
+
+/* BOTÓN CONTINUAR CON LA RESERVA */
+#continueReservationButton.reservation-confirmed,
+#continueReservationButton.confirmed,
+#continueReservationButton.btn-success {
+  background: #25a244 !important;
+  background-color: #25a244 !important;
+  border-color: #25a244 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(37, 162, 68, 0.25),
+              0 8px 25px rgba(37, 162, 68, 0.25) !important;
+}
+
+#continueReservationButton.reservation-confirmed:hover,
+#continueReservationButton.confirmed:hover,
+#continueReservationButton.btn-success:hover {
+  background: #2fbf55 !important;
+  background-color: #2fbf55 !important;
+  border-color: #2fbf55 !important;
+  color: #ffffff !important;
+}
+
+
+/* =====================================================
+   CAJA DEL COMPROBANTE
+   ===================================================== */
+
+#receiptUpload.receipt-confirmed,
+#receiptUpload.reservation-confirmed,
+#receiptUpload.confirmed {
+  background: #dff6e5 !important;
+  border: 3px solid #25a244 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 8px 25px rgba(37, 162, 68, 0.22) !important;
+}
+
+
+/* TÍTULO DEL COMPROBANTE */
+#receiptUpload.receipt-confirmed h3,
+#receiptUpload.reservation-confirmed h3,
+#receiptUpload.confirmed h3 {
+  color: #155d27 !important;
+}
+
+
+/* TEXTO DEL COMPROBANTE */
+#receiptUpload.receipt-confirmed p,
+#receiptUpload.reservation-confirmed p,
+#receiptUpload.confirmed p {
+  color: #155d27 !important;
+}
+
+
+/* =====================================================
+   BOTÓN ENVIAR COMPROBANTE — VERDE
+   ===================================================== */
+
+#receiptButton.receipt-confirmed,
+#receiptButton.reservation-confirmed,
+#receiptButton.confirmed,
+#receiptButton.btn-success {
+  background: #25a244 !important;
+  background-color: #25a244 !important;
+  border-color: #25a244 !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 25px rgba(37, 162, 68, 0.25) !important;
+}
+
+#receiptButton.receipt-confirmed:hover,
+#receiptButton.reservation-confirmed:hover,
+#receiptButton.confirmed:hover,
+#receiptButton.btn-success:hover {
+  background: #2fbf55 !important;
+  background-color: #2fbf55 !important;
+  border-color: #2fbf55 !important;
+  color: #ffffff !important;
+}
+
+
+/* =====================================================
+   MENSAJE DE COMPROBANTE RECIBIDO
+   ===================================================== */
+
+#receiptMessage.receipt-confirmed,
+#receiptMessage.reservation-confirmed,
+#receiptMessage.confirmed {
+  display: block !important;
+  background: #bdecc8 !important;
+  border: 2px solid #25a244 !important;
+  color: #155d27 !important;
+  font-weight: 800 !important;
+  border-radius: 10px !important;
+}
+
+
+/* =====================================================
+   ESTADO GENERAL
+   ===================================================== */
+
+#bookingForm.reservation-confirmed {
+  --confirmation-green: #25a244;
+}
