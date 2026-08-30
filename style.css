@@ -1150,3 +1150,38 @@ background .25s ease,
 border-color .25s ease,
 box-shadow .25s ease;
 }
+/* =====================================================
+   AGUARÁ PAINTBALL
+   SPLASH LOGO — APARECE Y QUEDA VISIBLE
+===================================================== */
+
+.hero-logo-splash {
+  opacity: 0;
+  animation: aguaraLogoAppear 2s ease-out forwards;
+  pointer-events: none;
+}
+
+.hero-logo-splash img {
+  display: block;
+  opacity: 1;
+}
+
+@keyframes aguaraLogoAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+    filter: blur(8px);
+  }
+
+  60% {
+    opacity: 0.85;
+    transform: scale(1.02);
+    filter: blur(1px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
