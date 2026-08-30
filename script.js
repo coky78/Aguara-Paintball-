@@ -45,11 +45,13 @@ const CONFIG = {
 ===================================================== */
 
 function money(value) {
+
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency: "ARS",
     maximumFractionDigits: 0
   }).format(Number(value) || 0);
+
 }
 
 
@@ -63,18 +65,26 @@ function formatDate(date) {
     return "";
   }
 
-  const parts = String(date).split("-");
+  const parts =
+    String(date).split("-");
 
   if (parts.length !== 3) {
     return date;
   }
 
-  return parts[2] + "/" + parts[1] + "/" + parts[0];
+  return (
+    parts[2] +
+    "/" +
+    parts[1] +
+    "/" +
+    parts[0]
+  );
+
 }
 
 
 /* =====================================================
-   ELEMENTOS DEL HTML
+   ELEMENTOS DEL FORMULARIO
 ===================================================== */
 
 const bookingForm =
@@ -128,33 +138,38 @@ const receiptAmount =
 
 const submitButton =
   bookingForm
-    ? bookingForm.querySelector('button[type="submit"]')
+    ? bookingForm.querySelector(
+        'button[type="submit"]'
+      )
     : null;
 
 
-/*
-   Guarda el public_id de la última reserva creada.
-*/
+/* =====================================================
+   VARIABLES DE ESTADO
+===================================================== */
 
 let currentReservationId = null;
-
-
-/*
-   Indica si el comprobante fue enviado correctamente.
-*/
 
 let receiptSent = false;
 
 
 /* =====================================================
-   SEPARACIÓN VISUAL ENTRE RESERVA Y COMPROBANTE
+   ESTILOS VISUALES
+   Se aplican directamente desde JS para evitar
+   conflictos con el CSS existente.
 ===================================================== */
 
 if (receiptUpload) {
 
-  receiptUpload.style.marginTop = "40px";
-  receiptUpload.style.paddingTop = "30px";
-  receiptUpload.style.borderTop = "2px solid rgba(255,255,255,0.15)";
+  receiptUpload.style.marginTop =
+    "55px";
+
+  receiptUpload.style.paddingTop =
+    "30px";
+
+  receiptUpload.style.borderTop =
+    "2px solid rgba(255,255,255,0.18)";
+
 }
 
 
@@ -163,71 +178,101 @@ if (receiptUpload) {
 ===================================================== */
 
 const publicGamePrice =
-  document.getElementById("publicGamePrice");
+  document.getElementById(
+    "publicGamePrice"
+  );
 
 if (publicGamePrice) {
+
   publicGamePrice.textContent =
     money(CONFIG.gamePrice);
+
 }
 
 
 const publicShotsText =
-  document.getElementById("publicShotsText");
+  document.getElementById(
+    "publicShotsText"
+  );
 
 if (publicShotsText) {
+
   publicShotsText.textContent =
     CONFIG.shotsText;
+
 }
 
 
 const publicHydrogelPrice =
-  document.getElementById("publicHydrogelPrice");
+  document.getElementById(
+    "publicHydrogelPrice"
+  );
 
 if (publicHydrogelPrice) {
+
   publicHydrogelPrice.textContent =
     money(CONFIG.hydrogelPrice);
+
 }
 
 
 const publicHydrogelShotsText =
-  document.getElementById("publicHydrogelShotsText");
+  document.getElementById(
+    "publicHydrogelShotsText"
+  );
 
 if (publicHydrogelShotsText) {
+
   publicHydrogelShotsText.textContent =
     CONFIG.hydrogelShotsText;
+
 }
 
 
 const publicDeposit =
-  document.getElementById("publicDeposit");
+  document.getElementById(
+    "publicDeposit"
+  );
 
 if (publicDeposit) {
+
   publicDeposit.textContent =
     money(CONFIG.deposit);
+
 }
 
 
 const depositInline =
-  document.getElementById("depositInline");
+  document.getElementById(
+    "depositInline"
+  );
 
 if (depositInline) {
+
   depositInline.textContent =
     money(CONFIG.deposit);
+
 }
 
 
 const publicMinPlayers =
-  document.getElementById("publicMinPlayers");
+  document.getElementById(
+    "publicMinPlayers"
+  );
 
 if (publicMinPlayers) {
+
   publicMinPlayers.textContent =
     CONFIG.minPlayers;
+
 }
 
 
 if (receiptAmount) {
+
   receiptAmount.textContent =
     money(CONFIG.deposit);
+
 }
 
 
@@ -239,8 +284,10 @@ const yearElement =
   document.getElementById("year");
 
 if (yearElement) {
+
   yearElement.textContent =
     new Date().getFullYear();
+
 }
 
 
@@ -250,21 +297,29 @@ if (yearElement) {
 
 if (dateInput) {
 
-  const today = new Date();
+  const today =
+    new Date();
 
   const year =
     today.getFullYear();
 
   const month =
-    String(today.getMonth() + 1)
-      .padStart(2, "0");
+    String(
+      today.getMonth() + 1
+    ).padStart(2, "0");
 
   const day =
-    String(today.getDate())
-      .padStart(2, "0");
+    String(
+      today.getDate()
+    ).padStart(2, "0");
 
   dateInput.min =
-    year + "-" + month + "-" + day;
+    year +
+    "-" +
+    month +
+    "-" +
+    day;
+
 }
 
 
@@ -289,38 +344,49 @@ function cargarHorarios() {
 
 
   const primeraOpcion =
-    document.createElement("option");
+    document.createElement(
+      "option"
+    );
 
   primeraOpcion.value = "";
 
   primeraOpcion.textContent =
     "Elegí un horario";
 
+
   timeSelect.appendChild(
     primeraOpcion
   );
 
 
-  CONFIG.slots.forEach(function (hora) {
+  CONFIG.slots.forEach(
+    function (hora) {
 
-    const opcion =
-      document.createElement("option");
+      const opcion =
+        document.createElement(
+          "option"
+        );
 
-    opcion.value = hora;
+      opcion.value =
+        hora;
 
-    opcion.textContent = hora;
+      opcion.textContent =
+        hora;
 
-    timeSelect.appendChild(
-      opcion
-    );
 
-  });
+      timeSelect.appendChild(
+        opcion
+      );
+
+    }
+  );
 
 
   console.log(
     "HORARIOS CARGADOS:",
     CONFIG.slots
   );
+
 }
 
 
@@ -330,19 +396,25 @@ function cargarHorarios() {
 
 if (timeSelect) {
 
-  timeSelect.innerHTML = "";
+  timeSelect.innerHTML =
+    "";
 
   const opcionInicial =
-    document.createElement("option");
+    document.createElement(
+      "option"
+    );
 
-  opcionInicial.value = "";
+  opcionInicial.value =
+    "";
 
   opcionInicial.textContent =
     "Elegí una fecha";
 
+
   timeSelect.appendChild(
     opcionInicial
   );
+
 }
 
 
@@ -360,19 +432,25 @@ if (dateInput) {
 
         if (timeSelect) {
 
-          timeSelect.innerHTML = "";
+          timeSelect.innerHTML =
+            "";
 
           const opcion =
-            document.createElement("option");
+            document.createElement(
+              "option"
+            );
 
-          opcion.value = "";
+          opcion.value =
+            "";
 
           opcion.textContent =
             "Elegí una fecha";
 
+
           timeSelect.appendChild(
             opcion
           );
+
         }
 
         return;
@@ -383,6 +461,7 @@ if (dateInput) {
 
     }
   );
+
 }
 
 
@@ -412,11 +491,12 @@ function showMessage(
   bookingMessage.className =
     "form-message " +
     (type || "success");
+
 }
 
 
 /* =====================================================
-   MENSAJES DEL COMPROBANTE
+   MENSAJES COMPROBANTE
 ===================================================== */
 
 function showReceiptMessage(
@@ -441,11 +521,12 @@ function showReceiptMessage(
   receiptMessage.className =
     "form-message " +
     (type || "success");
+
 }
 
 
 /* =====================================================
-   LEER ARCHIVO COMO BASE64
+   BASE64
 ===================================================== */
 
 function fileToBase64(file) {
@@ -461,7 +542,9 @@ function fileToBase64(file) {
         function () {
 
           const result =
-            String(reader.result || "");
+            String(
+              reader.result || ""
+            );
 
           const comma =
             result.indexOf(",");
@@ -469,9 +552,12 @@ function fileToBase64(file) {
 
           resolve(
             comma >= 0
-              ? result.slice(comma + 1)
+              ? result.slice(
+                  comma + 1
+                )
               : result
           );
+
         };
 
 
@@ -487,15 +573,18 @@ function fileToBase64(file) {
         };
 
 
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(
+        file
+      );
 
     }
   );
+
 }
 
 
 /* =====================================================
-   MARCAR RESERVA COMO CONFIRMADA VISUALMENTE
+   MARCAR RESERVA CONFIRMADA
 ===================================================== */
 
 function marcarReservaConfirmada() {
@@ -503,96 +592,179 @@ function marcarReservaConfirmada() {
   receiptSent = true;
 
 
-  /* -----------------------------------------------
+  /* =================================================
      BOTÓN CONTINUAR CON LA RESERVA
-  ----------------------------------------------- */
+  ================================================= */
 
   if (submitButton) {
 
-    submitButton.disabled = true;
+    submitButton.disabled =
+      true;
 
-    submitButton.style.background =
-      "#25a244";
+    submitButton.style.setProperty(
+      "background",
+      "#25a244",
+      "important"
+    );
 
-    submitButton.style.borderColor =
-      "#25a244";
+    submitButton.style.setProperty(
+      "background-color",
+      "#25a244",
+      "important"
+    );
 
-    submitButton.style.color =
-      "#ffffff";
+    submitButton.style.setProperty(
+      "border-color",
+      "#25a244",
+      "important"
+    );
+
+    submitButton.style.setProperty(
+      "color",
+      "#ffffff",
+      "important"
+    );
+
+    submitButton.style.setProperty(
+      "opacity",
+      "1",
+      "important"
+    );
 
     submitButton.style.cursor =
       "default";
 
-    submitButton.style.opacity =
-      "1";
-
     submitButton.innerHTML =
       "RESERVA CONFIRMADA ✓";
+
   }
 
 
-  /* -----------------------------------------------
+  /* =================================================
      BOTÓN COMPROBANTE
-  ----------------------------------------------- */
+  ================================================= */
 
   if (receiptButton) {
 
-    receiptButton.disabled = true;
+    receiptButton.disabled =
+      true;
 
-    receiptButton.style.background =
-      "#25a244";
+    receiptButton.style.setProperty(
+      "background",
+      "#25a244",
+      "important"
+    );
 
-    receiptButton.style.borderColor =
-      "#25a244";
+    receiptButton.style.setProperty(
+      "background-color",
+      "#25a244",
+      "important"
+    );
 
-    receiptButton.style.color =
-      "#ffffff";
+    receiptButton.style.setProperty(
+      "border-color",
+      "#25a244",
+      "important"
+    );
+
+    receiptButton.style.setProperty(
+      "color",
+      "#ffffff",
+      "important"
+    );
+
+    receiptButton.style.setProperty(
+      "opacity",
+      "1",
+      "important"
+    );
 
     receiptButton.style.cursor =
       "default";
 
-    receiptButton.style.opacity =
-      "1";
-
     receiptButton.innerHTML =
       "COMPROBANTE ENVIADO ✓";
+
   }
 
 
-  /* -----------------------------------------------
-     CONTENEDOR DEL COMPROBANTE
-  ----------------------------------------------- */
+  /* =================================================
+     BLOQUE DEL COMPROBANTE
+  ================================================= */
 
   if (receiptUpload) {
 
-    receiptUpload.style.background =
-      "#dff6e5";
+    receiptUpload.style.setProperty(
+      "background",
+      "#dff6e5",
+      "important"
+    );
 
-    receiptUpload.style.border =
-      "2px solid #25a244";
+    receiptUpload.style.setProperty(
+      "border",
+      "2px solid #25a244",
+      "important"
+    );
 
-    receiptUpload.style.borderRadius =
-      "12px";
+    receiptUpload.style.setProperty(
+      "border-radius",
+      "12px",
+      "important"
+    );
 
-    receiptUpload.style.padding =
-      "25px";
+    receiptUpload.style.setProperty(
+      "padding",
+      "25px",
+      "important"
+    );
 
-    receiptUpload.style.marginTop =
-      "40px";
+    receiptUpload.style.setProperty(
+      "margin-top",
+      "55px",
+      "important"
+    );
 
-    receiptUpload.style.transition =
-      "all 0.3s ease";
   }
 
 
-  /* -----------------------------------------------
-     MENSAJE VERDE
-  ----------------------------------------------- */
+  /* =================================================
+     MENSAJE
+  ================================================= */
+
+  if (receiptMessage) {
+
+    receiptMessage.style.setProperty(
+      "background",
+      "#dff6e5",
+      "important"
+    );
+
+    receiptMessage.style.setProperty(
+      "border",
+      "2px solid #25a244",
+      "important"
+    );
+
+    receiptMessage.style.setProperty(
+      "color",
+      "#176b2c",
+      "important"
+    );
+
+    receiptMessage.style.setProperty(
+      "font-weight",
+      "700",
+      "important"
+    );
+
+  }
+
 
   showReceiptMessage(
     "🟢 RESERVA CONFIRMADA — Comprobante recibido correctamente.",
     "success"
   );
+
 }
 
 
@@ -619,7 +791,10 @@ async function uploadReceipt() {
   }
 
 
-  if (!receiptFile || !receiptFile.files.length) {
+  if (
+    !receiptFile ||
+    !receiptFile.files.length
+  ) {
 
     showReceiptMessage(
       "Seleccioná el comprobante de pago.",
@@ -642,7 +817,11 @@ async function uploadReceipt() {
   ];
 
 
-  if (!allowedTypes.includes(file.type)) {
+  if (
+    !allowedTypes.includes(
+      file.type
+    )
+  ) {
 
     showReceiptMessage(
       "Formato no permitido. Subí JPG, PNG, WEBP o PDF.",
@@ -653,11 +832,14 @@ async function uploadReceipt() {
   }
 
 
-  /* -----------------------------------------------
-     LÍMITE DE 3 MB
-  ----------------------------------------------- */
+  /* =================================================
+     MÁXIMO 3 MB
+  ================================================= */
 
-  if (file.size > 3 * 1024 * 1024) {
+  if (
+    file.size >
+    3 * 1024 * 1024
+  ) {
 
     showReceiptMessage(
       "El comprobante no puede superar los 3 MB.",
@@ -681,13 +863,16 @@ async function uploadReceipt() {
 
     receiptButton.innerHTML =
       "Enviando comprobante...";
+
   }
 
 
   try {
 
     const base64 =
-      await fileToBase64(file);
+      await fileToBase64(
+        file
+      );
 
 
     const response =
@@ -755,22 +940,29 @@ async function uploadReceipt() {
         data.message ||
         "No se pudo enviar el comprobante."
       );
+
     }
 
 
-    /* -----------------------------------------------
-       COMPROBANTE ENVIADO CORRECTAMENTE
-    ----------------------------------------------- */
+    /* =================================================
+       ARCHIVO ENVIADO CORRECTAMENTE
+    ================================================= */
 
     if (receiptFile) {
 
-      receiptFile.value = "";
+      receiptFile.value =
+        "";
+
     }
 
 
     /*
-       ACÁ SE MARCA TODA LA RESERVA COMO CONFIRMADA
-       VISUALMENTE.
+       IMPORTANTE:
+       Acá NO cambiamos nuevamente el texto
+       del botón.
+
+       La función marcarReservaConfirmada()
+       se encarga de todo.
     */
 
     marcarReservaConfirmada();
@@ -798,6 +990,7 @@ async function uploadReceipt() {
 
       receiptButton.innerHTML =
         originalText;
+
     }
 
   }
@@ -819,6 +1012,7 @@ if (receiptButton) {
 
     }
   );
+
 }
 
 
@@ -859,7 +1053,9 @@ async function createReservation() {
 
   const players =
     playersInput
-      ? Number(playersInput.value)
+      ? Number(
+          playersInput.value
+        )
       : 0;
 
 
@@ -869,9 +1065,9 @@ async function createReservation() {
       : "";
 
 
-  /* -------------------------------------------------
+  /* =================================================
      VALIDAR NOMBRE
-  ------------------------------------------------- */
+  ================================================= */
 
   if (!name) {
 
@@ -884,9 +1080,9 @@ async function createReservation() {
   }
 
 
-  /* -------------------------------------------------
+  /* =================================================
      VALIDAR WHATSAPP
-  ------------------------------------------------- */
+  ================================================= */
 
   if (!phone) {
 
@@ -899,9 +1095,9 @@ async function createReservation() {
   }
 
 
-  /* -------------------------------------------------
+  /* =================================================
      VALIDAR FECHA
-  ------------------------------------------------- */
+  ================================================= */
 
   if (!date) {
 
@@ -914,9 +1110,9 @@ async function createReservation() {
   }
 
 
-  /* -------------------------------------------------
+  /* =================================================
      VALIDAR HORARIO
-  ------------------------------------------------- */
+  ================================================= */
 
   if (!time) {
 
@@ -929,9 +1125,9 @@ async function createReservation() {
   }
 
 
-  /* -------------------------------------------------
+  /* =================================================
      VALIDAR JUGADORES
-  ------------------------------------------------- */
+  ================================================= */
 
   if (
     !Number.isFinite(players) ||
@@ -949,23 +1145,24 @@ async function createReservation() {
   }
 
 
-  /* -------------------------------------------------
+  /* =================================================
      CALCULAR PRECIO
-  ------------------------------------------------- */
+  ================================================= */
 
   const precioPorJugador =
     CONFIG.gamePrice;
 
   const total =
-    precioPorJugador * players;
+    precioPorJugador *
+    players;
 
   const senaRequerida =
     CONFIG.deposit;
 
 
-  /* -------------------------------------------------
+  /* =================================================
      BOTÓN
-  ------------------------------------------------- */
+  ================================================= */
 
   let textoOriginal =
     "Continuar con la reserva";
@@ -981,6 +1178,7 @@ async function createReservation() {
 
     submitButton.innerHTML =
       "Guardando reserva...";
+
   }
 
 
@@ -1093,6 +1291,7 @@ async function createReservation() {
         data.message ||
         "No se pudo guardar la reserva."
       );
+
     }
 
 
@@ -1121,6 +1320,7 @@ async function createReservation() {
       throw new Error(
         "La reserva se guardó, pero no recibimos el identificador de la reserva."
       );
+
     }
 
 
@@ -1153,13 +1353,14 @@ async function createReservation() {
         false;
 
       receiptUpload.style.marginTop =
-        "40px";
+        "55px";
 
       receiptUpload.style.paddingTop =
         "30px";
 
       receiptUpload.style.borderTop =
-        "2px solid rgba(255,255,255,0.15)";
+        "2px solid rgba(255,255,255,0.18)";
+
 
       receiptUpload.scrollIntoView({
         behavior: "smooth",
@@ -1170,7 +1371,7 @@ async function createReservation() {
 
 
     /* =================================================
-       LIMPIAR DATOS DE RESERVA
+       LIMPIAR DATOS
     ================================================= */
 
     if (nameInput) {
@@ -1189,8 +1390,10 @@ async function createReservation() {
 
 
     if (playersInput) {
+
       playersInput.value =
         CONFIG.minPlayers;
+
     }
 
 
@@ -1201,19 +1404,25 @@ async function createReservation() {
 
     if (timeSelect) {
 
-      timeSelect.innerHTML = "";
+      timeSelect.innerHTML =
+        "";
 
       const opcion =
-        document.createElement("option");
+        document.createElement(
+          "option"
+        );
 
-      opcion.value = "";
+      opcion.value =
+        "";
 
       opcion.textContent =
         "Elegí una fecha";
 
+
       timeSelect.appendChild(
         opcion
       );
+
     }
 
 
@@ -1235,9 +1444,10 @@ async function createReservation() {
   } finally {
 
     /*
-       IMPORTANTE:
-       Si el comprobante ya fue enviado,
-       NO volvemos a activar el botón.
+       Si el comprobante todavía NO fue enviado,
+       restauramos el botón.
+
+       Si ya fue enviado, queda verde.
     */
 
     if (
@@ -1250,6 +1460,7 @@ async function createReservation() {
 
       submitButton.innerHTML =
         textoOriginal;
+
     }
 
   }
@@ -1273,6 +1484,7 @@ if (bookingForm) {
 
     }
   );
+
 }
 
 
@@ -1319,6 +1531,7 @@ if (whatsappHero) {
 
   whatsappHero.rel =
     "noopener noreferrer";
+
 }
 
 
@@ -1332,6 +1545,7 @@ if (whatsappBooking) {
 
   whatsappBooking.rel =
     "noopener noreferrer";
+
 }
 
 
@@ -1389,8 +1603,10 @@ galleryItems.forEach(
 
         lightbox.hidden =
           false;
+
       }
     );
+
   }
 );
 
@@ -1405,9 +1621,12 @@ if (closeLightbox) {
 
         lightbox.hidden =
           true;
+
       }
+
     }
   );
+
 }
 
 
@@ -1424,14 +1643,17 @@ if (lightbox) {
 
         lightbox.hidden =
           true;
+
       }
+
     }
   );
+
 }
 
 
 /* =====================================================
-   CONFIRMACIÓN
+   FINAL
 ===================================================== */
 
 console.log(
