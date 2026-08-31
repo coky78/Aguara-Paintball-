@@ -1,3 +1,4 @@
+```javascript
 /* =====================================================
    AGUARÁ PAINTBALL
    ADMIN.JS
@@ -11,6 +12,7 @@
 ===================================================== */
 
 const DEFAULTS = {
+
   gamePrice: 29000,
 
   shotsText:
@@ -111,22 +113,28 @@ function loadConfig() {
 
   try {
 
-    return {
-      ...DEFAULTS,
-
-      ...JSON.parse(
+    const saved =
+      JSON.parse(
         localStorage.getItem(
           "aguaraConfig"
         ) || "{}"
-      )
+      );
+
+    return {
+      ...DEFAULTS,
+      ...saved
     };
 
-  } catch {
+  } catch (error) {
+
+    console.error(
+      "ERROR CARGANDO CONFIGURACIÓN:",
+      error
+    );
 
     return {
       ...DEFAULTS
     };
-
   }
 }
 
@@ -136,45 +144,60 @@ const cfg =
 
 
 /* =====================================================
-   CARGAR CONFIGURACIÓN
+   CARGAR CONFIGURACIÓN EN EL PANEL
 ===================================================== */
 
 if ($("gamePrice")) {
+
   $("gamePrice").value =
     cfg.gamePrice;
 }
 
+
 if ($("shotsText")) {
+
   $("shotsText").value =
     cfg.shotsText;
 }
 
+
 if ($("hydrogelPrice")) {
+
   $("hydrogelPrice").value =
     cfg.hydrogelPrice;
 }
 
+
 if ($("hydrogelShotsText")) {
+
   $("hydrogelShotsText").value =
     cfg.hydrogelShotsText;
 }
 
+
 if ($("deposit")) {
+
   $("deposit").value =
     cfg.deposit;
 }
 
+
 if ($("minPlayers")) {
+
   $("minPlayers").value =
     cfg.minPlayers;
 }
 
+
 if ($("whatsapp")) {
+
   $("whatsapp").value =
     cfg.whatsapp;
 }
 
+
 if ($("slots")) {
+
   $("slots").value =
     cfg.slots.join(", ");
 }
@@ -182,164 +205,9 @@ if ($("slots")) {
 
 /* =====================================================
    GUARDAR CONFIGURACIÓN
+   UNA SOLA FUNCIÓN SUBMIT
 ===================================================== */
 
-if ($("configForm")) {
-
-  $("configForm").addEventListener(
-    "submit",
-    function (event) {
-
-      event.preventDefault();
-
-      /* ===============================================
-         LEER VALORES
-      =============================================== */
-
-      const hydrogelInput =
-        $("hydrogelPrice");
-
-      const next = {
-
-        gamePrice:
-          Number(
-            $("gamePrice").value
-          ) || 0,
-
-        shotsText:
-          $("shotsText")
-            .value
-            .trim(),
-
-        hydrogelPrice:
-          Number(
-            hydrogelInput.value
-          ) || 0,
-
-        hydrogelShotsText:
-          $("hydrogelShotsText")
-            .value
-            .trim(),
-
-        deposit:
-          Number(
-            $("deposit").value
-          ) || 0,
-
-        minPlayers:
-          Number(
-            $("minPlayers").value
-          ) || 1,
-
-        whatsapp:
-          $("whatsapp")
-            .value
-            .replace(/\D/g, ""),
-
-        /* =============================================
-           HORARIOS
-           NO SE MODIFICAN
-        ============================================= */
-
-        slots:
-          $("slots")
-            .value
-            .split(",")
-            .map(
-              function (x) {
-                return x.trim();
-              }
-            )
-            .filter(Boolean)
-
-      };
-
-
-      /* ===============================================
-         VALIDAR HIDROGEL
-      =============================================== */
-
-      if (
-        !Number.isFinite(
-          next.hydrogelPrice
-        )
-      ) {
-
-        alert(
-          "El precio de Hidrogel no es válido."
-        );
-
-        return;
-      }
-
-
-      /* ===============================================
-         GUARDAR
-      =============================================== */
-
-      try {
-
-        localStorage.setItem(
-          "aguaraConfig",
-          JSON.stringify(next)
-        );
-
-
-        /* =============================================
-           VERIFICAR QUE REALMENTE SE GUARDÓ
-        ============================================= */
-
-        const saved =
-          JSON.parse(
-            localStorage.getItem(
-              "aguaraConfig"
-            ) || "{}"
-          );
-
-
-        console.log(
-          "CONFIGURACIÓN GUARDADA:",
-          saved
-        );
-
-
-        console.log(
-          "PRECIO HIDROGEL GUARDADO:",
-          saved.hydrogelPrice
-        );
-
-
-        /* =============================================
-           MENSAJE
-        ============================================= */
-
-        if ($("saved")) {
-
-          $("saved").hidden =
-            false;
-
-          $("saved").textContent =
-            "Configuración guardada correctamente. Hidrogel: " +
-            money(saved.hydrogelPrice);
-
-        }
-
-      } catch (error) {
-
-        console.error(
-          "ERROR GUARDANDO CONFIGURACIÓN:",
-          error
-        );
-
-        alert(
-          "No se pudo guardar la configuración."
-        );
-
-      }
-
-    }
-  );
-}
 if ($("configForm")) {
 
   $("configForm")
@@ -350,68 +218,313 @@ if ($("configForm")) {
         event.preventDefault();
 
 
+        /* =============================================
+           LEER VALORES
+        ============================================= */
+
+        const gamePriceInput =
+          $("gamePrice");
+
+        const shotsTextInput =
+          $("shotsText");
+
+        const hydrogelPriceInput =
+          $("hydrogelPrice");
+
+        const hydrogelShotsTextInput =
+          $("hydrogelShotsText");
+
+        const depositInput =
+          $("deposit");
+
+        const minPlayersInput =
+          $("minPlayers");
+
+        const whatsappInput =
+          $("whatsapp");
+
+        const slotsInput =
+          $("slots");
+
+
+        /* =============================================
+           VALIDAR ELEMENTOS
+        ============================================= */
+
+        if (
+          !gamePriceInput ||
+          !shotsTextInput ||
+          !hydrogelPriceInput ||
+          !hydrogelShotsTextInput ||
+          !depositInput ||
+          !minPlayersInput ||
+          !whatsappInput ||
+          !slotsInput
+        ) {
+
+          alert(
+            "Faltan campos de configuración en el panel."
+          );
+
+          return;
+        }
+
+
+        /* =============================================
+           CONSTRUIR CONFIGURACIÓN
+        ============================================= */
+
         const next = {
 
           gamePrice:
             Number(
-              $("gamePrice").value
-            ),
+              gamePriceInput.value
+            ) || 0,
+
 
           shotsText:
-            $("shotsText")
+            shotsTextInput
               .value
               .trim(),
+
 
           hydrogelPrice:
             Number(
-              $("hydrogelPrice").value
-            ),
+              hydrogelPriceInput.value
+            ) || 0,
+
 
           hydrogelShotsText:
-            $("hydrogelShotsText")
+            hydrogelShotsTextInput
               .value
               .trim(),
 
+
           deposit:
             Number(
-              $("deposit").value
-            ),
+              depositInput.value
+            ) || 0,
+
 
           minPlayers:
             Number(
-              $("minPlayers").value
-            ),
+              minPlayersInput.value
+            ) || 1,
+
 
           whatsapp:
-            $("whatsapp")
+            whatsappInput
               .value
               .replace(/\D/g, ""),
 
+
+          /* =========================================
+             HORARIOS
+             SE CONSERVAN TAL COMO ESTÁN
+          ========================================= */
+
           slots:
-            $("slots")
+            slotsInput
               .value
               .split(",")
               .map(
-                (x) =>
-                  x.trim()
+                function (x) {
+
+                  return x.trim();
+
+                }
               )
               .filter(Boolean)
+
         };
 
 
-        localStorage.setItem(
-          "aguaraConfig",
-          JSON.stringify(next)
-        );
+        /* =============================================
+           VALIDAR PRECIO PAINTBALL
+        ============================================= */
+
+        if (
+          !Number.isFinite(
+            next.gamePrice
+          ) ||
+          next.gamePrice < 0
+        ) {
+
+          alert(
+            "El precio de Paintball no es válido."
+          );
+
+          return;
+        }
 
 
-        if ($("saved")) {
+        /* =============================================
+           VALIDAR PRECIO HIDROGEL
+        ============================================= */
 
-          $("saved").hidden =
-            false;
+        if (
+          !Number.isFinite(
+            next.hydrogelPrice
+          ) ||
+          next.hydrogelPrice < 0
+        ) {
 
-          $("saved").textContent =
-            "Configuración guardada correctamente.";
+          alert(
+            "El precio de Hidrogel no es válido."
+          );
+
+          return;
+        }
+
+
+        /* =============================================
+           VALIDAR SEÑA
+        ============================================= */
+
+        if (
+          !Number.isFinite(
+            next.deposit
+          ) ||
+          next.deposit < 0
+        ) {
+
+          alert(
+            "El monto de la seña no es válido."
+          );
+
+          return;
+        }
+
+
+        /* =============================================
+           VALIDAR MÍNIMO DE JUGADORES
+        ============================================= */
+
+        if (
+          !Number.isInteger(
+            next.minPlayers
+          ) ||
+          next.minPlayers < 1
+        ) {
+
+          alert(
+            "El mínimo de jugadores no es válido."
+          );
+
+          return;
+        }
+
+
+        /* =============================================
+           VALIDAR HORARIOS
+        ============================================= */
+
+        if (
+          !Array.isArray(
+            next.slots
+          ) ||
+          next.slots.length === 0
+        ) {
+
+          alert(
+            "Debe existir al menos un horario."
+          );
+
+          return;
+        }
+
+
+        /* =============================================
+           GUARDAR
+        ============================================= */
+
+        try {
+
+          localStorage.setItem(
+            "aguaraConfig",
+            JSON.stringify(next)
+          );
+
+
+          /* ===========================================
+             VERIFICAR GUARDADO
+          =========================================== */
+
+          const saved =
+            JSON.parse(
+              localStorage.getItem(
+                "aguaraConfig"
+              ) || "{}"
+            );
+
+
+          console.log(
+            "CONFIGURACIÓN GUARDADA:",
+            saved
+          );
+
+
+          console.log(
+            "PRECIO PAINTBALL:",
+            saved.gamePrice
+          );
+
+
+          console.log(
+            "PRECIO HIDROGEL:",
+            saved.hydrogelPrice
+          );
+
+
+          console.log(
+            "SEÑA:",
+            saved.deposit
+          );
+
+
+          console.log(
+            "MÍNIMO JUGADORES:",
+            saved.minPlayers
+          );
+
+
+          /* ===========================================
+             MENSAJE DE CONFIRMACIÓN
+          =========================================== */
+
+          if ($("saved")) {
+
+            $("saved").hidden =
+              false;
+
+            $("saved").textContent =
+              "Configuración guardada correctamente. " +
+              "Paintball: " +
+              money(saved.gamePrice) +
+              " · Hidrogel: " +
+              money(saved.hydrogelPrice);
+
+          } else {
+
+            alert(
+              "Configuración guardada correctamente."
+            );
+
+          }
+
+
+        } catch (error) {
+
+          console.error(
+            "ERROR GUARDANDO CONFIGURACIÓN:",
+            error
+          );
+
+
+          alert(
+            "No se pudo guardar la configuración."
+          );
+
         }
 
       }
@@ -421,6 +534,7 @@ if ($("configForm")) {
 
 /* =====================================================
    ORDEN DE RESERVAS
+
    CONFIRMADAS ARRIBA
    PENDIENTES EN EL MEDIO
    CANCELADAS ABAJO
@@ -429,9 +543,13 @@ if ($("configForm")) {
 function sortBookings(bookings) {
 
   const statusOrder = {
+
     confirmed: 0,
+
     pending: 1,
+
     cancelled: 2
+
   };
 
 
@@ -555,6 +673,7 @@ async function render() {
 
 
   if (!container) {
+
     return;
   }
 
@@ -625,7 +744,9 @@ async function render() {
         : [];
 
 
-    if (!bookings.length) {
+    if (
+      !bookings.length
+    ) {
 
       container.innerHTML =
         "<p class='muted'>No hay reservas todavía.</p>";
@@ -636,7 +757,12 @@ async function render() {
 
     /* ---------------------------------------------
        ORDENAR RESERVAS
-       CONFIRMADAS → PENDIENTES → CANCELADAS
+
+       CONFIRMADAS
+       ↓
+       PENDIENTES
+       ↓
+       CANCELADAS
     --------------------------------------------- */
 
     bookings =
@@ -698,6 +824,7 @@ async function render() {
 
       </div>
       `;
+
   }
 }
 
@@ -719,8 +846,9 @@ function reservationHtml(b) {
     String(
       b.status ??
       "pending"
-    ).trim()
-    .toLowerCase();
+    )
+      .trim()
+      .toLowerCase();
 
 
   let statusText =
@@ -1097,6 +1225,7 @@ async function editReservation(
   if (
     nombre === null
   ) {
+
     return;
   }
 
@@ -1124,6 +1253,7 @@ async function editReservation(
   if (
     telefono === null
   ) {
+
     return;
   }
 
@@ -1151,6 +1281,7 @@ async function editReservation(
   if (
     fecha === null
   ) {
+
     return;
   }
 
@@ -1182,6 +1313,7 @@ async function editReservation(
   if (
     hora === null
   ) {
+
     return;
   }
 
@@ -1213,6 +1345,7 @@ async function editReservation(
   if (
     jugadores === null
   ) {
+
     return;
   }
 
@@ -1250,6 +1383,7 @@ async function editReservation(
   if (
     notas === null
   ) {
+
     return;
   }
 
@@ -1263,11 +1397,13 @@ async function editReservation(
           method: "PATCH",
 
           headers: {
+
             "Content-Type":
               "application/json",
 
             Accept:
               "application/json"
+
           },
 
           body:
@@ -1342,7 +1478,7 @@ async function editReservation(
     );
 
 
-    render();
+    await render();
 
 
   } catch (error) {
@@ -1357,6 +1493,7 @@ async function editReservation(
       error.message ||
       "No se pudo editar la reserva."
     );
+
   }
 }
 
@@ -1403,11 +1540,13 @@ async function changeStatus(
           method: "PATCH",
 
           headers: {
+
             "Content-Type":
               "application/json",
 
             Accept:
               "application/json"
+
           },
 
           body:
@@ -1490,6 +1629,7 @@ async function changeStatus(
       error.message ||
       "No se pudo cambiar el estado."
     );
+
   }
 }
 
@@ -1522,6 +1662,7 @@ async function deleteReservation(
 
 
   if (!confirmar) {
+
     return;
   }
 
@@ -1535,11 +1676,13 @@ async function deleteReservation(
           method: "DELETE",
 
           headers: {
+
             "Content-Type":
               "application/json",
 
             Accept:
               "application/json"
+
           },
 
           body:
@@ -1596,7 +1739,7 @@ async function deleteReservation(
     );
 
 
-    render();
+    await render();
 
 
   } catch (error) {
@@ -1611,6 +1754,7 @@ async function deleteReservation(
       error.message ||
       "No se pudo eliminar la reserva."
     );
+
   }
 }
 
@@ -1622,11 +1766,14 @@ async function deleteReservation(
 window.render =
   render;
 
+
 window.editReservation =
   editReservation;
 
+
 window.changeStatus =
   changeStatus;
+
 
 window.deleteReservation =
   deleteReservation;
@@ -1642,3 +1789,4 @@ console.log(
 
 
 render();
+```
