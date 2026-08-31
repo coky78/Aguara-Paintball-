@@ -1400,13 +1400,6 @@ async function initAdmin() {
     "===================================="
   );
 
-  /*
-    Primero configuración.
-    Después reservas.
-    Esto evita llamadas prematuras
-    durante el login.
-  */
-
   await loadConfig();
 
   await render();
@@ -1434,16 +1427,6 @@ function watchAdminLogin() {
 
     return;
   }
-
-  /*
-    El admin.html cambia:
-
-    loginScreen.style.display = "none";
-
-    y después:
-
-    adminPanel.style.display = "block";
-  */
 
   const observer =
     new MutationObserver(
@@ -1474,11 +1457,6 @@ function watchAdminLogin() {
       attributeFilter: ["style"]
     }
   );
-
-  /*
-    Por si el login ya se completó
-    antes de instalar el observer.
-  */
 
   if (
     loginScreen.style.display ===
