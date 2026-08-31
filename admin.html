@@ -3,94 +3,286 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
 
   <title>Aguará — Administración</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 
   <style>
+    /* =====================================================
+       LOGIN
+    ===================================================== */
+
     #login-screen {
       position: fixed;
       inset: 0;
       z-index: 99999;
+
       display: flex;
       align-items: center;
       justify-content: center;
+
       background: #080808;
+
       padding: 20px;
     }
 
+
     .login-box {
       width: min(400px, 100%);
+
       padding: 35px;
+
       border: 1px solid #333;
+
       border-radius: 14px;
+
       background: #111;
+
       text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,.7);
+
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, .7);
     }
+
 
     .login-box h2 {
       margin-bottom: 8px;
     }
 
+
     .login-box p {
       margin-bottom: 22px;
     }
 
+
     .login-box input {
       display: block;
+
       width: 100%;
+
       box-sizing: border-box;
+
       margin: 12px 0;
+
       padding: 14px;
+
       border: 1px solid #444;
+
       border-radius: 8px;
+
       background: #1b1b1b;
+
       color: #fff;
+
       font-size: 16px;
     }
+
 
     .login-box button {
       width: 100%;
+
       margin-top: 10px;
+
       padding: 14px;
+
       border: 0;
+
       border-radius: 8px;
+
       cursor: pointer;
+
       font-weight: bold;
+
       font-size: 16px;
     }
 
+
     .login-box button:disabled {
       opacity: .6;
+
       cursor: wait;
     }
 
+
     #login-error {
       min-height: 20px;
+
       margin-top: 15px;
+
       color: #ff5555;
     }
+
 
     #admin-panel {
       display: none;
     }
+
+
+    /* =====================================================
+       BOTONES DE RESERVAS
+    ===================================================== */
+
+    .admin-reservation > div:last-child {
+      display: flex !important;
+
+      gap: 10px !important;
+
+      flex-wrap: wrap !important;
+
+      margin-top: 18px !important;
+    }
+
+
+    .admin-reservation button {
+      appearance: none !important;
+
+      min-height: 44px !important;
+
+      padding: 11px 16px !important;
+
+      border-radius: 10px !important;
+
+      border: 1px solid #444 !important;
+
+      font-size: 14px !important;
+
+      font-weight: 800 !important;
+
+      letter-spacing: .2px !important;
+
+      line-height: 1 !important;
+
+      cursor: pointer !important;
+
+      color: #fff !important;
+
+      background: #2b2b2b !important;
+
+      box-shadow:
+        0 6px 16px rgba(0, 0, 0, .25) !important;
+
+      transition:
+        transform .15s ease,
+        filter .15s ease,
+        box-shadow .15s ease,
+        background .15s ease !important;
+    }
+
+
+    .admin-reservation button:hover {
+      transform: translateY(-1px) !important;
+
+      filter: brightness(1.08) !important;
+
+      box-shadow:
+        0 9px 22px rgba(0, 0, 0, .32) !important;
+    }
+
+
+    .admin-reservation button:active {
+      transform: translateY(0) !important;
+
+      box-shadow:
+        0 4px 12px rgba(0, 0, 0, .20) !important;
+    }
+
+
+    .admin-reservation button:focus-visible {
+      outline: 2px solid #fff !important;
+
+      outline-offset: 2px !important;
+    }
+
+
+    /* =====================================================
+       EDITAR
+    ===================================================== */
+
+    .admin-reservation button:nth-of-type(1) {
+      background: #2d2d2d !important;
+
+      border-color: #555 !important;
+    }
+
+
+    /* =====================================================
+       CONFIRMAR
+    ===================================================== */
+
+    .admin-reservation button:nth-of-type(2) {
+      background: #15803d !important;
+
+      border-color: #22c55e !important;
+    }
+
+
+    /* =====================================================
+       CANCELAR
+    ===================================================== */
+
+    .admin-reservation button:nth-of-type(3) {
+      background: #b45309 !important;
+
+      border-color: #f59e0b !important;
+    }
+
+
+    /* =====================================================
+       ELIMINAR
+    ===================================================== */
+
+    .admin-reservation button:nth-of-type(4) {
+      background: #b91c1c !important;
+
+      border-color: #ef4444 !important;
+    }
+
+
+    /* =====================================================
+       RESPONSIVE
+    ===================================================== */
+
+    @media (max-width: 640px) {
+
+      .admin-reservation button {
+        flex: 1 1 calc(50% - 10px) !important;
+
+        min-width: 135px !important;
+      }
+
+    }
+
   </style>
 </head>
 
+
 <body>
 
-  <!-- LOGIN -->
+  <!-- ===================================================
+       LOGIN
+  =================================================== -->
 
   <div id="login-screen">
 
     <div class="login-box">
 
-      <h2>Aguará Paintball</h2>
+      <h2>
+        Aguará Paintball
+      </h2>
 
-      <p>Panel de administración</p>
+      <p>
+        Panel de administración
+      </p>
+
 
       <input
         id="admin-user"
@@ -103,6 +295,7 @@
         placeholder="Usuario"
       >
 
+
       <input
         id="admin-pass"
         name="admin_password"
@@ -114,12 +307,14 @@
         placeholder="Contraseña"
       >
 
+
       <button
         id="login-btn"
         type="button"
       >
         INGRESAR
       </button>
+
 
       <p id="login-error"></p>
 
@@ -128,7 +323,9 @@
   </div>
 
 
-  <!-- CABECERA -->
+  <!-- ===================================================
+       CABECERA
+  =================================================== -->
 
   <header class="nav">
 
@@ -141,6 +338,7 @@
       </span>
     </a>
 
+
     <a
       class="btn btn-outline"
       href="index.html"
@@ -151,7 +349,9 @@
   </header>
 
 
-  <!-- PANEL -->
+  <!-- ===================================================
+       PANEL PRINCIPAL
+  =================================================== -->
 
   <main
     class="section"
@@ -164,6 +364,7 @@
         PANEL DE ADMINISTRACIÓN
       </p>
 
+
       <h1>
         Configuración y reservas
       </h1>
@@ -172,7 +373,9 @@
       <div class="booking-layout">
 
 
-        <!-- PRECIOS Y REGLAS -->
+        <!-- ===========================================
+             PRECIOS Y REGLAS
+        ============================================ -->
 
         <section class="booking-card">
 
@@ -180,89 +383,115 @@
             Precios y reglas
           </h2>
 
+
           <form
             id="configForm"
             class="form-grid"
           >
 
+
             <label>
+
               Precio del juego por jugador
+
               <input
                 id="gamePrice"
                 type="number"
                 min="0"
               >
+
             </label>
 
 
             <label>
+
               Texto de munición — Paintball
+
               <input
                 id="shotsText"
                 type="text"
                 value="100 TIROS INCLUIDOS"
               >
+
             </label>
 
 
             <label>
+
               Precio por jugador — Hidrogel
+
               <input
                 id="hydrogelPrice"
                 type="number"
                 min="0"
                 value="0"
               >
+
             </label>
 
 
             <label>
+
               Texto de munición — Hidrogel
+
               <input
                 id="hydrogelShotsText"
                 type="text"
                 value="MUNICIÓN INCLUIDA"
               >
+
             </label>
 
 
             <label>
+
               Seña
+
               <input
                 id="deposit"
                 type="number"
                 min="0"
               >
+
             </label>
 
 
             <label>
+
               Mínimo de jugadores
+
               <input
                 id="minPlayers"
                 type="number"
                 min="1"
               >
+
             </label>
 
 
             <label>
+
               WhatsApp del negocio
+
               <input
                 id="whatsapp"
                 type="tel"
                 inputmode="numeric"
                 placeholder="549379..."
               >
+
             </label>
 
 
             <label>
+
               Horarios (separados por coma)
+
               <textarea
                 id="slots"
                 rows="4"
               ></textarea>
+
             </label>
 
 
@@ -287,7 +516,9 @@
         </section>
 
 
-        <!-- RESERVAS -->
+        <!-- ===========================================
+             RESERVAS
+        ============================================ -->
 
         <section class="booking-card">
 
@@ -295,9 +526,11 @@
             Reservas
           </h2>
 
+
           <div id="bookings"></div>
 
         </section>
+
 
       </div>
 
@@ -306,38 +539,60 @@
   </main>
 
 
-  <!-- ADMIN.JS -->
+  <!-- ===================================================
+       ADMIN.JS
+  =================================================== -->
 
   <script src="admin.js"></script>
 
 
-  <!-- LOGIN -->
+  <!-- ===================================================
+       LOGIN
+  =================================================== -->
 
   <script>
 
     const loginScreen =
-      document.getElementById("login-screen");
+      document.getElementById(
+        "login-screen"
+      );
+
 
     const adminPanel =
-      document.getElementById("admin-panel");
+      document.getElementById(
+        "admin-panel"
+      );
+
 
     const loginBtn =
-      document.getElementById("login-btn");
+      document.getElementById(
+        "login-btn"
+      );
+
 
     const loginError =
-      document.getElementById("login-error");
+      document.getElementById(
+        "login-error"
+      );
+
 
     const userInput =
-      document.getElementById("admin-user");
+      document.getElementById(
+        "admin-user"
+      );
+
 
     const passInput =
-      document.getElementById("admin-pass");
+      document.getElementById(
+        "admin-pass"
+      );
 
 
     async function login() {
 
       const username =
         userInput.value.trim();
+
 
       const password =
         passInput.value;
@@ -346,7 +601,10 @@
       loginError.textContent = "";
 
 
-      if (!username || !password) {
+      if (
+        !username ||
+        !password
+      ) {
 
         loginError.textContent =
           "Ingresá usuario y contraseña.";
@@ -363,22 +621,30 @@
 
       try {
 
-        const response = await fetch(
-          "/api/admin-login",
-          {
-            method: "POST",
+        const response =
+          await fetch(
+            "/api/admin-login",
+            {
+              method: "POST",
 
-            headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json"
-            },
+              headers: {
+                "Content-Type":
+                  "application/json",
 
-            body: JSON.stringify({
-              username: username,
-              password: password
-            })
-          }
-        );
+                "Accept":
+                  "application/json"
+              },
+
+              body:
+                JSON.stringify({
+                  username:
+                    username,
+
+                  password:
+                    password
+                })
+            }
+          );
 
 
         const data =
@@ -390,11 +656,29 @@
           loginScreen.style.display =
             "none";
 
+
           adminPanel.style.display =
             "block";
 
+
           userInput.value = "";
+
           passInput.value = "";
+
+
+          /*
+            El admin.js actual se encarga
+            de cargar configuración y reservas.
+          */
+
+          if (
+            typeof window.initAdmin ===
+            "function"
+          ) {
+
+            window.initAdmin();
+
+          }
 
         } else {
 
@@ -412,6 +696,7 @@
           error
         );
 
+
         loginError.textContent =
           "No se pudo conectar con el servidor.";
 
@@ -422,6 +707,7 @@
 
       loginBtn.textContent =
         "INGRESAR";
+
     }
 
 
@@ -435,7 +721,10 @@
       "keydown",
       function(event) {
 
-        if (event.key === "Enter") {
+        if (
+          event.key ===
+          "Enter"
+        ) {
 
           event.preventDefault();
 
