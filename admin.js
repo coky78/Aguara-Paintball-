@@ -514,15 +514,16 @@ function reservationHtml(b) {
 
   return `
 
-    <div
-      class="admin-reservation"
-      style="
-        border:1px solid #333;
-        border-radius:14px;
-        padding:20px;
-        margin-bottom:18px;
-        background:#111;
-      "
+   <div
+  class="admin-reservation"
+  style="
+    border:2px solid ${status === "confirmed" ? "#22c55e" : status === "cancelled" ? "#ef4444" : "#333"};
+    border-radius:14px;
+    padding:20px;
+    margin-bottom:18px;
+    background:${status === "confirmed" ? "rgba(34,197,94,0.15)" : status === "cancelled" ? "rgba(239,68,68,0.10)" : "#111"};
+  "
+>
     >
 
       <!-- CABECERA -->
