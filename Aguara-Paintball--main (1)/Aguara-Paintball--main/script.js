@@ -1,12 +1,11 @@
 /* =====================================================
    AGUARÁ PAINTBALL
-   SCRIPT.JS
-   RESERVAS + COMPROBANTE + GALERÍA
+   SCRIPT.JS — RESERVAS + COMPROBANTE
 ===================================================== */
 
 
 /* =====================================================
-   CONFIGURACIÓN
+   CONFIGURACIÓN FIJA
 ===================================================== */
 
 const CONFIG = {
@@ -41,7 +40,7 @@ const CONFIG = {
 
 
 /* =====================================================
-   HELPERS
+   DINERO
 ===================================================== */
 
 function money(value) {
@@ -52,6 +51,10 @@ function money(value) {
   }).format(Number(value) || 0);
 }
 
+
+/* =====================================================
+   FECHA
+===================================================== */
 
 function formatDate(date) {
 
@@ -65,18 +68,12 @@ function formatDate(date) {
     return date;
   }
 
-  return (
-    parts[2] +
-    "/" +
-    parts[1] +
-    "/" +
-    parts[0]
-  );
+  return parts[2] + "/" + parts[1] + "/" + parts[0];
 }
 
 
 /* =====================================================
-   ELEMENTOS
+   ELEMENTOS DEL HTML
 ===================================================== */
 
 const bookingForm =
@@ -103,6 +100,11 @@ const notesInput =
 const bookingMessage =
   document.getElementById("bookingMessage");
 
+
+/* =====================================================
+   ELEMENTOS DEL COMPROBANTE
+===================================================== */
+
 const receiptUpload =
   document.getElementById("receiptUpload");
 
@@ -120,18 +122,12 @@ const receiptAmount =
 
 
 /*
-   ID de la reserva recién creada.
+   Guarda el public_id de la última reserva creada.
+   Ese ID permite asociar el comprobante
+   exactamente con la reserva correcta.
 */
 
 let currentReservationId = null;
-
-
-/*
-   Evita que el formulario vuelva a enviarse
-   después de crear correctamente la reserva.
-*/
-
-let reservationCreated = false;
 
 
 /* =====================================================
@@ -226,8 +222,7 @@ if (yearElement) {
 
 if (dateInput) {
 
-  const today =
-    new Date();
+  const today = new Date();
 
   const year =
     today.getFullYear();
@@ -241,24 +236,22 @@ if (dateInput) {
       .padStart(2, "0");
 
   dateInput.min =
-    year +
-    "-" +
-    month +
-    "-" +
-    day;
+    year + "-" + month + "-" + day;
 }
 
 
 /* =====================================================
-   HORARIOS
-   IMPORTANTE:
-   ESTA FUNCIÓN NO BORRA LOS HORARIOS DESPUÉS
-   DE CREAR UNA RESERVA.
+   CARGAR HORARIOS
 ===================================================== */
 
 function cargarHorarios() {
 
   if (!timeSelect) {
+
+    console.error(
+      "ERROR: No existe el elemento #time"
+    );
+
     return;
   }
 
@@ -269,8 +262,7 @@ function cargarHorarios() {
   const primeraOpcion =
     document.createElement("option");
 
-  primeraOpcion.value =
-    "";
+  primeraOpcion.value = "";
 
   primeraOpcion.textContent =
     "Elegí un horario";
@@ -280,24 +272,20 @@ function cargarHorarios() {
   );
 
 
-  CONFIG.slots.forEach(
-    function (hora) {
+  CONFIG.slots.forEach(function (hora) {
 
-      const opcion =
-        document.createElement("option");
+    const opcion =
+      document.createElement("option");
 
-      opcion.value =
-        hora;
+    opcion.value = hora;
 
-      opcion.textContent =
-        hora;
+    opcion.textContent = hora;
 
-      timeSelect.appendChild(
-        opcion
-      );
+    timeSelect.appendChild(
+      opcion
+    );
 
-    }
-  );
+  });
 
 
   console.log(
@@ -308,7 +296,7 @@ function cargarHorarios() {
 
 
 /* =====================================================
-   ESTADO INICIAL DE HORARIOS
+   ESTADO INICIAL
 ===================================================== */
 
 if (timeSelect) {
@@ -318,8 +306,7 @@ if (timeSelect) {
   const opcionInicial =
     document.createElement("option");
 
-  opcionInicial.value =
-    "";
+  opcionInicial.value = "";
 
   opcionInicial.textContent =
     "Elegí una fecha";
@@ -331,7 +318,7 @@ if (timeSelect) {
 
 
 /* =====================================================
-   AL ELEGIR FECHA
+   CUANDO SE ELIGE UNA FECHA
 ===================================================== */
 
 if (dateInput) {
@@ -349,8 +336,7 @@ if (dateInput) {
           const opcion =
             document.createElement("option");
 
-          opcion.value =
-            "";
+          opcion.value = "";
 
           opcion.textContent =
             "Elegí una fecha";
@@ -401,7 +387,7 @@ function showMessage(
 
 
 /* =====================================================
-   MENSAJES COMPROBANTE
+   MENSAJES DEL COMPROBANTE
 ===================================================== */
 
 function showReceiptMessage(
@@ -430,7 +416,7 @@ function showReceiptMessage(
 
 
 /* =====================================================
-   BASE64
+   LEER ARCHIVO COMO BASE64
 ===================================================== */
 
 function fileToBase64(file) {
@@ -446,9 +432,7 @@ function fileToBase64(file) {
         function () {
 
           const result =
-            String(
-              reader.result || ""
-            );
+            String(reader.result || "");
 
           const comma =
             result.indexOf(",");
@@ -482,7 +466,7 @@ function fileToBase64(file) {
 
 
 /* =====================================================
-   SUBIR COMPROBANTE
+   ENVIAR COMPROBANTE
 ===================================================== */
 
 async function uploadReceipt() {
@@ -498,11 +482,7 @@ async function uploadReceipt() {
   }
 
 
-  if (
-    !receiptFile ||
-    !receiptFile.files ||
-    !receiptFile.files.length
-  ) {
+  if (!receiptFile || !receiptFile.files.length) {
 
     showReceiptMessage(
       "Seleccioná el comprobante de pago.",
@@ -525,11 +505,7 @@ async function uploadReceipt() {
   ];
 
 
-  if (
-    !allowedTypes.includes(
-      file.type
-    )
-  ) {
+  if (!allowedTypes.includes(file.type)) {
 
     showReceiptMessage(
       "Formato no permitido. Subí JPG, PNG, WEBP o PDF.",
@@ -540,10 +516,13 @@ async function uploadReceipt() {
   }
 
 
-  if (
-    file.size >
-    3 * 1024 * 1024
-  ) {
+  /*
+    Limitamos el archivo a 3 MB.
+    Esto evita problemas con el tamaño
+    de la petición hacia Vercel.
+  */
+
+  if (file.size > 3 * 1024 * 1024) {
 
     showReceiptMessage(
       "El comprobante no puede superar los 3 MB.",
@@ -554,7 +533,7 @@ async function uploadReceipt() {
   }
 
 
-  const textoOriginal =
+  const originalText =
     receiptButton
       ? receiptButton.innerHTML
       : "Enviar comprobante";
@@ -659,8 +638,6 @@ async function uploadReceipt() {
       receiptButton.innerHTML =
         "Comprobante enviado ✓";
 
-      receiptButton.disabled =
-        true;
     }
 
 
@@ -685,22 +662,28 @@ async function uploadReceipt() {
         false;
 
       receiptButton.innerHTML =
-        textoOriginal;
+        originalText;
+
     }
 
   }
+
 }
 
 
 /* =====================================================
-   BOTÓN COMPROBANTE
+   BOTÓN DEL COMPROBANTE
 ===================================================== */
 
 if (receiptButton) {
 
   receiptButton.addEventListener(
     "click",
-    uploadReceipt
+    function () {
+
+      uploadReceipt();
+
+    }
   );
 }
 
@@ -712,16 +695,6 @@ if (receiptButton) {
 async function createReservation() {
 
   if (!bookingForm) {
-    return;
-  }
-
-
-  /*
-     Si ya se creó la reserva,
-     no permitir otro envío.
-  */
-
-  if (reservationCreated) {
     return;
   }
 
@@ -752,9 +725,7 @@ async function createReservation() {
 
   const players =
     playersInput
-      ? Number(
-          playersInput.value
-        )
+      ? Number(playersInput.value)
       : 0;
 
 
@@ -764,9 +735,9 @@ async function createReservation() {
       : "";
 
 
-  /* =================================================
-     VALIDACIONES
-  ================================================= */
+  /* -------------------------------------------------
+     VALIDAR NOMBRE
+  ------------------------------------------------- */
 
   if (!name) {
 
@@ -779,6 +750,10 @@ async function createReservation() {
   }
 
 
+  /* -------------------------------------------------
+     VALIDAR WHATSAPP
+  ------------------------------------------------- */
+
   if (!phone) {
 
     showMessage(
@@ -789,6 +764,10 @@ async function createReservation() {
     return;
   }
 
+
+  /* -------------------------------------------------
+     VALIDAR FECHA
+  ------------------------------------------------- */
 
   if (!date) {
 
@@ -801,6 +780,10 @@ async function createReservation() {
   }
 
 
+  /* -------------------------------------------------
+     VALIDAR HORARIO
+  ------------------------------------------------- */
+
   if (!time) {
 
     showMessage(
@@ -812,8 +795,12 @@ async function createReservation() {
   }
 
 
+  /* -------------------------------------------------
+     VALIDAR JUGADORES
+  ------------------------------------------------- */
+
   if (
-    !Number.isInteger(players) ||
+    !Number.isFinite(players) ||
     players < CONFIG.minPlayers
   ) {
 
@@ -828,24 +815,23 @@ async function createReservation() {
   }
 
 
-  /* =================================================
-     PRECIOS
-  ================================================= */
+  /* -------------------------------------------------
+     CALCULAR PRECIO
+  ------------------------------------------------- */
 
   const precioPorJugador =
     CONFIG.gamePrice;
 
   const total =
-    precioPorJugador *
-    players;
+    precioPorJugador * players;
 
   const senaRequerida =
     CONFIG.deposit;
 
 
-  /* =================================================
-     BOTÓN CONTINUAR
-  ================================================= */
+  /* -------------------------------------------------
+     BOTÓN
+  ------------------------------------------------- */
 
   const submitButton =
     bookingForm.querySelector(
@@ -853,7 +839,14 @@ async function createReservation() {
     );
 
 
+  let textoOriginal =
+    "Continuar con la reserva";
+
+
   if (submitButton) {
+
+    textoOriginal =
+      submitButton.innerHTML;
 
     submitButton.disabled =
       true;
@@ -864,7 +857,7 @@ async function createReservation() {
 
 
   /* =================================================
-     API
+     ENVIAR A LA API
   ================================================= */
 
   try {
@@ -932,6 +925,10 @@ async function createReservation() {
       );
 
 
+    /* =================================================
+       LEER RESPUESTA
+    ================================================= */
+
     const texto =
       await response.text();
 
@@ -957,6 +954,10 @@ async function createReservation() {
     }
 
 
+    /* =================================================
+       ERROR
+    ================================================= */
+
     if (!response.ok) {
 
       throw new Error(
@@ -967,7 +968,7 @@ async function createReservation() {
 
 
     /* =================================================
-       RESERVA CREADA
+       GUARDAR PUBLIC_ID
     ================================================= */
 
     const reservaCreada =
@@ -994,16 +995,8 @@ async function createReservation() {
     }
 
 
-    /*
-       MARCAMOS LA RESERVA COMO CREADA.
-    */
-
-    reservationCreated =
-      true;
-
-
     /* =================================================
-       MENSAJE
+       RESERVA CORRECTA
     ================================================= */
 
     showMessage(
@@ -1022,17 +1015,6 @@ async function createReservation() {
 
 
     /* =================================================
-       OCULTAR BOTÓN CONTINUAR
-    ================================================= */
-
-    if (submitButton) {
-
-      submitButton.style.display =
-        "none";
-    }
-
-
-    /* =================================================
        MOSTRAR COMPROBANTE
     ================================================= */
 
@@ -1045,19 +1027,13 @@ async function createReservation() {
         behavior: "smooth",
         block: "center"
       });
+
     }
 
 
-    /*
-       IMPORTANTE:
-       NO BORRAMOS dateInput.
-       NO BORRAMOS timeSelect.
-       NO VOLVEMOS A EJECUTAR
-       cargarHorarios().
-       
-       Así los horarios no desaparecen.
-    */
-
+    /* =================================================
+       LIMPIAR DATOS DE RESERVA
+    ================================================= */
 
     if (nameInput) {
       nameInput.value = "";
@@ -1069,6 +1045,11 @@ async function createReservation() {
     }
 
 
+    if (dateInput) {
+      dateInput.value = "";
+    }
+
+
     if (playersInput) {
       playersInput.value =
         CONFIG.minPlayers;
@@ -1077,6 +1058,24 @@ async function createReservation() {
 
     if (notesInput) {
       notesInput.value = "";
+    }
+
+
+    if (timeSelect) {
+
+      timeSelect.innerHTML = "";
+
+      const opcion =
+        document.createElement("option");
+
+      opcion.value = "";
+
+      opcion.textContent =
+        "Elegí una fecha";
+
+      timeSelect.appendChild(
+        opcion
+      );
     }
 
 
@@ -1095,14 +1094,7 @@ async function createReservation() {
     );
 
 
-    /*
-       Si hubo error, permitimos
-       intentar nuevamente.
-    */
-
-    reservationCreated =
-      false;
-
+  } finally {
 
     if (submitButton) {
 
@@ -1110,12 +1102,8 @@ async function createReservation() {
         false;
 
       submitButton.innerHTML =
-        "Continuar con la reserva <span>→</span>";
-
-      submitButton.style.display =
-        "";
+        textoOriginal;
     }
-
   }
 }
 
@@ -1265,10 +1253,10 @@ if (closeLightbox) {
     function () {
 
       if (lightbox) {
+
         lightbox.hidden =
           true;
       }
-
     }
   );
 }
@@ -1288,14 +1276,13 @@ if (lightbox) {
         lightbox.hidden =
           true;
       }
-
     }
   );
 }
 
 
 /* =====================================================
-   INICIO
+   CONFIRMACIÓN
 ===================================================== */
 
 console.log(

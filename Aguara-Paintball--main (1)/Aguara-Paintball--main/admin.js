@@ -264,131 +264,6 @@ if ($("configForm")) {
 
 
 /* =====================================================
-   ORDEN DE RESERVAS
-   CONFIRMADAS ARRIBA
-   PENDIENTES EN EL MEDIO
-   CANCELADAS ABAJO
-===================================================== */
-
-function sortBookings(bookings) {
-
-  const statusOrder = {
-    confirmed: 0,
-    pending: 1,
-    cancelled: 2
-  };
-
-
-  return bookings.sort(
-    function (a, b) {
-
-      const statusA =
-        String(
-          a.status ??
-          "pending"
-        )
-          .trim()
-          .toLowerCase();
-
-
-      const statusB =
-        String(
-          b.status ??
-          "pending"
-        )
-          .trim()
-          .toLowerCase();
-
-
-      const orderA =
-        statusOrder[
-          statusA
-        ] ??
-        1;
-
-
-      const orderB =
-        statusOrder[
-          statusB
-        ] ??
-        1;
-
-
-      /* ---------------------------------------------
-         PRIMERO: ESTADO
-      --------------------------------------------- */
-
-      if (
-        orderA !== orderB
-      ) {
-
-        return (
-          orderA -
-          orderB
-        );
-      }
-
-
-      /* ---------------------------------------------
-         SEGUNDO: FECHA
-      --------------------------------------------- */
-
-      const dateA =
-        String(
-          a.booking_date ??
-          a.fecha ??
-          ""
-        );
-
-
-      const dateB =
-        String(
-          b.booking_date ??
-          b.fecha ??
-          ""
-        );
-
-
-      if (
-        dateA !== dateB
-      ) {
-
-        return dateA.localeCompare(
-          dateB
-        );
-      }
-
-
-      /* ---------------------------------------------
-         TERCERO: HORARIO
-      --------------------------------------------- */
-
-      const timeA =
-        String(
-          a.booking_time ??
-          a.horario ??
-          ""
-        );
-
-
-      const timeB =
-        String(
-          b.booking_time ??
-          b.horario ??
-          ""
-        );
-
-
-      return timeA.localeCompare(
-        timeB
-      );
-
-    }
-  );
-}
-
-
-/* =====================================================
    CARGAR RESERVAS
 ===================================================== */
 
@@ -461,7 +336,7 @@ async function render() {
     }
 
 
-    let bookings =
+    const bookings =
       Array.isArray(
         data.reservas
       )
@@ -476,17 +351,6 @@ async function render() {
 
       return;
     }
-
-
-    /* ---------------------------------------------
-       ORDENAR RESERVAS
-       CONFIRMADAS → PENDIENTES → CANCELADAS
-    --------------------------------------------- */
-
-    bookings =
-      sortBookings(
-        bookings
-      );
 
 
     container.innerHTML =
@@ -563,8 +427,7 @@ function reservationHtml(b) {
     String(
       b.status ??
       "pending"
-    ).trim()
-    .toLowerCase();
+    ).trim();
 
 
   let statusText =
@@ -649,32 +512,16 @@ function reservationHtml(b) {
     !publicId;
 
 
-  const borderColor =
-    status === "confirmed"
-      ? "#22c55e"
-      : status === "cancelled"
-        ? "#ef4444"
-        : "#333";
-
-
-  const backgroundColor =
-    status === "confirmed"
-      ? "rgba(34,197,94,0.15)"
-      : status === "cancelled"
-        ? "rgba(239,68,68,0.10)"
-        : "#111";
-
-
   return `
 
     <div
       class="admin-reservation"
       style="
-        border:2px solid ${borderColor};
+        border:1px solid #333;
         border-radius:14px;
         padding:20px;
         margin-bottom:18px;
-        background:${backgroundColor};
+        background:#111;
       "
     >
 
@@ -832,7 +679,11 @@ function reservationHtml(b) {
               <button
                 type="button"
                 class="btn btn-outline"
-                onclick="editReservation('${escapeHtml(publicId)}')"
+                onclick="editReservation(
+                  '${escapeHtml(
+                    publicId
+                  )}'
+                )"
               >
                 ✏️ Editar
               </button>
@@ -850,7 +701,12 @@ function reservationHtml(b) {
               <button
                 type="button"
                 class="btn btn-primary"
-                onclick="changeStatus('${escapeHtml(publicId)}', 'confirmed')"
+                onclick="changeStatus(
+                  '${escapeHtml(
+                    publicId
+                  )}',
+                  'confirmed'
+                )"
               >
                 ✓ Confirmar
               </button>
@@ -868,7 +724,12 @@ function reservationHtml(b) {
               <button
                 type="button"
                 class="btn btn-outline"
-                onclick="changeStatus('${escapeHtml(publicId)}', 'cancelled')"
+                onclick="changeStatus(
+                  '${escapeHtml(
+                    publicId
+                  )}',
+                  'cancelled'
+                )"
               >
                 ✕ Cancelar
               </button>
@@ -885,7 +746,11 @@ function reservationHtml(b) {
               <button
                 type="button"
                 class="btn btn-outline"
-                onclick="deleteReservation('${escapeHtml(publicId)}')"
+                onclick="deleteReservation(
+                  '${escapeHtml(
+                    publicId
+                  )}'
+                )"
               >
                 🗑️ Eliminar
               </button>
@@ -1313,13 +1178,7 @@ async function changeStatus(
     );
 
 
-    /*
-       IMPORTANTE:
-       Volvemos a cargar y ordenar las reservas.
-       Al confirmar, automáticamente sube arriba.
-    */
-
-    await render();
+    render();
 
 
   } catch (error) {
