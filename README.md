@@ -21,6 +21,7 @@ Este proyecto incluye:
 ## Importante
 
 Las claves secretas deben permanecer en variables de entorno del servidor. No deben colocarse en `index.html` ni `script.js`.
+Restauración del proyecto
 
 La reserva se guarda con las columnas definidas en `supabase-schema.sql`. La combinación de fecha y horario es única, por lo que dos usuarios no pueden guardar el mismo turno simultáneamente.
 
