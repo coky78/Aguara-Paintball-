@@ -1,13 +1,24 @@
+```javascript
 /* =====================================================
    AGUARÁ PAINTBALL
    API UPLOAD RECEIPT
    Recibe y guarda comprobantes de pago
+   + AVISO TELEGRAM SOLO AL RECIBIR COMPROBANTE
+===================================================== */
+
+
+/* =====================================================
+   RESPUESTA JSON
 ===================================================== */
 
 function sendJson(res, status, payload) {
   return res.status(status).json(payload);
 }
 
+
+/* =====================================================
+   CONFIGURACIÓN SUPABASE
+===================================================== */
 
 function getSupabaseConfig() {
 
@@ -27,6 +38,10 @@ function getSupabaseConfig() {
   };
 }
 
+
+/* =====================================================
+   HEADERS SUPABASE
+===================================================== */
 
 function supabaseHeaders(key, prefer) {
 
@@ -96,6 +111,124 @@ function getExtension(fileName, contentType) {
 
 
 /* =====================================================
+   TELEGRAM
+   AVISO SOLO CUANDO SE RECIBE COMPROBANTE
+===================================================== */
+
+async function enviarAvisoTelegram(reserva, storagePath) {
+
+  const botToken =
+    process.env.TELEGRAM_BOT_TOKEN;
+
+  const chatId =
+    process.env.TELEGRAM_CHAT_ID;
+
+
+  if (!botToken || !chatId) {
+
+    console.error(
+      "FALTAN VARIABLES DE TELEGRAM"
+    );
+
+    return;
+  }
+
+
+  const sena =
+    Number(
+      reserva.deposit_amount || 0
+    );
+
+
+  const mensaje = `
+
+💳 COMPROBANTE DE PAGO RECIBIDO
+
+🎯 AGUARÁ PAINTBALL
+
+👤 Nombre: ${reserva.name}
+
+📱 WhatsApp: ${reserva.phone}
+
+📅 Fecha: ${reserva.booking_date}
+
+🕐 Horario: ${reserva.booking_time}
+
+👥 Jugadores: ${reserva.players}
+
+💵 Seña requerida: $${sena.toLocaleString("es-AR")}
+
+🆔 Reserva: ${reserva.public_id}
+
+📎 Comprobante:
+${storagePath}
+
+⚠️ ESTADO: PENDIENTE DE VERIFICACIÓN
+
+👉 Revisar el comprobante y confirmar la reserva desde el panel administrativo.
+
+`;
+
+
+  try {
+
+    const response =
+      await fetch(
+        `https://api.telegram.org/bot${botToken}/sendMessage`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+
+              chat_id:
+                chatId,
+
+              text:
+                mensaje
+
+            })
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      console.error(
+        "ERROR TELEGRAM:",
+        data
+      );
+
+    } else {
+
+      console.log(
+        "AVISO TELEGRAM — COMPROBANTE RECIBIDO"
+      );
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "ERROR CONECTANDO CON TELEGRAM:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =====================================================
    API
 ===================================================== */
 
@@ -113,7 +246,8 @@ export default async function handler(req, res) {
       405,
       {
         ok: false,
-        message: "Método no permitido."
+        message:
+          "Método no permitido."
       }
     );
   }
@@ -312,7 +446,7 @@ export default async function handler(req, res) {
 
         `${baseUrl}/rest/v1/reservations` +
         `?public_id=eq.${encodeURIComponent(publicId)}` +
-        `&select=id,public_id,name,phone,booking_date,booking_time,deposit_amount,status`,
+        `&select=id,public_id,name,phone,booking_date,booking_time,players,deposit_amount,status`,
 
         {
           method: "GET",
@@ -556,21 +690,41 @@ export default async function handler(req, res) {
 
 
     /* =================================================
-       RESPUESTA CORRECTA
+       COMPROBANTE GUARDADO CORRECTAMENTE
     ================================================= */
 
     console.log(
       "COMPROBANTE RECIBIDO:",
       {
         publicId,
-        nombre: reserva.name,
-        telefono: reserva.phone,
-        fecha: reserva.booking_date,
-        horario: reserva.booking_time,
-        archivo: storagePath
+        nombre:
+          reserva.name,
+        telefono:
+          reserva.phone,
+        fecha:
+          reserva.booking_date,
+        horario:
+          reserva.booking_time,
+        archivo:
+          storagePath
       }
     );
 
+
+    /* =================================================
+       TELEGRAM
+       AHORA SÍ SE ENVÍA
+    ================================================= */
+
+    await enviarAvisoTelegram(
+      reserva,
+      storagePath
+    );
+
+
+    /* =================================================
+       RESPUESTA CORRECTA
+    ================================================= */
 
     return sendJson(
       res,
@@ -615,3 +769,4 @@ export default async function handler(req, res) {
   }
 
 }
+```
