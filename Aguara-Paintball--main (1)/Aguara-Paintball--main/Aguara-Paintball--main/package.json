@@ -1,0 +1,13 @@
+{
+  "name": "aguara-paintball-v2",
+  "version": "2.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.0",
+    "mercadopago": "^2.10.0",
+    "@neondatabase/serverless": "^1.0.2"
+  }
+}
