@@ -466,9 +466,8 @@ function fileToBase64(file) {
 
 
 /* =====================================================
-   ENVIAR COMPROBANTE
+   BOTÓN DEL COMPROBANTE
 ===================================================== */
-
 async function uploadReceipt() {
 
   if (!currentReservationId) {
