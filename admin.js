@@ -186,6 +186,162 @@ if ($("slots")) {
 
 if ($("configForm")) {
 
+  $("configForm").addEventListener(
+    "submit",
+    function (event) {
+
+      event.preventDefault();
+
+      /* ===============================================
+         LEER VALORES
+      =============================================== */
+
+      const hydrogelInput =
+        $("hydrogelPrice");
+
+      const next = {
+
+        gamePrice:
+          Number(
+            $("gamePrice").value
+          ) || 0,
+
+        shotsText:
+          $("shotsText")
+            .value
+            .trim(),
+
+        hydrogelPrice:
+          Number(
+            hydrogelInput.value
+          ) || 0,
+
+        hydrogelShotsText:
+          $("hydrogelShotsText")
+            .value
+            .trim(),
+
+        deposit:
+          Number(
+            $("deposit").value
+          ) || 0,
+
+        minPlayers:
+          Number(
+            $("minPlayers").value
+          ) || 1,
+
+        whatsapp:
+          $("whatsapp")
+            .value
+            .replace(/\D/g, ""),
+
+        /* =============================================
+           HORARIOS
+           NO SE MODIFICAN
+        ============================================= */
+
+        slots:
+          $("slots")
+            .value
+            .split(",")
+            .map(
+              function (x) {
+                return x.trim();
+              }
+            )
+            .filter(Boolean)
+
+      };
+
+
+      /* ===============================================
+         VALIDAR HIDROGEL
+      =============================================== */
+
+      if (
+        !Number.isFinite(
+          next.hydrogelPrice
+        )
+      ) {
+
+        alert(
+          "El precio de Hidrogel no es válido."
+        );
+
+        return;
+      }
+
+
+      /* ===============================================
+         GUARDAR
+      =============================================== */
+
+      try {
+
+        localStorage.setItem(
+          "aguaraConfig",
+          JSON.stringify(next)
+        );
+
+
+        /* =============================================
+           VERIFICAR QUE REALMENTE SE GUARDÓ
+        ============================================= */
+
+        const saved =
+          JSON.parse(
+            localStorage.getItem(
+              "aguaraConfig"
+            ) || "{}"
+          );
+
+
+        console.log(
+          "CONFIGURACIÓN GUARDADA:",
+          saved
+        );
+
+
+        console.log(
+          "PRECIO HIDROGEL GUARDADO:",
+          saved.hydrogelPrice
+        );
+
+
+        /* =============================================
+           MENSAJE
+        ============================================= */
+
+        if ($("saved")) {
+
+          $("saved").hidden =
+            false;
+
+          $("saved").textContent =
+            "Configuración guardada correctamente. Hidrogel: " +
+            money(saved.hydrogelPrice);
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "ERROR GUARDANDO CONFIGURACIÓN:",
+          error
+        );
+
+        alert(
+          "No se pudo guardar la configuración."
+        );
+
+      }
+
+    }
+  );
+}
+if ($("configForm")) {
+
   $("configForm")
     .addEventListener(
       "submit",
