@@ -2,7 +2,7 @@
    AGUARÁ PAINTBALL
    ADMIN.JS
    RESERVAS + CONFIGURACIÓN
-   VERSIÓN ESTABLE Y LIMPIA
+   BOTONES PROFESIONALES
 ===================================================== */
 
 const DEFAULTS = {
@@ -138,7 +138,8 @@ function applyConfigToForm(config) {
 
   if ($("shotsText")) {
     $("shotsText").value =
-      cfg.shotsText ?? DEFAULTS.shotsText;
+      cfg.shotsText ??
+      DEFAULTS.shotsText;
   }
 
   if ($("hydrogelPrice")) {
@@ -181,7 +182,7 @@ function applyConfigToForm(config) {
 
 
 /* =====================================================
-   LEER CONFIGURACIÓN DEL FORMULARIO
+   LEER CONFIGURACIÓN
 ===================================================== */
 
 function readConfigFromForm() {
@@ -204,12 +205,16 @@ function readConfigFromForm() {
 
   const hydrogelShotsText =
     $("hydrogelShotsText")
-      ? $("hydrogelShotsText").value.trim()
+      ? $("hydrogelShotsText")
+          .value
+          .trim()
       : DEFAULTS.hydrogelShotsText;
 
   const whatsapp =
     $("whatsapp")
-      ? $("whatsapp").value.replace(/\D/g, "")
+      ? $("whatsapp")
+          .value
+          .replace(/\D/g, "")
       : DEFAULTS.whatsapp;
 
   let slots = [];
@@ -293,7 +298,9 @@ function validateConfig(config) {
   }
 
   for (const slot of config.slots) {
-    if (!/^\d{2}:\d{2}$/.test(slot)) {
+    if (
+      !/^\d{2}:\d{2}$/.test(slot)
+    ) {
       alert(
         `El horario "${slot}" no tiene formato HH:MM.`
       );
@@ -330,17 +337,23 @@ async function loadConfig() {
   );
 
   try {
-    const response = await fetch(
-      "/api/config",
-      {
-        method: "GET",
-        headers: {
-          Accept: "application/json"
-        },
-        cache: "no-store",
-        credentials: "same-origin"
-      }
-    );
+    const response =
+      await fetch(
+        "/api/config",
+        {
+          method: "GET",
+
+          headers: {
+            Accept:
+              "application/json"
+          },
+
+          cache: "no-store",
+
+          credentials:
+            "same-origin"
+        }
+      );
 
     const text =
       await response.text();
@@ -354,7 +367,8 @@ async function loadConfig() {
     let data = {};
 
     try {
-      data = JSON.parse(text);
+      data =
+        JSON.parse(text);
     } catch {
       throw new Error(
         "La API de configuración no devolvió JSON válido."
@@ -458,7 +472,8 @@ async function saveConfig() {
 
           cache: "no-store",
 
-          credentials: "same-origin",
+          credentials:
+            "same-origin",
 
           body:
             JSON.stringify(next)
@@ -555,14 +570,16 @@ function sortBookings(bookings) {
     function (a, b) {
       const statusA =
         String(
-          a.status || "pending"
+          a.status ||
+          "pending"
         )
           .trim()
           .toLowerCase();
 
       const statusB =
         String(
-          b.status || "pending"
+          b.status ||
+          "pending"
         )
           .trim()
           .toLowerCase();
@@ -660,7 +677,8 @@ async function render() {
 
           cache: "no-store",
 
-          credentials: "same-origin"
+          credentials:
+            "same-origin"
         }
       );
 
@@ -753,13 +771,11 @@ async function render() {
 
     container.innerHTML =
       bookings
-        .map(
-          function (booking) {
-            return reservationHtml(
-              booking
-            );
-          }
-        )
+        .map(function (booking) {
+          return reservationHtml(
+            booking
+          );
+        })
         .join("");
 
   } catch (error) {
@@ -783,9 +799,10 @@ async function render() {
 
         <button
           type="button"
+          class="admin-action-btn admin-retry"
           onclick="render()"
         >
-          Reintentar
+          🔄 Reintentar
         </button>
       </div>
     `;
@@ -869,169 +886,220 @@ function reservationHtml(b) {
     b.observaciones ||
     "";
 
-  const borderColor =
-    status === "confirmed"
-      ? "#22c55e"
-      : status === "cancelled"
-        ? "#ef4444"
-        : "#333";
+  let statusClass =
+    "booking-status-pending";
 
-  const backgroundColor =
+  if (
     status === "confirmed"
-      ? "rgba(34,197,94,0.15)"
-      : status === "cancelled"
-        ? "rgba(239,68,68,0.10)"
-        : "#111";
+  ) {
+    statusClass =
+      "booking-status-confirmed";
+  }
+
+  if (
+    status === "cancelled"
+  ) {
+    statusClass =
+      "booking-status-cancelled";
+  }
 
   let html = "";
 
   html += `
-    <div
-      class="booking-card"
-      style="
-        border: 1px solid ${borderColor};
-        background: ${backgroundColor};
-      "
+    <article
+      class="admin-reservation ${statusClass}"
     >
   `;
 
-  html += `
-    <div class="booking-header">
-      <strong>
-        ${escapeHtml(
-          formatDate(
-            bookingDate
-          )
-        )}
-        ·
-        ${escapeHtml(
-          bookingTime
-        )}
-      </strong>
 
-      <span class="booking-status">
+  /* ===============================================
+     ENCABEZADO
+  =============================================== */
+
+  html += `
+    <div class="admin-reservation-header">
+
+      <div>
+        <div class="admin-reservation-date">
+          📅
+          ${escapeHtml(
+            formatDate(bookingDate)
+          )}
+        </div>
+
+        <div class="admin-reservation-time">
+          🕐
+          ${escapeHtml(
+            bookingTime
+          )}
+        </div>
+      </div>
+
+      <span
+        class="admin-status-badge ${statusClass}"
+      >
         ${escapeHtml(
           statusText
         )}
       </span>
+
     </div>
   `;
 
+
+  /* ===============================================
+     INFORMACIÓN
+  =============================================== */
+
   html += `
-    <div class="booking-body">
+    <div class="admin-reservation-info">
 
-      <strong>
+      <div class="admin-reservation-name">
         ${escapeHtml(name)}
-      </strong>
-
-      <div>
-        📱
-        ${escapeHtml(phone)}
       </div>
 
-      <div>
-        👥
-        ${escapeHtml(players)}
-        jugadores
+      <div class="admin-reservation-row">
+        <span>📱</span>
+        <span>
+          ${escapeHtml(phone)}
+        </span>
       </div>
 
-      <div>
-        💰 Seña:
-        ${money(deposit)}
+      <div class="admin-reservation-row">
+        <span>👥</span>
+        <span>
+          ${escapeHtml(players)}
+          jugadores
+        </span>
       </div>
 
-      <div>
-        🎯 Precio por jugador:
-        ${money(gamePrice)}
+      <div class="admin-reservation-row">
+        <span>💰</span>
+        <span>
+          Seña:
+          <strong>
+            ${money(deposit)}
+          </strong>
+        </span>
+      </div>
+
+      <div class="admin-reservation-row">
+        <span>🎯</span>
+        <span>
+          Precio por jugador:
+          <strong>
+            ${money(gamePrice)}
+          </strong>
+        </span>
       </div>
   `;
 
+
   if (publicId) {
     html += `
-      <div>
-        🆔
-        ${escapeHtml(publicId)}
+      <div class="admin-reservation-id">
+        🆔 ${escapeHtml(publicId)}
       </div>
     `;
   }
+
 
   if (notes) {
     html += `
-      <div>
+      <div class="admin-reservation-notes">
         📝
-        ${escapeHtml(notes)}
+        <span>
+          ${escapeHtml(notes)}
+        </span>
       </div>
     `;
   }
 
+
   html += `
     </div>
   `;
+
+
+  /* ===============================================
+     BOTONES
+  =============================================== */
 
   html += `
     <div class="booking-actions">
-  `;
 
-  if (publicId) {
-    html += `
-      <button
-        type="button"
-        onclick="editReservation('${escapeHtml(publicId)}')"
-      >
-        ✏️ Editar
-      </button>
-    `;
+      ${
+        publicId
+          ? `
+            <button
+              type="button"
+              class="admin-action-btn admin-edit"
+              onclick="editReservation('${escapeHtml(publicId)}')"
+            >
+              <span class="admin-action-icon">✏️</span>
+              <span>Editar</span>
+            </button>
+          `
+          : ""
+      }
 
-    if (
-      status !== "confirmed"
-    ) {
-      html += `
-        <button
-          type="button"
-          onclick="changeStatus('${escapeHtml(publicId)}', 'confirmed')"
-        >
-          ✓ Confirmar
-        </button>
-      `;
-    }
+      ${
+        publicId &&
+        status !== "confirmed"
+          ? `
+            <button
+              type="button"
+              class="admin-action-btn admin-confirm"
+              onclick="changeStatus('${escapeHtml(publicId)}', 'confirmed')"
+            >
+              <span class="admin-action-icon">✓</span>
+              <span>Confirmar</span>
+            </button>
+          `
+          : ""
+      }
 
-    if (
-      status !== "cancelled"
-    ) {
-      html += `
-        <button
-          type="button"
-          onclick="changeStatus('${escapeHtml(publicId)}', 'cancelled')"
-        >
-          ✕ Cancelar
-        </button>
-      `;
-    }
+      ${
+        publicId &&
+        status !== "cancelled"
+          ? `
+            <button
+              type="button"
+              class="admin-action-btn admin-cancel"
+              onclick="changeStatus('${escapeHtml(publicId)}', 'cancelled')"
+            >
+              <span class="admin-action-icon">✕</span>
+              <span>Cancelar</span>
+            </button>
+          `
+          : ""
+      }
 
-    html += `
-      <button
-        type="button"
-        onclick="deleteReservation('${escapeHtml(publicId)}')"
-      >
-        🗑️ Eliminar
-      </button>
-    `;
+      ${
+        publicId
+          ? `
+            <button
+              type="button"
+              class="admin-action-btn admin-delete"
+              onclick="deleteReservation('${escapeHtml(publicId)}')"
+            >
+              <span class="admin-action-icon">🗑️</span>
+              <span>Eliminar</span>
+            </button>
+          `
+          : `
+            <div class="booking-warning">
+              Esta reserva no tiene public_id.
+            </div>
+          `
+      }
 
-  } else {
-
-    html += `
-      <div class="booking-warning">
-        Esta reserva no tiene public_id.
-      </div>
-    `;
-  }
-
-  html += `
     </div>
   `;
 
+
   html += `
-    </div>
+    </article>
   `;
 
   return html;
@@ -1042,7 +1110,9 @@ function reservationHtml(b) {
    EDITAR RESERVA
 ===================================================== */
 
-async function editReservation(publicId) {
+async function editReservation(
+  publicId
+) {
   if (!publicId) {
     alert(
       "Falta el identificador de la reserva."
@@ -1197,7 +1267,8 @@ async function editReservation(publicId) {
 
           cache: "no-store",
 
-          credentials: "same-origin",
+          credentials:
+            "same-origin",
 
           body:
             JSON.stringify({
@@ -1299,7 +1370,9 @@ async function changeStatus(
       ? "¿Confirmar esta reserva?"
       : "¿Cancelar esta reserva?";
 
-  if (!confirm(texto)) {
+  if (
+    !confirm(texto)
+  ) {
     return;
   }
 
@@ -1320,7 +1393,8 @@ async function changeStatus(
 
           cache: "no-store",
 
-          credentials: "same-origin",
+          credentials:
+            "same-origin",
 
           body:
             JSON.stringify({
@@ -1396,8 +1470,7 @@ async function deleteReservation(
   const confirmar =
     confirm(
       "¿ESTÁS SEGURO?\n\n" +
-      "Esta acción eliminará " +
-      "definitivamente la reserva.\n\n" +
+      "Esta acción eliminará definitivamente la reserva.\n\n" +
       "No se puede deshacer."
     );
 
@@ -1422,7 +1495,8 @@ async function deleteReservation(
 
           cache: "no-store",
 
-          credentials: "same-origin",
+          credentials:
+            "same-origin",
 
           body:
             JSON.stringify({
@@ -1500,7 +1574,7 @@ window.deleteReservation =
 
 
 /* =====================================================
-   INICIO
+   INICIAR PANEL
 ===================================================== */
 
 function bindEvents() {
@@ -1508,9 +1582,6 @@ function bindEvents() {
     $("configForm");
 
   if (!configForm) {
-    console.warn(
-      "AGUARÁ → No existe #configForm."
-    );
     return;
   }
 
@@ -1524,7 +1595,7 @@ function bindEvents() {
 }
 
 
-function startAdmin() {
+async function initAdmin() {
   if (adminInitialized) {
     return;
   }
@@ -1549,16 +1620,19 @@ function startAdmin() {
 
   bindEvents();
 
-  Promise.all([
-    loadConfig(),
-    render()
-  ]).catch(function (error) {
-    console.error(
-      "AGUARÁ → ERROR INICIALIZANDO ADMIN:",
-      error
-    );
-  });
+  await loadConfig();
+
+  await render();
 }
+
+
+/* =====================================================
+   INICIO
+===================================================== */
+
+console.log(
+  "Aguará Paintball — admin.js cargado correctamente."
+);
 
 
 if (
@@ -1567,8 +1641,10 @@ if (
 ) {
   document.addEventListener(
     "DOMContentLoaded",
-    startAdmin
+    function () {
+      initAdmin();
+    }
   );
 } else {
-  startAdmin();
+  initAdmin();
 }
