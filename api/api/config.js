@@ -4,49 +4,20 @@
    API CONFIG
    GET + POST
 
-   Guarda la configuración del negocio en Supabase.
+   GUARDA CONFIGURACIÓN EN SUPABASE
 
-   Variables de Vercel necesarias:
-   SUPABASE_URL
-   SUPABASE_SERVICE_ROLE_KEY
+   TABLA:
+   public.aguara_config
+
+   COLUMNAS:
+   id
+   game_price
+   shots_text
+   hydrogel_price
+   hydrogel_shots_text
+   deposit
+   min_players
 ===================================================== */
-
-const DEFAULT_CONFIG = {
-
-  gamePrice: 29000,
-
-  shotsText:
-    "100 TIROS INCLUIDOS",
-
-  hydrogelPrice: 25000,
-
-  hydrogelShotsText:
-    "MUNICIÓN INCLUIDA",
-
-  deposit: 50000,
-
-  minPlayers: 10,
-
-  whatsapp:
-    "5493794250285",
-
-  slots: [
-    "10:00",
-    "11:00",
-    "12:00",
-    "13:00",
-    "14:00",
-    "15:00",
-    "16:00",
-    "17:00",
-    "18:00",
-    "19:00",
-    "20:00",
-    "21:00",
-    "22:00"
-  ]
-
-};
 
 
 /* =====================================================
@@ -57,10 +28,6 @@ function sendJson(res, status, payload) {
 
   return res
     .status(status)
-    .setHeader(
-      "Content-Type",
-      "application/json"
-    )
     .json(payload);
 
 }
@@ -75,89 +42,98 @@ function getSupabaseConfig() {
   const supabaseUrl =
     process.env.SUPABASE_URL;
 
-  const serviceRoleKey =
+  const supabaseKey =
     process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 
-  if (!supabaseUrl) {
+  if (
+    !supabaseUrl ||
+    !supabaseKey
+  ) {
 
-    throw new Error(
-      "Falta la variable SUPABASE_URL."
-    );
-
-  }
-
-
-  if (!serviceRoleKey) {
-
-    throw new Error(
-      "Falta la variable SUPABASE_SERVICE_ROLE_KEY."
-    );
+    return null;
 
   }
 
 
   return {
-    supabaseUrl:
-      supabaseUrl.replace(/\/$/, ""),
 
-    serviceRoleKey
+    supabaseUrl,
+    supabaseKey
+
   };
 
 }
 
 
 /* =====================================================
-   PETICIÓN A SUPABASE
+   HEADERS SUPABASE
 ===================================================== */
 
-async function supabaseFetch(
-  path,
-  options = {}
+function supabaseHeaders(
+  key,
+  prefer
 ) {
-
-  const {
-    supabaseUrl,
-    serviceRoleKey
-  } =
-    getSupabaseConfig();
-
 
   const headers = {
 
     apikey:
-      serviceRoleKey,
+      key,
 
     Authorization:
-      `Bearer ${serviceRoleKey}`,
+      "Bearer " + key,
 
     "Content-Type":
-      "application/json",
-
-    Accept:
-      "application/json",
-
-    ...(options.headers || {})
+      "application/json"
 
   };
 
 
-  return fetch(
-    `${supabaseUrl}${path}`,
-    {
-      ...options,
-      headers
-    }
-  );
+  if (prefer) {
+
+    headers.Prefer =
+      prefer;
+
+  }
+
+
+  return headers;
 
 }
 
 
 /* =====================================================
-   NORMALIZAR CONFIGURACIÓN
+   VALORES POR DEFECTO
 ===================================================== */
 
-function normalizeConfig(row) {
+const DEFAULT_CONFIG = {
+
+  gamePrice:
+    29000,
+
+  shotsText:
+    "100 TIROS INCLUIDOS",
+
+  hydrogelPrice:
+    25000,
+
+  hydrogelShotsText:
+    "MUNICIÓN INCLUIDA",
+
+  deposit:
+    50000,
+
+  minPlayers:
+    10
+
+};
+
+
+/* =====================================================
+   CONVERTIR SUPABASE → PANEL
+===================================================== */
+
+function mapFromDatabase(row) {
 
   if (!row) {
 
@@ -171,58 +147,91 @@ function normalizeConfig(row) {
   return {
 
     gamePrice:
-      Number(
-        row.game_price
-      ) || 0,
+      Number.isFinite(
+        Number(row.game_price)
+      )
+        ? Number(row.game_price)
+        : DEFAULT_CONFIG.gamePrice,
 
 
     shotsText:
-      String(
-        row.shots_text ??
-        DEFAULT_CONFIG.shotsText
-      ),
+      row.shots_text ??
+      DEFAULT_CONFIG.shotsText,
 
 
     hydrogelPrice:
-      Number(
-        row.hydrogel_price
-      ) || 0,
+      Number.isFinite(
+        Number(row.hydrogel_price)
+      )
+        ? Number(row.hydrogel_price)
+        : DEFAULT_CONFIG.hydrogelPrice,
 
 
     hydrogelShotsText:
+      row.hydrogel_shots_text ??
+      DEFAULT_CONFIG.hydrogelShotsText,
+
+
+    deposit:
+      Number.isFinite(
+        Number(row.deposit)
+      )
+        ? Number(row.deposit)
+        : DEFAULT_CONFIG.deposit,
+
+
+    minPlayers:
+      Number.isFinite(
+        Number(row.min_players)
+      )
+        ? Number(row.min_players)
+        : DEFAULT_CONFIG.minPlayers
+
+  };
+
+}
+
+
+/* =====================================================
+   CONVERTIR PANEL → SUPABASE
+===================================================== */
+
+function mapToDatabase(config) {
+
+  return {
+
+    game_price:
+      Number(config.gamePrice),
+
+
+    shots_text:
       String(
-        row.hydrogel_shots_text ??
-        DEFAULT_CONFIG.hydrogelShotsText
+        config.shotsText ?? ""
+      ).trim(),
+
+
+    hydrogel_price:
+      Number(
+        config.hydrogelPrice
       ),
+
+
+    hydrogel_shots_text:
+      String(
+        config.hydrogelShotsText ?? ""
+      ).trim(),
 
 
     deposit:
       Number(
-        row.deposit
-      ) || 0,
-
-
-    minPlayers:
-      Number(
-        row.min_players
-      ) || 1,
-
-
-    whatsapp:
-      String(
-        row.whatsapp ??
-        DEFAULT_CONFIG.whatsapp
+        config.deposit
       ),
 
 
-    slots:
-      Array.isArray(
-        row.slots
+    min_players:
+      Number(
+        config.minPlayers
       )
-        ? row.slots
-        : [
-            ...DEFAULT_CONFIG.slots
-          ]
 
   };
 
@@ -235,19 +244,27 @@ function normalizeConfig(row) {
 
 function validateConfig(config) {
 
-  if (
-    !config ||
-    typeof config !== "object"
-  ) {
-
-    return "Configuración inválida.";
-
-  }
-
-
   const gamePrice =
     Number(
       config.gamePrice
+    );
+
+
+  const hydrogelPrice =
+    Number(
+      config.hydrogelPrice
+    );
+
+
+  const deposit =
+    Number(
+      config.deposit
+    );
+
+
+  const minPlayers =
+    Number(
+      config.minPlayers
     );
 
 
@@ -261,12 +278,6 @@ function validateConfig(config) {
   }
 
 
-  const hydrogelPrice =
-    Number(
-      config.hydrogelPrice
-    );
-
-
   if (
     !Number.isFinite(hydrogelPrice) ||
     hydrogelPrice < 0
@@ -275,12 +286,6 @@ function validateConfig(config) {
     return "El precio de Hidrogel no es válido.";
 
   }
-
-
-  const deposit =
-    Number(
-      config.deposit
-    );
 
 
   if (
@@ -293,12 +298,6 @@ function validateConfig(config) {
   }
 
 
-  const minPlayers =
-    Number(
-      config.minPlayers
-    );
-
-
   if (
     !Number.isInteger(minPlayers) ||
     minPlayers < 1
@@ -309,527 +308,13 @@ function validateConfig(config) {
   }
 
 
-  if (
-    !Array.isArray(
-      config.slots
-    ) ||
-    !config.slots.length
-  ) {
-
-    return "Debe existir al menos un horario.";
-
-  }
-
-
   return null;
 
 }
 
 
 /* =====================================================
-   GET
-   OBTENER CONFIGURACIÓN
-===================================================== */
-
-async function getConfig(res) {
-
-  try {
-
-    const response =
-      await supabaseFetch(
-        "/rest/v1/aguara_config" +
-        "?id=eq.1" +
-        "&select=*",
-        {
-          method: "GET"
-        }
-      );
-
-
-    const text =
-      await response.text();
-
-
-    console.log(
-      "SUPABASE GET CONFIG:",
-      response.status,
-      text
-    );
-
-
-    if (!response.ok) {
-
-      return sendJson(
-        res,
-        500,
-        {
-          ok: false,
-
-          message:
-            "Supabase no pudo cargar la configuración.",
-
-          details:
-            text
-        }
-      );
-
-    }
-
-
-    let rows = [];
-
-
-    try {
-
-      rows =
-        JSON.parse(text);
-
-    } catch {
-
-      rows = [];
-
-    }
-
-
-    /*
-       Si todavía no existe la fila,
-       la creamos automáticamente.
-    */
-
-    if (
-      !Array.isArray(rows) ||
-      !rows.length
-    ) {
-
-      const created =
-        await createDefaultConfig();
-
-
-      if (!created.ok) {
-
-        return sendJson(
-          res,
-          500,
-          {
-            ok: false,
-
-            message:
-              "No existe configuración y no se pudo crear la configuración inicial.",
-
-            details:
-              created.details
-          }
-        );
-
-      }
-
-
-      return sendJson(
-        res,
-        200,
-        {
-          ok: true,
-
-          config:
-            normalizeConfig(
-              created.row
-            )
-        }
-      );
-
-    }
-
-
-    return sendJson(
-      res,
-      200,
-      {
-        ok: true,
-
-        config:
-          normalizeConfig(
-            rows[0]
-          )
-      }
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "ERROR GET CONFIG:",
-      error
-    );
-
-
-    return sendJson(
-      res,
-      500,
-      {
-        ok: false,
-
-        message:
-          error.message ||
-          "Error cargando configuración."
-      }
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   CREAR CONFIGURACIÓN INICIAL
-===================================================== */
-
-async function createDefaultConfig() {
-
-  try {
-
-    const row = {
-
-      id: 1,
-
-      game_price:
-        DEFAULT_CONFIG.gamePrice,
-
-      shots_text:
-        DEFAULT_CONFIG.shotsText,
-
-      hydrogel_price:
-        DEFAULT_CONFIG.hydrogelPrice,
-
-      hydrogel_shots_text:
-        DEFAULT_CONFIG.hydrogelShotsText,
-
-      deposit:
-        DEFAULT_CONFIG.deposit,
-
-      min_players:
-        DEFAULT_CONFIG.minPlayers,
-
-      whatsapp:
-        DEFAULT_CONFIG.whatsapp,
-
-      slots:
-        DEFAULT_CONFIG.slots
-
-    };
-
-
-    const response =
-      await supabaseFetch(
-        "/rest/v1/aguara_config",
-        {
-          method: "POST",
-
-          headers: {
-
-            Prefer:
-              "return=representation"
-
-          },
-
-          body:
-            JSON.stringify(row)
-
-        }
-      );
-
-
-    const text =
-      await response.text();
-
-
-    console.log(
-      "SUPABASE CREATE CONFIG:",
-      response.status,
-      text
-    );
-
-
-    if (!response.ok) {
-
-      return {
-
-        ok: false,
-
-        details:
-          text
-
-      };
-
-    }
-
-
-    let rows = [];
-
-
-    try {
-
-      rows =
-        JSON.parse(text);
-
-    } catch {
-
-      rows = [];
-
-    }
-
-
-    return {
-
-      ok: true,
-
-      row:
-        rows[0] ||
-        row
-
-    };
-
-
-  } catch (error) {
-
-    console.error(
-      "ERROR CREANDO CONFIG:",
-      error
-    );
-
-
-    return {
-
-      ok: false,
-
-      details:
-        error.message
-
-    };
-
-  }
-
-}
-
-
-/* =====================================================
-   POST
-   GUARDAR CONFIGURACIÓN
-===================================================== */
-
-async function saveConfig(
-  req,
-  res
-) {
-
-  try {
-
-    const config =
-      req.body;
-
-
-    const validationError =
-      validateConfig(
-        config
-      );
-
-
-    if (validationError) {
-
-      return sendJson(
-        res,
-        400,
-        {
-          ok: false,
-
-          message:
-            validationError
-        }
-      );
-
-    }
-
-
-    const row = {
-
-      id: 1,
-
-      game_price:
-        Number(
-          config.gamePrice
-        ),
-
-      shots_text:
-        String(
-          config.shotsText ??
-          ""
-        ).trim(),
-
-      hydrogel_price:
-        Number(
-          config.hydrogelPrice
-        ),
-
-      hydrogel_shots_text:
-        String(
-          config.hydrogelShotsText ??
-          ""
-        ).trim(),
-
-      deposit:
-        Number(
-          config.deposit
-        ),
-
-      min_players:
-        Number(
-          config.minPlayers
-        ),
-
-      whatsapp:
-        String(
-          config.whatsapp ??
-          ""
-        ).replace(
-          /\D/g,
-          ""
-        ),
-
-      slots:
-        config.slots
-          .map(
-            function (slot) {
-
-              return String(
-                slot
-              ).trim();
-
-            }
-          )
-          .filter(Boolean)
-
-    };
-
-
-    /*
-       UPSERT:
-       Si id=1 existe → actualiza.
-       Si no existe → crea.
-    */
-
-    const response =
-      await supabaseFetch(
-        "/rest/v1/aguara_config?on_conflict=id",
-        {
-          method: "POST",
-
-          headers: {
-
-            Prefer:
-              "resolution=merge-duplicates,return=representation"
-
-          },
-
-          body:
-            JSON.stringify(row)
-
-        }
-      );
-
-
-    const text =
-      await response.text();
-
-
-    console.log(
-      "SUPABASE SAVE CONFIG:",
-      response.status,
-      text
-    );
-
-
-    if (!response.ok) {
-
-      return sendJson(
-        res,
-        500,
-        {
-          ok: false,
-
-          message:
-            "Supabase rechazó la configuración.",
-
-          details:
-            text
-        }
-      );
-
-    }
-
-
-    let rows = [];
-
-
-    try {
-
-      rows =
-        JSON.parse(text);
-
-    } catch {
-
-      rows = [];
-
-    }
-
-
-    const savedRow =
-      rows[0] ||
-      row;
-
-
-    return sendJson(
-      res,
-      200,
-      {
-        ok: true,
-
-        message:
-          "Configuración guardada correctamente.",
-
-        config:
-          normalizeConfig(
-            savedRow
-          )
-      }
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "ERROR POST CONFIG:",
-      error
-    );
-
-
-    return sendJson(
-      res,
-      500,
-      {
-        ok: false,
-
-        message:
-          error.message ||
-          "Error guardando configuración."
-      }
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   HANDLER PRINCIPAL
+   HANDLER
 ===================================================== */
 
 export default async function handler(
@@ -837,59 +322,652 @@ export default async function handler(
   res
 ) {
 
-  /*
-     GET
-     /api/config
-  */
+
+  /* ===================================================
+     MÉTODOS PERMITIDOS
+  =================================================== */
+
+  if (
+    req.method !== "GET" &&
+    req.method !== "POST"
+  ) {
+
+    res.setHeader(
+      "Allow",
+      "GET, POST"
+    );
+
+
+    return sendJson(
+      res,
+      405,
+      {
+
+        ok:
+          false,
+
+        message:
+          "Método no permitido."
+
+      }
+    );
+
+  }
+
+
+  /* ===================================================
+     SUPABASE
+  =================================================== */
+
+  const config =
+    getSupabaseConfig();
+
+
+  if (!config) {
+
+    console.error(
+      "FALTAN VARIABLES DE SUPABASE"
+    );
+
+
+    return sendJson(
+      res,
+      500,
+      {
+
+        ok:
+          false,
+
+        message:
+          "Faltan SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en Vercel."
+
+      }
+    );
+
+  }
+
+
+  const {
+    supabaseUrl,
+    supabaseKey
+  } = config;
+
+
+  const baseUrl =
+    supabaseUrl.replace(
+      /\/$/,
+      ""
+    );
+
+
+  /* ===================================================
+     GET — LEER CONFIGURACIÓN
+  =================================================== */
 
   if (
     req.method === "GET"
   ) {
 
-    return getConfig(
-      res
-    );
+    try {
+
+      const response =
+        await fetch(
+
+          `${baseUrl}/rest/v1/aguara_config?select=*&order=id.asc&limit=1`,
+
+          {
+
+            method:
+              "GET",
+
+            headers:
+              supabaseHeaders(
+                supabaseKey
+              )
+
+          }
+
+        );
+
+
+      const text =
+        await response.text();
+
+
+      let data;
+
+
+      try {
+
+        data =
+          JSON.parse(text);
+
+      } catch {
+
+        data = [];
+
+      }
+
+
+      if (!response.ok) {
+
+        console.error(
+          "SUPABASE GET CONFIG ERROR:",
+          data
+        );
+
+
+        return sendJson(
+          res,
+          response.status,
+          {
+
+            ok:
+              false,
+
+            message:
+              data?.message ||
+              data?.hint ||
+              data?.details ||
+              "No se pudo leer la configuración de Supabase.",
+
+            error:
+              data
+
+          }
+        );
+
+      }
+
+
+      const row =
+        Array.isArray(data)
+          ? data[0]
+          : data;
+
+
+      const configuration =
+        mapFromDatabase(
+          row
+        );
+
+
+      return sendJson(
+        res,
+        200,
+        {
+
+          ok:
+            true,
+
+          config:
+            configuration
+
+        }
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "ERROR GET CONFIG:",
+        error
+      );
+
+
+      return sendJson(
+        res,
+        500,
+        {
+
+          ok:
+            false,
+
+          message:
+            error?.message ||
+            "Error interno leyendo la configuración."
+
+        }
+      );
+
+    }
 
   }
 
 
-  /*
-     POST
-     /api/config
-  */
+  /* ===================================================
+     POST — GUARDAR CONFIGURACIÓN
+  =================================================== */
 
   if (
     req.method === "POST"
   ) {
 
-    return saveConfig(
-      req,
-      res
-    );
+    try {
+
+      const body =
+        req.body &&
+        typeof req.body === "object"
+          ? req.body
+          : {};
+
+
+      console.log(
+        "CONFIG RECIBIDA DESDE ADMIN:",
+        body
+      );
+
+
+      /* -----------------------------------------------
+         ACEPTAR CAMELCASE DEL ADMIN
+      ------------------------------------------------ */
+
+      const configuration = {
+
+        gamePrice:
+          body.gamePrice ??
+          body.game_price,
+
+
+        shotsText:
+          body.shotsText ??
+          body.shots_text,
+
+
+        hydrogelPrice:
+          body.hydrogelPrice ??
+          body.hydrogel_price,
+
+
+        hydrogelShotsText:
+          body.hydrogelShotsText ??
+          body.hydrogel_shots_text,
+
+
+        deposit:
+          body.deposit,
+
+
+        minPlayers:
+          body.minPlayers ??
+          body.min_players
+
+      };
+
+
+      /* -----------------------------------------------
+         VALIDACIÓN
+      ------------------------------------------------ */
+
+      const validationError =
+        validateConfig(
+          configuration
+        );
+
+
+      if (validationError) {
+
+        return sendJson(
+          res,
+          400,
+          {
+
+            ok:
+              false,
+
+            message:
+              validationError
+
+          }
+        );
+
+      }
+
+
+      /* -----------------------------------------------
+         CONVERTIR A COLUMNAS SUPABASE
+      ------------------------------------------------ */
+
+      const databaseConfig =
+        mapToDatabase(
+          configuration
+        );
+
+
+      console.log(
+        "CONFIGURACIÓN A GUARDAR EN SUPABASE:",
+        databaseConfig
+      );
+
+
+      /* -----------------------------------------------
+         BUSCAR CONFIGURACIÓN EXISTENTE
+      ------------------------------------------------ */
+
+      const searchResponse =
+        await fetch(
+
+          `${baseUrl}/rest/v1/aguara_config?select=id&order=id.asc&limit=1`,
+
+          {
+
+            method:
+              "GET",
+
+            headers:
+              supabaseHeaders(
+                supabaseKey
+              )
+
+          }
+
+        );
+
+
+      const searchText =
+        await searchResponse.text();
+
+
+      let searchData;
+
+
+      try {
+
+        searchData =
+          JSON.parse(
+            searchText
+          );
+
+      } catch {
+
+        searchData = [];
+
+      }
+
+
+      if (!searchResponse.ok) {
+
+        console.error(
+          "ERROR BUSCANDO CONFIGURACIÓN:",
+          searchData
+        );
+
+
+        return sendJson(
+          res,
+          searchResponse.status,
+          {
+
+            ok:
+              false,
+
+            message:
+              searchData?.message ||
+              searchData?.hint ||
+              searchData?.details ||
+              "No se pudo consultar aguara_config.",
+
+            error:
+              searchData
+
+          }
+        );
+
+      }
+
+
+      const existingRow =
+        Array.isArray(
+          searchData
+        )
+          ? searchData[0]
+          : null;
+
+
+      /* =================================================
+         ACTUALIZAR FILA EXISTENTE
+      ================================================= */
+
+      if (
+        existingRow?.id !== undefined
+      ) {
+
+        const response =
+          await fetch(
+
+            `${baseUrl}/rest/v1/aguara_config?id=eq.${encodeURIComponent(existingRow.id)}`,
+
+            {
+
+              method:
+                "PATCH",
+
+              headers:
+                supabaseHeaders(
+                  supabaseKey,
+                  "return=representation"
+                ),
+
+              body:
+                JSON.stringify(
+                  databaseConfig
+                )
+
+            }
+
+          );
+
+
+        const text =
+          await response.text();
+
+
+        let data;
+
+
+        try {
+
+          data =
+            JSON.parse(text);
+
+        } catch {
+
+          data = text;
+
+        }
+
+
+        if (!response.ok) {
+
+          console.error(
+            "ERROR ACTUALIZANDO CONFIG:",
+            data
+          );
+
+
+          return sendJson(
+            res,
+            response.status,
+            {
+
+              ok:
+                false,
+
+              message:
+                data?.message ||
+                data?.hint ||
+                data?.details ||
+                "No se pudo actualizar la configuración.",
+
+              error:
+                data
+
+            }
+          );
+
+        }
+
+
+        const savedRow =
+          Array.isArray(data)
+            ? data[0]
+            : data;
+
+
+        return sendJson(
+          res,
+          200,
+          {
+
+            ok:
+              true,
+
+            message:
+              "Configuración guardada correctamente en Supabase.",
+
+            config:
+              mapFromDatabase(
+                savedRow
+              )
+
+          }
+        );
+
+      }
+
+
+      /* =================================================
+         CREAR CONFIGURACIÓN SI NO EXISTE
+      ================================================= */
+
+      const response =
+        await fetch(
+
+          `${baseUrl}/rest/v1/aguara_config`,
+
+          {
+
+            method:
+              "POST",
+
+            headers:
+              supabaseHeaders(
+                supabaseKey,
+                "return=representation"
+              ),
+
+            body:
+              JSON.stringify(
+                databaseConfig
+              )
+
+          }
+
+        );
+
+
+      const text =
+        await response.text();
+
+
+      let data;
+
+
+      try {
+
+        data =
+          JSON.parse(text);
+
+      } catch {
+
+        data = text;
+
+      }
+
+
+      if (!response.ok) {
+
+        console.error(
+          "ERROR CREANDO CONFIG:",
+          data
+        );
+
+
+        return sendJson(
+          res,
+          response.status,
+          {
+
+            ok:
+              false,
+
+            message:
+              data?.message ||
+              data?.hint ||
+              data?.details ||
+              "No se pudo crear la configuración.",
+
+            error:
+              data
+
+          }
+        );
+
+      }
+
+
+      const savedRow =
+        Array.isArray(data)
+          ? data[0]
+          : data;
+
+
+      return sendJson(
+        res,
+        201,
+        {
+
+          ok:
+            true,
+
+          message:
+            "Configuración creada correctamente en Supabase.",
+
+          config:
+            mapFromDatabase(
+              savedRow
+            )
+
+        }
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "ERROR GENERAL POST CONFIG:",
+        error
+      );
+
+
+      return sendJson(
+        res,
+        500,
+        {
+
+          ok:
+            false,
+
+          message:
+            error?.message ||
+            "Error interno guardando la configuración."
+
+        }
+      );
+
+    }
 
   }
-
-
-  /*
-     MÉTODO NO PERMITIDO
-  */
-
-  res.setHeader(
-    "Allow",
-    "GET, POST"
-  );
-
-
-  return sendJson(
-    res,
-    405,
-    {
-      ok: false,
-
-      message:
-        "Método no permitido."
-    }
-  );
 
 }
 ```
