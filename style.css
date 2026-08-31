@@ -1,3 +1,4 @@
+```css
 /* =====================================================
    AGUARÁ PAINTBALL
    STYLE.CSS COMPLETO
@@ -101,17 +102,11 @@ nav a:hover{
   align-items:center;
   justify-content:center;
   gap:12px;
-
   border:1px solid #777;
   border-radius:999px;
-
   padding:13px 21px;
-
   font-weight:800;
-
-  transition:
-    .25s;
-
+  transition:.25s;
   cursor:pointer;
 }
 
@@ -253,56 +248,44 @@ nav a:hover{
   top:30%;
   right:5%;
   width:min(420px,32vw);
-
   display:flex;
   justify-content:center;
-
   pointer-events:none;
-
   transform:translateY(-50%);
-
-  animation:aguaraSplash 3s ease-in-out forwards;
+  opacity:0;
+  animation:aguaraLogoAppear 2s ease-out forwards;
 }
 
 .hero-logo-splash img{
   width:100%;
   height:auto;
   object-fit:contain;
-
+  display:block;
+  opacity:1;
   filter:
     drop-shadow(
       0 8px 25px rgba(0,0,0,.8)
     );
 }
 
-@keyframes aguaraSplash{
+@keyframes aguaraLogoAppear{
 
   0%{
     opacity:0;
-    transform:
-      translateY(-50%)
-      scale(.75);
+    transform:scale(.92);
+    filter:blur(8px);
   }
 
-  20%{
-    opacity:1;
-    transform:
-      translateY(-50%)
-      scale(1);
-  }
-
-  53%{
-    opacity:1;
-    transform:
-      translateY(-50%)
-      scale(1);
+  60%{
+    opacity:.85;
+    transform:scale(1.02);
+    filter:blur(1px);
   }
 
   100%{
-    opacity:.10;
-    transform:
-      translateY(-50%)
-      scale(.72);
+    opacity:1;
+    transform:scale(1);
+    filter:blur(0);
   }
 
 }
@@ -446,7 +429,6 @@ nav a:hover{
   border:1px solid var(--line);
   padding:32px;
   border-radius:var(--radius);
-
   background:
     linear-gradient(
       145deg,
@@ -558,7 +540,6 @@ label:nth-last-child(1){
   margin:16px 0;
   padding:13px;
   border-radius:10px;
-
   background:#25170b;
   border:1px solid #704318;
   color:#ffc98d;
@@ -578,7 +559,6 @@ label:nth-last-child(1){
 #continueReservationButton{
 
   display:flex !important;
-
   width:100% !important;
 
   align-items:center !important;
@@ -596,7 +576,6 @@ label:nth-last-child(1){
   border-radius:12px !important;
 
   background:#f28b24 !important;
-
   border:2px solid #f28b24 !important;
 
   color:#111 !important;
@@ -627,18 +606,29 @@ label:nth-last-child(1){
 #continueReservationButton.btn-success{
 
   background:#25a244 !important;
+  background-color:#25a244 !important;
 
   border:2px solid #25a244 !important;
+  border-color:#25a244 !important;
 
   color:#fff !important;
 
   box-shadow:
-    0 8px 22px
-    rgba(37,162,68,.35) !important;
+    0 0 0 2px rgba(37,162,68,.25),
+    0 8px 25px rgba(37,162,68,.25) !important;
 
   cursor:default !important;
-
   transform:none !important;
+}
+
+#continueReservationButton.reservation-confirmed:hover,
+#continueReservationButton.confirmed:hover,
+#continueReservationButton.btn-success:hover{
+
+  background:#2fbf55 !important;
+  background-color:#2fbf55 !important;
+  border-color:#2fbf55 !important;
+  color:#fff !important;
 }
 
 
@@ -663,6 +653,39 @@ label:nth-last-child(1){
 
   background:#111 !important;
 
+  transition:
+    background .25s ease,
+    border-color .25s ease,
+    box-shadow .25s ease;
+}
+
+#receiptUpload.receipt-confirmed,
+#receiptUpload.reservation-confirmed,
+#receiptUpload.confirmed{
+
+  background:#dff6e5 !important;
+
+  border:3px solid #25a244 !important;
+
+  color:#155d27 !important;
+
+  box-shadow:
+    0 8px 25px
+    rgba(37,162,68,.25) !important;
+}
+
+#receiptUpload.receipt-confirmed h3,
+#receiptUpload.reservation-confirmed h3,
+#receiptUpload.confirmed h3{
+
+  color:#155d27 !important;
+}
+
+#receiptUpload.receipt-confirmed p,
+#receiptUpload.reservation-confirmed p,
+#receiptUpload.confirmed p{
+
+  color:#155d27 !important;
 }
 
 
@@ -712,63 +735,37 @@ label:nth-last-child(1){
   transform:translateY(-2px);
 }
 
-
-/* =====================================================
-   COMPROBANTE ENVIADO — VERDE
-===================================================== */
-
 #receiptButton.receipt-confirmed,
 #receiptButton.reservation-confirmed,
 #receiptButton.confirmed,
-#receiptButton.btn-success{
+#receiptButton.btn-success,
+#receiptButton:disabled{
 
   background:#25a244 !important;
+  background-color:#25a244 !important;
 
   border:2px solid #25a244 !important;
+  border-color:#25a244 !important;
 
   color:#fff !important;
 
   box-shadow:
-    0 8px 22px
-    rgba(37,162,68,.35) !important;
-
-  cursor:default !important;
-
-  transform:none !important;
-}
-
-
-/* =====================================================
-   CAJA COMPLETA CONFIRMADA
-===================================================== */
-
-#receiptUpload.receipt-confirmed,
-#receiptUpload.reservation-confirmed,
-#receiptUpload.confirmed{
-
-  background:#dff6e5 !important;
-
-  border:3px solid #25a244 !important;
-
-  color:#155d27 !important;
-
-  box-shadow:
     0 8px 25px
     rgba(37,162,68,.25) !important;
+
+  cursor:default !important;
+  opacity:1 !important;
 }
 
-#receiptUpload.receipt-confirmed h3,
-#receiptUpload.reservation-confirmed h3,
-#receiptUpload.confirmed h3{
+#receiptButton.receipt-confirmed:hover,
+#receiptButton.reservation-confirmed:hover,
+#receiptButton.confirmed:hover,
+#receiptButton.btn-success:hover{
 
-  color:#155d27 !important;
-}
-
-#receiptUpload.receipt-confirmed p,
-#receiptUpload.reservation-confirmed p,
-#receiptUpload.confirmed p{
-
-  color:#155d27 !important;
+  background:#2fbf55 !important;
+  background-color:#2fbf55 !important;
+  border-color:#2fbf55 !important;
+  color:#fff !important;
 }
 
 
@@ -780,9 +777,12 @@ label:nth-last-child(1){
   margin-top:15px !important;
 }
 
-#receiptUpload.receipt-confirmed #receiptMessage,
-#receiptUpload.reservation-confirmed #receiptMessage,
-#receiptUpload.confirmed #receiptMessage{
+#receiptMessage.receipt-confirmed,
+#receiptMessage.reservation-confirmed,
+#receiptMessage.confirmed,
+#receiptMessage.form-message.success{
+
+  display:block !important;
 
   background:#bdecc8 !important;
 
@@ -812,6 +812,7 @@ label:nth-last-child(1){
 .secure>span{
   width:35px;
   height:35px;
+
   display:grid;
   place-items:center;
 
@@ -990,198 +991,347 @@ footer a:hover{
 @media(max-width:700px){
 
   #receiptUpload{
-
     margin-top:25px !important;
-
     margin-bottom:35px !important;
-
     padding:20px !important;
   }
 
   #receiptButton{
-
     margin-top:20px !important;
-
     margin-bottom:25px !important;
   }
 
   #continueReservationButton{
-
     margin-top:35px !important;
-
     margin-bottom:25px !important;
   }
 
 }
-/* =====================================================
-   CONFIRMACIÓN DE RESERVA — VERDE
-   ===================================================== */
-
-/* BOTÓN CONTINUAR CON LA RESERVA */
-#continueReservationButton.reservation-confirmed,
-#continueReservationButton.confirmed,
-#continueReservationButton.btn-success {
-  background: #25a244 !important;
-  background-color: #25a244 !important;
-  border-color: #25a244 !important;
-  color: #ffffff !important;
-  box-shadow: 0 0 0 2px rgba(37, 162, 68, 0.25),
-              0 8px 25px rgba(37, 162, 68, 0.25) !important;
-}
-
-#continueReservationButton.reservation-confirmed:hover,
-#continueReservationButton.confirmed:hover,
-#continueReservationButton.btn-success:hover {
-  background: #2fbf55 !important;
-  background-color: #2fbf55 !important;
-  border-color: #2fbf55 !important;
-  color: #ffffff !important;
-}
 
 
 /* =====================================================
-   CAJA DEL COMPROBANTE
-   ===================================================== */
-
-#receiptUpload.receipt-confirmed,
-#receiptUpload.reservation-confirmed,
-#receiptUpload.confirmed {
-  background: #dff6e5 !important;
-  border: 3px solid #25a244 !important;
-  border-radius: 14px !important;
-  box-shadow: 0 8px 25px rgba(37, 162, 68, 0.22) !important;
-}
-
-
-/* TÍTULO DEL COMPROBANTE */
-#receiptUpload.receipt-confirmed h3,
-#receiptUpload.reservation-confirmed h3,
-#receiptUpload.confirmed h3 {
-  color: #155d27 !important;
-}
-
-
-/* TEXTO DEL COMPROBANTE */
-#receiptUpload.receipt-confirmed p,
-#receiptUpload.reservation-confirmed p,
-#receiptUpload.confirmed p {
-  color: #155d27 !important;
-}
-
-
-/* =====================================================
-   BOTÓN ENVIAR COMPROBANTE — VERDE
-   ===================================================== */
-
-#receiptButton.receipt-confirmed,
-#receiptButton.reservation-confirmed,
-#receiptButton.confirmed,
-#receiptButton.btn-success {
-  background: #25a244 !important;
-  background-color: #25a244 !important;
-  border-color: #25a244 !important;
-  color: #ffffff !important;
-  box-shadow: 0 8px 25px rgba(37, 162, 68, 0.25) !important;
-}
-
-#receiptButton.receipt-confirmed:hover,
-#receiptButton.reservation-confirmed:hover,
-#receiptButton.confirmed:hover,
-#receiptButton.btn-success:hover {
-  background: #2fbf55 !important;
-  background-color: #2fbf55 !important;
-  border-color: #2fbf55 !important;
-  color: #ffffff !important;
-}
-
-
-/* =====================================================
-   MENSAJE DE COMPROBANTE RECIBIDO
-   ===================================================== */
-
-#receiptMessage.receipt-confirmed,
-#receiptMessage.reservation-confirmed,
-#receiptMessage.confirmed {
-  display: block !important;
-  background: #bdecc8 !important;
-  border: 2px solid #25a244 !important;
-  color: #155d27 !important;
-  font-weight: 800 !important;
-  border-radius: 10px !important;
-}
-
-
-/* =====================================================
-   ESTADO GENERAL
-   ===================================================== */
-
-#bookingForm.reservation-confirmed {
-  --confirmation-green: #25a244;
-}
-/* =====================================================
-COMPROBANTE ENVIADO — ESTADO VERDE
-NO TOCAR SCRIPT.JS
+   CALENDARIO — REDUCCIÓN APROXIMADA DEL 50%
+   NO MODIFICA SCRIPT.JS
 ===================================================== */
 
-#receiptButton:disabled {
-background: #25a244 !important;
-background-color: #25a244 !important;
-border-color: #25a244 !important;
-color: #ffffff !important;
-box-shadow: 0 8px 25px rgba(37, 162, 68, 0.25) !important;
-cursor: default !important;
-opacity: 1 !important;
+.aguara-calendar-shell{
+
+  padding:10px !important;
+
+  border-radius:12px !important;
+
+  margin-bottom:10px !important;
+
 }
 
-/* MENSAJE "COMPROBANTE RECIBIDO" */
+.aguara-calendar-head{
 
-#receiptMessage.form-message.success {
-background: #bdecc8 !important;
-border: 2px solid #25a244 !important;
-color: #155d27 !important;
-font-weight: 800 !important;
+  margin-bottom:8px !important;
+
 }
 
-/* CAJA DEL COMPROBANTE */
+.aguara-calendar-title{
 
-#receiptUpload {
-transition:
-background .25s ease,
-border-color .25s ease,
-box-shadow .25s ease;
+  font-size:.85rem !important;
+
 }
+
+.aguara-calendar-nav{
+
+  gap:5px !important;
+
+}
+
+.aguara-calendar-nav button{
+
+  width:28px !important;
+
+  height:28px !important;
+
+  border-radius:8px !important;
+
+  font-size:.9rem !important;
+
+}
+
+.aguara-calendar-weekdays,
+.aguara-calendar-grid{
+
+  gap:4px !important;
+
+}
+
+.aguara-calendar-weekdays{
+
+  margin-bottom:4px !important;
+
+}
+
+.aguara-calendar-weekday{
+
+  padding:3px 0 !important;
+
+  font-size:.55rem !important;
+
+}
+
+.aguara-day{
+
+  border-radius:7px !important;
+
+  padding:3px !important;
+
+}
+
+.aguara-day-number{
+
+  font-size:.72rem !important;
+
+  margin-top:6px !important;
+
+}
+
+.aguara-day-x{
+
+  top:1px !important;
+
+  font-size:.75rem !important;
+
+}
+
+.aguara-day-label{
+
+  bottom:1px !important;
+
+  font-size:.30rem !important;
+
+}
+
+.aguara-calendar-status{
+
+  margin-top:8px !important;
+
+  padding:7px 9px !important;
+
+  border-radius:8px !important;
+
+  font-size:.68rem !important;
+
+}
+
+.aguara-time-panel{
+
+  margin-top:9px !important;
+
+  padding-top:9px !important;
+
+}
+
+.aguara-time-title{
+
+  margin-bottom:7px !important;
+
+  font-size:.75rem !important;
+
+}
+
+.aguara-time-grid{
+
+  gap:5px !important;
+
+}
+
+.aguara-time-card{
+
+  border-radius:8px !important;
+
+  padding:7px 8px !important;
+
+  font-size:.75rem !important;
+
+}
+
+.aguara-time-card small{
+
+  font-size:.52rem !important;
+
+}
+
+.aguara-time-card.is-reserved{
+
+  padding-top:11px !important;
+
+}
+
+.aguara-time-card.is-reserved::before{
+
+  top:2px !important;
+
+  right:5px !important;
+
+  font-size:.7rem !important;
+
+}
+
+
 /* =====================================================
-   AGUARÁ PAINTBALL
-   SPLASH LOGO — APARECE Y QUEDA VISIBLE
+   CALENDARIO — MÓVIL MÁS COMPACTO
 ===================================================== */
 
-.hero-logo-splash {
-  opacity: 0;
-  animation: aguaraLogoAppear 2s ease-out forwards;
-  pointer-events: none;
-}
+@media(max-width:640px){
 
-.hero-logo-splash img {
-  display: block;
-  opacity: 1;
-}
+  .aguara-calendar-shell{
 
-@keyframes aguaraLogoAppear {
-  0% {
-    opacity: 0;
-    transform: scale(0.92);
-    filter: blur(8px);
+    padding:8px !important;
+
+    border-radius:10px !important;
+
   }
 
-  60% {
-    opacity: 0.85;
-    transform: scale(1.02);
-    filter: blur(1px);
+  .aguara-calendar-head{
+
+    margin-bottom:6px !important;
+
   }
 
-  100% {
-    opacity: 1;
-    transform: scale(1);
-    filter: blur(0);
+  .aguara-calendar-title{
+
+    font-size:.75rem !important;
+
   }
+
+  .aguara-calendar-nav button{
+
+    width:25px !important;
+
+    height:25px !important;
+
+    font-size:.78rem !important;
+
+  }
+
+  .aguara-calendar-weekdays,
+  .aguara-calendar-grid{
+
+    gap:3px !important;
+
+  }
+
+  .aguara-calendar-weekday{
+
+    padding:2px 0 !important;
+
+    font-size:.48rem !important;
+
+  }
+
+  .aguara-day{
+
+    border-radius:6px !important;
+
+    padding:2px !important;
+
+  }
+
+  .aguara-day-number{
+
+    font-size:.65rem !important;
+
+    margin-top:5px !important;
+
+  }
+
+  .aguara-day-x{
+
+    font-size:.65rem !important;
+
+  }
+
+  .aguara-day-label{
+
+    font-size:.26rem !important;
+
+  }
+
+  .aguara-calendar-status{
+
+    margin-top:6px !important;
+
+    padding:6px 7px !important;
+
+    font-size:.62rem !important;
+
+  }
+
+  .aguara-time-panel{
+
+    margin-top:7px !important;
+
+    padding-top:7px !important;
+
+  }
+
+  .aguara-time-title{
+
+    margin-bottom:5px !important;
+
+    font-size:.68rem !important;
+
+  }
+
+  .aguara-time-grid{
+
+    gap:4px !important;
+
+  }
+
+  .aguara-time-card{
+
+    border-radius:7px !important;
+
+    padding:6px 7px !important;
+
+    font-size:.68rem !important;
+
+  }
+
+  .aguara-time-card small{
+
+    font-size:.48rem !important;
+
+  }
+
+  .aguara-time-card.is-reserved{
+
+    padding-top:9px !important;
+
+  }
+
+  .aguara-time-card.is-reserved::before{
+
+    top:1px !important;
+
+    right:4px !important;
+
+    font-size:.62rem !important;
+
+  }
+
 }
+
+
+/* =====================================================
+   HORARIOS PASADOS
+===================================================== */
+
+.aguara-time-card.is-past{
+
+  display:none !important;
+
+}
+
+
+/* =====================================================
+   FIN STYLE.CSS
+===================================================== */
+```
