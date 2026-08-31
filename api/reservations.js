@@ -2,6 +2,7 @@
    AGUARÁ PAINTBALL
    API RESERVATIONS
    GET + POST + PATCH + DELETE
+   + AVISO TELEGRAM
 ===================================================== */
 
 import { randomBytes } from "node:crypto";
@@ -64,6 +65,125 @@ function supabaseHeaders(key, prefer) {
 
 
 /* =====================================================
+   TELEGRAM — AVISO DE NUEVA RESERVA
+===================================================== */
+
+async function enviarAvisoTelegram(reserva) {
+
+  const botToken =
+    process.env.TELEGRAM_BOT_TOKEN;
+
+  const chatId =
+    process.env.TELEGRAM_CHAT_ID;
+
+
+  if (!botToken || !chatId) {
+
+    console.error(
+      "FALTAN VARIABLES DE TELEGRAM"
+    );
+
+    return;
+  }
+
+
+  const precio =
+    Number(
+      reserva.game_price || 0
+    );
+
+  const sena =
+    Number(
+      reserva.deposit_amount || 0
+    );
+
+
+  const total =
+    precio *
+    Number(
+      reserva.players || 0
+    );
+
+
+  const mensaje = `
+🔔 NUEVA RESERVA PENDIENTE
+
+🎯 AGUARÁ PAINTBALL
+
+👤 Nombre: ${reserva.name}
+📱 WhatsApp: ${reserva.phone}
+
+📅 Fecha: ${reserva.booking_date}
+🕐 Horario: ${reserva.booking_time}
+
+👥 Jugadores: ${reserva.players}
+
+💰 Precio por jugador: $${precio.toLocaleString("es-AR")}
+💵 Seña requerida: $${sena.toLocaleString("es-AR")}
+💳 Total estimado: $${total.toLocaleString("es-AR")}
+
+🆔 Reserva: ${reserva.public_id}
+
+⚠️ ESTADO: PENDIENTE
+`;
+
+
+  try {
+
+    const response =
+      await fetch(
+        `https://api.telegram.org/bot${botToken}/sendMessage`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+              chat_id:
+                chatId,
+
+              text:
+                mensaje
+            })
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      console.error(
+        "ERROR TELEGRAM:",
+        data
+      );
+
+    } else {
+
+      console.log(
+        "AVISO TELEGRAM ENVIADO CORRECTAMENTE"
+      );
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "ERROR CONECTANDO CON TELEGRAM:",
+      error
+    );
+
+  }
+}
+
+
+/* =====================================================
    ID PÚBLICO
 ===================================================== */
 
@@ -122,7 +242,8 @@ export default async function handler(
       405,
       {
         ok: false,
-        message: "Método no permitido."
+        message:
+          "Método no permitido."
       }
     );
   }
@@ -174,6 +295,7 @@ export default async function handler(
           `${baseUrl}/rest/v1/reservations?select=*&order=booking_date.asc,booking_time.asc`,
           {
             method: "GET",
+
             headers:
               supabaseHeaders(
                 supabaseKey
@@ -216,7 +338,8 @@ export default async function handler(
             ok: false,
             message:
               "Supabase no pudo consultar las reservas.",
-            error: data
+            error:
+              data
           }
         );
       }
@@ -345,7 +468,8 @@ export default async function handler(
               data?.hint ||
               data?.details ||
               "No se pudo eliminar la reserva.",
-            error: data
+            error:
+              data
           }
         );
       }
@@ -763,7 +887,8 @@ export default async function handler(
               data?.hint ||
               data?.details ||
               "No se pudo actualizar la reserva.",
-            error: data
+            error:
+              data
           }
         );
       }
@@ -1191,6 +1316,19 @@ export default async function handler(
         ? data[0]
         : data;
 
+
+    /* -----------------------------------------------
+       AVISO TELEGRAM
+    ----------------------------------------------- */
+
+    await enviarAvisoTelegram(
+      reservaCreada
+    );
+
+
+    /* -----------------------------------------------
+       RESPUESTA FINAL
+    ----------------------------------------------- */
 
     return sendJson(
       res,
