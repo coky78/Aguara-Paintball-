@@ -2,7 +2,7 @@
    AGUARÁ PAINTBALL
    ADMIN.JS
    RESERVAS + CONFIGURACIÓN
-   VERSIÓN LIMPIA Y CORREGIDA
+   VERSIÓN ESTABLE Y LIMPIA
 ===================================================== */
 
 const DEFAULTS = {
@@ -72,11 +72,6 @@ function escapeHtml(value) {
 }
 
 
-function escapeAttribute(value) {
-  return escapeHtml(value);
-}
-
-
 function formatDate(date) {
   if (!date) {
     return "";
@@ -104,7 +99,7 @@ function cloneDefaults() {
    MENSAJE DE CONFIGURACIÓN
 ===================================================== */
 
-function showSavedMessage(message, color) {
+function showSavedMessage(message, color = "") {
   const saved = $("saved");
 
   if (!saved) {
@@ -113,12 +108,7 @@ function showSavedMessage(message, color) {
 
   saved.hidden = false;
   saved.textContent = message;
-
-  if (color) {
-    saved.style.color = color;
-  } else {
-    saved.style.color = "";
-  }
+  saved.style.color = color;
 }
 
 
@@ -148,8 +138,7 @@ function applyConfigToForm(config) {
 
   if ($("shotsText")) {
     $("shotsText").value =
-      cfg.shotsText ??
-      DEFAULTS.shotsText;
+      cfg.shotsText ?? DEFAULTS.shotsText;
   }
 
   if ($("hydrogelPrice")) {
@@ -185,7 +174,7 @@ function applyConfigToForm(config) {
   }
 
   console.log(
-    "CONFIGURACIÓN APLICADA:",
+    "AGUARÁ → CONFIGURACIÓN APLICADA:",
     cfg
   );
 }
@@ -208,6 +197,21 @@ function readConfigFromForm() {
   const minPlayers =
     Number($("minPlayers")?.value || 1);
 
+  const shotsText =
+    $("shotsText")
+      ? $("shotsText").value.trim()
+      : DEFAULTS.shotsText;
+
+  const hydrogelShotsText =
+    $("hydrogelShotsText")
+      ? $("hydrogelShotsText").value.trim()
+      : DEFAULTS.hydrogelShotsText;
+
+  const whatsapp =
+    $("whatsapp")
+      ? $("whatsapp").value.replace(/\D/g, "")
+      : DEFAULTS.whatsapp;
+
   let slots = [];
 
   if ($("slots")) {
@@ -222,26 +226,12 @@ function readConfigFromForm() {
 
   return {
     gamePrice,
-
-    shotsText: $("shotsText")
-      ? $("shotsText").value.trim()
-      : DEFAULTS.shotsText,
-
+    shotsText,
     hydrogelPrice,
-
-    hydrogelShotsText:
-      $("hydrogelShotsText")
-        ? $("hydrogelShotsText").value.trim()
-        : DEFAULTS.hydrogelShotsText,
-
+    hydrogelShotsText,
     deposit,
-
     minPlayers,
-
-    whatsapp: $("whatsapp")
-      ? $("whatsapp").value.replace(/\D/g, "")
-      : "",
-
+    whatsapp,
     slots
   };
 }
@@ -259,7 +249,6 @@ function validateConfig(config) {
     alert(
       "El precio de Paintball no es válido."
     );
-
     return false;
   }
 
@@ -270,7 +259,6 @@ function validateConfig(config) {
     alert(
       "El precio de Hidrogel no es válido."
     );
-
     return false;
   }
 
@@ -281,7 +269,6 @@ function validateConfig(config) {
     alert(
       "La seña no es válida."
     );
-
     return false;
   }
 
@@ -292,7 +279,6 @@ function validateConfig(config) {
     alert(
       "El mínimo de jugadores no es válido."
     );
-
     return false;
   }
 
@@ -303,7 +289,6 @@ function validateConfig(config) {
     alert(
       "Debe existir al menos un horario."
     );
-
     return false;
   }
 
@@ -312,7 +297,6 @@ function validateConfig(config) {
       alert(
         `El horario "${slot}" no tiene formato HH:MM.`
       );
-
       return false;
     }
 
@@ -328,7 +312,6 @@ function validateConfig(config) {
       alert(
         `El horario "${slot}" no es válido.`
       );
-
       return false;
     }
   }
@@ -351,13 +334,10 @@ async function loadConfig() {
       "/api/config",
       {
         method: "GET",
-
         headers: {
           Accept: "application/json"
         },
-
         cache: "no-store",
-
         credentials: "same-origin"
       }
     );
@@ -366,7 +346,7 @@ async function loadConfig() {
       await response.text();
 
     console.log(
-      "RESPUESTA CONFIG:",
+      "AGUARÁ → RESPUESTA CONFIG:",
       response.status,
       text
     );
@@ -407,7 +387,7 @@ async function loadConfig() {
     );
 
     console.log(
-      "CONFIGURACIÓN CARGADA:",
+      "AGUARÁ → CONFIGURACIÓN CARGADA:",
       cfg
     );
 
@@ -415,7 +395,7 @@ async function loadConfig() {
 
   } catch (error) {
     console.error(
-      "ERROR CARGANDO CONFIGURACIÓN:",
+      "AGUARÁ → ERROR CARGANDO CONFIGURACIÓN:",
       error
     );
 
@@ -458,36 +438,38 @@ async function saveConfig() {
 
   try {
     console.log(
-      "CONFIGURACIÓN A ENVIAR:",
+      "AGUARÁ → CONFIGURACIÓN A ENVIAR:",
       next
     );
 
-    const response = await fetch(
-      "/api/config",
-      {
-        method: "POST",
+    const response =
+      await fetch(
+        "/api/config",
+        {
+          method: "POST",
 
-        headers: {
-          "Content-Type":
-            "application/json",
+          headers: {
+            "Content-Type":
+              "application/json",
 
-          Accept:
-            "application/json"
-        },
+            Accept:
+              "application/json"
+          },
 
-        cache: "no-store",
+          cache: "no-store",
 
-        credentials: "same-origin",
+          credentials: "same-origin",
 
-        body: JSON.stringify(next)
-      }
-    );
+          body:
+            JSON.stringify(next)
+        }
+      );
 
     const text =
       await response.text();
 
     console.log(
-      "RESPUESTA GUARDAR CONFIG:",
+      "AGUARÁ → RESPUESTA GUARDAR CONFIG:",
       response.status,
       text
     );
@@ -495,7 +477,8 @@ async function saveConfig() {
     let data = {};
 
     try {
-      data = JSON.parse(text);
+      data =
+        JSON.parse(text);
     } catch {
       throw new Error(
         "La API de configuración no devolvió JSON válido."
@@ -533,13 +516,13 @@ async function saveConfig() {
     );
 
     console.log(
-      "CONFIGURACIÓN GUARDADA:",
+      "AGUARÁ → CONFIGURACIÓN GUARDADA:",
       cfg
     );
 
   } catch (error) {
     console.error(
-      "ERROR GUARDANDO CONFIGURACIÓN:",
+      "AGUARÁ → ERROR GUARDANDO CONFIGURACIÓN:",
       error
     );
 
@@ -572,16 +555,14 @@ function sortBookings(bookings) {
     function (a, b) {
       const statusA =
         String(
-          a.status ||
-          "pending"
+          a.status || "pending"
         )
           .trim()
           .toLowerCase();
 
       const statusB =
         String(
-          b.status ||
-          "pending"
+          b.status || "pending"
         )
           .trim()
           .toLowerCase();
@@ -592,8 +573,12 @@ function sortBookings(bookings) {
       const orderB =
         statusOrder[statusB] ?? 1;
 
-      if (orderA !== orderB) {
-        return orderA - orderB;
+      if (
+        orderA !== orderB
+      ) {
+        return (
+          orderA - orderB
+        );
       }
 
       const dateA =
@@ -610,7 +595,9 @@ function sortBookings(bookings) {
           ""
         );
 
-      if (dateA !== dateB) {
+      if (
+        dateA !== dateB
+      ) {
         return dateA.localeCompare(
           dateB
         );
@@ -650,7 +637,6 @@ async function render() {
     console.error(
       "No existe #bookings en admin.html."
     );
-
     return;
   }
 
@@ -682,7 +668,7 @@ async function render() {
       await response.text();
 
     console.log(
-      "RESPUESTA RESERVAS:",
+      "AGUARÁ → RESPUESTA RESERVAS:",
       response.status,
       text
     );
@@ -742,7 +728,7 @@ async function render() {
     }
 
     console.log(
-      "RESERVAS RECIBIDAS:",
+      "AGUARÁ → RESERVAS RECIBIDAS:",
       bookings
     );
 
@@ -778,7 +764,7 @@ async function render() {
 
   } catch (error) {
     console.error(
-      "ERROR CARGANDO RESERVAS:",
+      "AGUARÁ → ERROR CARGANDO RESERVAS:",
       error
     );
 
@@ -987,11 +973,10 @@ function reservationHtml(b) {
   `;
 
   if (publicId) {
-
     html += `
       <button
         type="button"
-        onclick="editReservation('${escapeAttribute(publicId)}')"
+        onclick="editReservation('${escapeHtml(publicId)}')"
       >
         ✏️ Editar
       </button>
@@ -1003,7 +988,7 @@ function reservationHtml(b) {
       html += `
         <button
           type="button"
-          onclick="changeStatus('${escapeAttribute(publicId)}', 'confirmed')"
+          onclick="changeStatus('${escapeHtml(publicId)}', 'confirmed')"
         >
           ✓ Confirmar
         </button>
@@ -1016,7 +1001,7 @@ function reservationHtml(b) {
       html += `
         <button
           type="button"
-          onclick="changeStatus('${escapeAttribute(publicId)}', 'cancelled')"
+          onclick="changeStatus('${escapeHtml(publicId)}', 'cancelled')"
         >
           ✕ Cancelar
         </button>
@@ -1026,7 +1011,7 @@ function reservationHtml(b) {
     html += `
       <button
         type="button"
-        onclick="deleteReservation('${escapeAttribute(publicId)}')"
+        onclick="deleteReservation('${escapeHtml(publicId)}')"
       >
         🗑️ Eliminar
       </button>
@@ -1057,14 +1042,11 @@ function reservationHtml(b) {
    EDITAR RESERVA
 ===================================================== */
 
-async function editReservation(
-  publicId
-) {
+async function editReservation(publicId) {
   if (!publicId) {
     alert(
       "Falta el identificador de la reserva."
     );
-
     return;
   }
 
@@ -1086,7 +1068,6 @@ async function editReservation(
     alert(
       "El nombre no puede estar vacío."
     );
-
     return;
   }
 
@@ -1108,7 +1089,6 @@ async function editReservation(
     alert(
       "El teléfono no puede estar vacío."
     );
-
     return;
   }
 
@@ -1134,7 +1114,6 @@ async function editReservation(
     alert(
       "La fecha no es válida."
     );
-
     return;
   }
 
@@ -1160,7 +1139,6 @@ async function editReservation(
     alert(
       "El horario no es válido."
     );
-
     return;
   }
 
@@ -1187,7 +1165,6 @@ async function editReservation(
       cfg.minPlayers +
       " jugadores."
     );
-
     return;
   }
 
@@ -1222,28 +1199,29 @@ async function editReservation(
 
           credentials: "same-origin",
 
-          body: JSON.stringify({
-            public_id:
-              publicId,
+          body:
+            JSON.stringify({
+              public_id:
+                publicId,
 
-            name:
-              name,
+              name:
+                name,
 
-            phone:
-              phone,
+              phone:
+                phone,
 
-            booking_date:
-              bookingDate,
+              booking_date:
+                bookingDate,
 
-            booking_time:
-              bookingTime,
+              booking_time:
+                bookingTime,
 
-            players:
-              players,
+              players:
+                players,
 
-            notes:
-              notas.trim()
-          })
+              notes:
+                notas.trim()
+            })
         }
       );
 
@@ -1279,7 +1257,7 @@ async function editReservation(
 
   } catch (error) {
     console.error(
-      "ERROR EDITANDO RESERVA:",
+      "AGUARÁ → ERROR EDITANDO RESERVA:",
       error
     );
 
@@ -1303,7 +1281,16 @@ async function changeStatus(
     alert(
       "Falta el identificador de la reserva."
     );
+    return;
+  }
 
+  if (
+    status !== "confirmed" &&
+    status !== "cancelled"
+  ) {
+    alert(
+      "Estado de reserva no válido."
+    );
     return;
   }
 
@@ -1312,9 +1299,7 @@ async function changeStatus(
       ? "¿Confirmar esta reserva?"
       : "¿Cancelar esta reserva?";
 
-  if (
-    !confirm(texto)
-  ) {
+  if (!confirm(texto)) {
     return;
   }
 
@@ -1337,13 +1322,14 @@ async function changeStatus(
 
           credentials: "same-origin",
 
-          body: JSON.stringify({
-            public_id:
-              publicId,
+          body:
+            JSON.stringify({
+              public_id:
+                publicId,
 
-            status:
-              status
-          })
+              status:
+                status
+            })
         }
       );
 
@@ -1381,7 +1367,7 @@ async function changeStatus(
 
   } catch (error) {
     console.error(
-      "ERROR CAMBIANDO ESTADO:",
+      "AGUARÁ → ERROR CAMBIANDO ESTADO:",
       error
     );
 
@@ -1404,7 +1390,6 @@ async function deleteReservation(
     alert(
       "Falta el identificador de la reserva."
     );
-
     return;
   }
 
@@ -1439,10 +1424,11 @@ async function deleteReservation(
 
           credentials: "same-origin",
 
-          body: JSON.stringify({
-            public_id:
-              publicId
-          })
+          body:
+            JSON.stringify({
+              public_id:
+                publicId
+            })
         }
       );
 
@@ -1478,160 +1464,13 @@ async function deleteReservation(
 
   } catch (error) {
     console.error(
-      "ERROR ELIMINANDO RESERVA:",
+      "AGUARÁ → ERROR ELIMINANDO RESERVA:",
       error
     );
 
     alert(
       error.message ||
       "No se pudo eliminar la reserva."
-    );
-  }
-}
-
-
-/* =====================================================
-   INICIALIZAR PANEL
-===================================================== */
-
-async function initAdmin() {
-  if (adminInitialized) {
-    console.log(
-      "ADMIN.JS ya estaba inicializado."
-    );
-
-    return;
-  }
-
-  const panel =
-    $("admin-panel");
-
-  if (!panel) {
-    console.error(
-      "No existe #admin-panel."
-    );
-
-    return;
-  }
-
-  adminInitialized = true;
-
-  console.log(
-    "===================================="
-  );
-
-  console.log(
-    "AGUARÁ PAINTBALL"
-  );
-
-  console.log(
-    "ADMINISTRACIÓN INICIADA"
-  );
-
-  console.log(
-    "===================================="
-  );
-
-  /*
-    Primero configuración.
-    Después reservas.
-  */
-
-  await loadConfig();
-
-  await render();
-}
-
-
-/* =====================================================
-   DETECTAR LOGIN COMPLETADO
-===================================================== */
-
-function watchAdminLogin() {
-  const loginScreen =
-    $("login-screen");
-
-  const adminPanel =
-    $("admin-panel");
-
-  if (
-    !loginScreen ||
-    !adminPanel
-  ) {
-    console.warn(
-      "No se encontraron los elementos del login."
-    );
-
-    return;
-  }
-
-  const observer =
-    new MutationObserver(
-      function () {
-
-        const loginHidden =
-          loginScreen.style.display ===
-          "none";
-
-        const panelVisible =
-          adminPanel.style.display ===
-          "block";
-
-        if (
-          loginHidden &&
-          panelVisible
-        ) {
-          observer.disconnect();
-
-          initAdmin();
-        }
-      }
-    );
-
-  observer.observe(
-    loginScreen,
-    {
-      attributes: true,
-      attributeFilter: [
-        "style"
-      ]
-    }
-  );
-
-  /*
-    Por si el login ya se completó
-    antes de instalar el observer.
-  */
-
-  if (
-    loginScreen.style.display ===
-      "none" &&
-    adminPanel.style.display ===
-      "block"
-  ) {
-    observer.disconnect();
-
-    initAdmin();
-  }
-}
-
-
-/* =====================================================
-   EVENTOS
-===================================================== */
-
-function bindEvents() {
-  const configForm =
-    $("configForm");
-
-  if (configForm) {
-    configForm.addEventListener(
-      "submit",
-      function (event) {
-        event.preventDefault();
-
-        saveConfig();
-      }
     );
   }
 }
@@ -1659,30 +1498,77 @@ window.changeStatus =
 window.deleteReservation =
   deleteReservation;
 
-window.initAdmin =
-  initAdmin;
-
 
 /* =====================================================
    INICIO
 ===================================================== */
 
-console.log(
-  "Aguará Paintball — admin.js cargado."
-);
+function bindEvents() {
+  const configForm =
+    $("configForm");
 
-bindEvents();
+  if (!configForm) {
+    console.warn(
+      "AGUARÁ → No existe #configForm."
+    );
+    return;
+  }
 
-/*
-  NO cargamos aquí:
+  configForm.addEventListener(
+    "submit",
+    function (event) {
+      event.preventDefault();
+      saveConfig();
+    }
+  );
+}
 
-  loadConfig();
-  render();
 
-  porque el usuario todavía puede
-  no haberse autenticado.
+function startAdmin() {
+  if (adminInitialized) {
+    return;
+  }
 
-  Esperamos al login.
-*/
+  adminInitialized = true;
 
-watchAdminLogin();
+  console.log(
+    "===================================="
+  );
+
+  console.log(
+    "AGUARÁ PAINTBALL"
+  );
+
+  console.log(
+    "ADMINISTRACIÓN INICIADA"
+  );
+
+  console.log(
+    "===================================="
+  );
+
+  bindEvents();
+
+  Promise.all([
+    loadConfig(),
+    render()
+  ]).catch(function (error) {
+    console.error(
+      "AGUARÁ → ERROR INICIALIZANDO ADMIN:",
+      error
+    );
+  });
+}
+
+
+if (
+  document.readyState ===
+  "loading"
+) {
+  document.addEventListener(
+    "DOMContentLoaded",
+    startAdmin
+  );
+} else {
+  startAdmin();
+}
