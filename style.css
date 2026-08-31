@@ -1383,3 +1383,133 @@ box-shadow .25s ease;
   }
 
 }
+/* =====================================================
+   AGUARÁ PAINTBALL
+   CALENDARIO COMPACTO — CUADRADOS
+   SOLO DISEÑO — NO MODIFICA LA LÓGICA
+===================================================== */
+
+/* CUADRADOS DE LOS DÍAS */
+
+.aguara-calendar-grid {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.aguara-day {
+  aspect-ratio: 1 / 1 !important;
+  width: 100%;
+  height: auto !important;
+  min-height: 0 !important;
+
+  padding: 4px !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* NÚMERO DEL DÍA */
+
+.aguara-day-number {
+  font-size: 1rem !important;
+  font-weight: 900;
+  margin-top: 8px;
+}
+
+
+/* X DE DÍA RESERVADO */
+
+.aguara-day-x {
+  font-size: 1rem;
+}
+
+
+/* TEXTO DE RESERVADO */
+
+.aguara-day-label {
+  font-size: .40rem;
+}
+
+
+/* =====================================================
+   HORARIOS — CUADRADOS
+===================================================== */
+
+.aguara-time-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 7px;
+}
+
+.aguara-time-card {
+  aspect-ratio: 1 / 1 !important;
+
+  min-height: 0 !important;
+  width: 100%;
+
+  padding: 8px !important;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+
+/* NÚMERO / HORA */
+
+.aguara-time-card span {
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+
+/* DISPONIBLE / RESERVADO */
+
+.aguara-time-card small {
+  font-size: .58rem;
+  margin-top: 4px;
+}
+
+
+/* =====================================================
+   MÓVIL
+===================================================== */
+
+@media(max-width:640px) {
+
+  .aguara-calendar-grid {
+    gap: 4px;
+  }
+
+  .aguara-day {
+    aspect-ratio: 1 / 1 !important;
+    padding: 3px !important;
+  }
+
+  .aguara-day-number {
+    font-size: .92rem !important;
+  }
+
+  .aguara-time-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 5px;
+  }
+
+  .aguara-time-card {
+    aspect-ratio: 1 / 1 !important;
+    padding: 5px !important;
+  }
+
+  .aguara-time-card span {
+    font-size: .88rem;
+  }
+
+  .aguara-time-card small {
+    font-size: .50rem;
+  }
+
+}
