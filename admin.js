@@ -1,10 +1,8 @@
-```javascript
 /* =====================================================
    AGUARÁ PAINTBALL
    ADMIN.JS
    CONFIGURACIÓN + RESERVAS
    EDITAR + CONFIRMAR + CANCELAR + ELIMINAR
-   ORDEN: CONFIRMADAS → PENDIENTES → CANCELADAS
 ===================================================== */
 
 
@@ -15,17 +13,20 @@
 const DEFAULTS = {
   gamePrice: 29000,
 
-  shotsText: "100 TIROS INCLUIDOS",
+  shotsText:
+    "100 TIROS INCLUIDOS",
 
   hydrogelPrice: 0,
 
-  hydrogelShotsText: "MUNICIÓN INCLUIDA",
+  hydrogelShotsText:
+    "MUNICIÓN INCLUIDA",
 
   deposit: 50000,
 
   minPlayers: 10,
 
-  whatsapp: "5493794250285",
+  whatsapp:
+    "5493794250285",
 
   slots: [
     "10:00",
@@ -192,6 +193,7 @@ if ($("configForm")) {
 
         event.preventDefault();
 
+
         const next = {
 
           gamePrice:
@@ -240,10 +242,12 @@ if ($("configForm")) {
               .filter(Boolean)
         };
 
+
         localStorage.setItem(
           "aguaraConfig",
           JSON.stringify(next)
         );
+
 
         if ($("saved")) {
 
@@ -261,48 +265,124 @@ if ($("configForm")) {
 
 /* =====================================================
    ORDEN DE RESERVAS
-   CONFIRMADAS → PENDIENTES → CANCELADAS
+   CONFIRMADAS ARRIBA
+   PENDIENTES EN EL MEDIO
+   CANCELADAS ABAJO
 ===================================================== */
 
-function reservationStatusOrder(status) {
+function sortBookings(bookings) {
 
-  const normalized =
-    String(status || "")
-      .trim()
-      .toLowerCase();
-
-  if (normalized === "confirmed") {
-    return 1;
-  }
-
-  if (normalized === "pending") {
-    return 2;
-  }
-
-  if (normalized === "cancelled") {
-    return 3;
-  }
-
-  return 4;
-}
+  const statusOrder = {
+    confirmed: 0,
+    pending: 1,
+    cancelled: 2
+  };
 
 
-function sortReservations(bookings) {
-
-  return [...bookings].sort(
+  return bookings.sort(
     function (a, b) {
 
       const statusA =
-        reservationStatusOrder(
-          a.status
-        );
+        String(
+          a.status ??
+          "pending"
+        )
+          .trim()
+          .toLowerCase();
+
 
       const statusB =
-        reservationStatusOrder(
-          b.status
+        String(
+          b.status ??
+          "pending"
+        )
+          .trim()
+          .toLowerCase();
+
+
+      const orderA =
+        statusOrder[
+          statusA
+        ] ??
+        1;
+
+
+      const orderB =
+        statusOrder[
+          statusB
+        ] ??
+        1;
+
+
+      /* ---------------------------------------------
+         PRIMERO: ESTADO
+      --------------------------------------------- */
+
+      if (
+        orderA !== orderB
+      ) {
+
+        return (
+          orderA -
+          orderB
+        );
+      }
+
+
+      /* ---------------------------------------------
+         SEGUNDO: FECHA
+      --------------------------------------------- */
+
+      const dateA =
+        String(
+          a.booking_date ??
+          a.fecha ??
+          ""
         );
 
-      return statusA - statusB;
+
+      const dateB =
+        String(
+          b.booking_date ??
+          b.fecha ??
+          ""
+        );
+
+
+      if (
+        dateA !== dateB
+      ) {
+
+        return dateA.localeCompare(
+          dateB
+        );
+      }
+
+
+      /* ---------------------------------------------
+         TERCERO: HORARIO
+      --------------------------------------------- */
+
+      const timeA =
+        String(
+          a.booking_time ??
+          a.horario ??
+          ""
+        );
+
+
+      const timeB =
+        String(
+          b.booking_time ??
+          b.horario ??
+          ""
+        );
+
+
+      return timeA.localeCompare(
+        timeB
+      );
+
     }
   );
 }
@@ -317,12 +397,15 @@ async function render() {
   const container =
     $("bookings");
 
+
   if (!container) {
     return;
   }
 
+
   container.innerHTML =
     "<p class='muted'>Cargando reservas...</p>";
+
 
   try {
 
@@ -339,8 +422,10 @@ async function render() {
         }
       );
 
+
     const text =
       await response.text();
+
 
     console.log(
       "RESPUESTA RESERVAS:",
@@ -348,7 +433,9 @@ async function render() {
       text
     );
 
+
     let data = {};
+
 
     try {
 
@@ -361,6 +448,7 @@ async function render() {
 
     }
 
+
     if (
       !response.ok ||
       !data.ok
@@ -372,12 +460,14 @@ async function render() {
       );
     }
 
-    const bookings =
+
+    let bookings =
       Array.isArray(
         data.reservas
       )
         ? data.reservas
         : [];
+
 
     if (!bookings.length) {
 
@@ -387,21 +477,20 @@ async function render() {
       return;
     }
 
-    /*
-      ORDENAMOS SOLO LA VISUALIZACIÓN.
 
-      No modificamos la base de datos.
-      No modificamos fechas.
-      No modificamos horarios.
-    */
+    /* ---------------------------------------------
+       ORDENAR RESERVAS
+       CONFIRMADAS → PENDIENTES → CANCELADAS
+    --------------------------------------------- */
 
-    const orderedBookings =
-      sortReservations(
+    bookings =
+      sortBookings(
         bookings
       );
 
+
     container.innerHTML =
-      orderedBookings
+      bookings
         .map(
           function (booking) {
 
@@ -413,12 +502,14 @@ async function render() {
         )
         .join("");
 
+
   } catch (error) {
 
     console.error(
       "ERROR CARGANDO RESERVAS:",
       error
     );
+
 
     container.innerHTML =
       `
@@ -467,15 +558,18 @@ function reservationHtml(b) {
       ""
     ).trim();
 
+
   const status =
     String(
       b.status ??
       "pending"
     ).trim()
-      .toLowerCase();
+    .toLowerCase();
+
 
   let statusText =
     "PENDIENTE";
+
 
   if (
     status === "confirmed"
@@ -484,6 +578,7 @@ function reservationHtml(b) {
     statusText =
       "CONFIRMADA";
   }
+
 
   if (
     status === "cancelled"
@@ -503,35 +598,42 @@ function reservationHtml(b) {
     b.nombre ??
     "Sin nombre";
 
+
   const phone =
     b.phone ??
     b.whatsapp ??
     "Sin teléfono";
+
 
   const bookingDate =
     b.booking_date ??
     b.fecha ??
     "";
 
+
   const bookingTime =
     b.booking_time ??
     b.horario ??
     "";
+
 
   const players =
     b.players ??
     b.jugadores ??
     0;
 
+
   const deposit =
     b.deposit_amount ??
     b.sena_requerida ??
     0;
 
+
   const gamePrice =
     b.game_price ??
     b.precio_por_jugador ??
     0;
+
 
   const notes =
     b.notes ??
@@ -547,37 +649,20 @@ function reservationHtml(b) {
     !publicId;
 
 
-  /* -------------------------------------------------
-     COLORES
-  ------------------------------------------------- */
-
-  let borderColor =
-    "#333";
-
-  let backgroundColor =
-    "#111";
-
-  if (
+  const borderColor =
     status === "confirmed"
-  ) {
+      ? "#22c55e"
+      : status === "cancelled"
+        ? "#ef4444"
+        : "#333";
 
-    borderColor =
-      "#22c55e";
 
-    backgroundColor =
-      "rgba(34,197,94,0.15)";
-  }
-
-  if (
-    status === "cancelled"
-  ) {
-
-    borderColor =
-      "#ef4444";
-
-    backgroundColor =
-      "rgba(239,68,68,0.10)";
-  }
+  const backgroundColor =
+    status === "confirmed"
+      ? "rgba(34,197,94,0.15)"
+      : status === "cancelled"
+        ? "rgba(239,68,68,0.10)"
+        : "#111";
 
 
   return `
@@ -651,48 +736,77 @@ function reservationHtml(b) {
       >
 
         <strong>
-          ${escapeHtml(name)}
+
+          ${escapeHtml(
+            name
+          )}
+
         </strong>
 
         <br>
 
+
         📱
-        ${escapeHtml(phone)}
+
+        ${escapeHtml(
+          phone
+        )}
 
         <br>
 
+
         👥
-        ${escapeHtml(players)}
+
+        ${escapeHtml(
+          players
+        )}
+
         jugadores
 
         <br>
 
+
         💰
+
         Seña:
-        ${money(deposit)}
+
+        ${money(
+          deposit
+        )}
 
         <br>
+
 
         🎯
+
         Precio por jugador:
-        ${money(gamePrice)}
+
+        ${money(
+          gamePrice
+        )}
 
         <br>
+
 
         🆔
 
         ${
           publicId
-            ? escapeHtml(publicId)
+            ? escapeHtml(
+                publicId
+              )
             : "<span style='color:#ff5555'>SIN IDENTIFICADOR</span>"
         }
+
 
         ${
           notes
             ? `
               <br>
               📝
-              ${escapeHtml(notes)}
+              ${escapeHtml(
+                notes
+              )}
             `
             : ""
         }
@@ -736,7 +850,7 @@ function reservationHtml(b) {
               <button
                 type="button"
                 class="btn btn-primary"
-                onclick="changeStatus('${escapeHtml(publicId)}','confirmed')"
+                onclick="changeStatus('${escapeHtml(publicId)}', 'confirmed')"
               >
                 ✓ Confirmar
               </button>
@@ -754,7 +868,7 @@ function reservationHtml(b) {
               <button
                 type="button"
                 class="btn btn-outline"
-                onclick="changeStatus('${escapeHtml(publicId)}','cancelled')"
+                onclick="changeStatus('${escapeHtml(publicId)}', 'cancelled')"
               >
                 ✕ Cancelar
               </button>
@@ -817,10 +931,12 @@ async function editReservation(
     return;
   }
 
+
   const nombre =
     prompt(
       "Nombre y apellido:"
     );
+
 
   if (
     nombre === null
@@ -828,8 +944,10 @@ async function editReservation(
     return;
   }
 
+
   const name =
     nombre.trim();
+
 
   if (!name) {
 
@@ -840,10 +958,12 @@ async function editReservation(
     return;
   }
 
+
   const telefono =
     prompt(
       "Número de WhatsApp:"
     );
+
 
   if (
     telefono === null
@@ -851,8 +971,10 @@ async function editReservation(
     return;
   }
 
+
   const phone =
     telefono.trim();
+
 
   if (!phone) {
 
@@ -863,10 +985,12 @@ async function editReservation(
     return;
   }
 
+
   const fecha =
     prompt(
       "Fecha (AAAA-MM-DD):"
     );
+
 
   if (
     fecha === null
@@ -874,8 +998,10 @@ async function editReservation(
     return;
   }
 
+
   const bookingDate =
     fecha.trim();
+
 
   if (
     !/^\d{4}-\d{2}-\d{2}$/.test(
@@ -890,10 +1016,12 @@ async function editReservation(
     return;
   }
 
+
   const hora =
     prompt(
       "Horario (HH:MM):"
     );
+
 
   if (
     hora === null
@@ -901,8 +1029,10 @@ async function editReservation(
     return;
   }
 
+
   const bookingTime =
     hora.trim();
+
 
   if (
     !/^\d{2}:\d{2}$/.test(
@@ -917,10 +1047,12 @@ async function editReservation(
     return;
   }
 
+
   const jugadores =
     prompt(
       "Cantidad de jugadores:"
     );
+
 
   if (
     jugadores === null
@@ -928,11 +1060,17 @@ async function editReservation(
     return;
   }
 
+
   const players =
-    Number(jugadores);
+    Number(
+      jugadores
+    );
+
 
   if (
-    !Number.isInteger(players) ||
+    !Number.isInteger(
+      players
+    ) ||
     players < cfg.minPlayers
   ) {
 
@@ -945,17 +1083,20 @@ async function editReservation(
     return;
   }
 
+
   const notas =
     prompt(
       "Observaciones:",
       ""
     );
 
+
   if (
     notas === null
   ) {
     return;
   }
+
 
   try {
 
@@ -1001,8 +1142,10 @@ async function editReservation(
         }
       );
 
+
     const text =
       await response.text();
+
 
     console.log(
       "RESPUESTA EDITAR:",
@@ -1010,7 +1153,9 @@ async function editReservation(
       text
     );
 
+
     let data = {};
+
 
     try {
 
@@ -1023,6 +1168,7 @@ async function editReservation(
 
     }
 
+
     if (
       !response.ok ||
       !data.ok
@@ -1034,11 +1180,14 @@ async function editReservation(
       );
     }
 
+
     alert(
       "Reserva actualizada correctamente."
     );
 
+
     render();
+
 
   } catch (error) {
 
@@ -1046,6 +1195,7 @@ async function editReservation(
       "ERROR EDITANDO RESERVA:",
       error
     );
+
 
     alert(
       error.message ||
@@ -1073,10 +1223,12 @@ async function changeStatus(
     return;
   }
 
+
   const texto =
     status === "confirmed"
       ? "¿Confirmar esta reserva?"
       : "¿Cancelar esta reserva?";
+
 
   if (
     !confirm(texto)
@@ -1084,6 +1236,7 @@ async function changeStatus(
 
     return;
   }
+
 
   try {
 
@@ -1114,8 +1267,10 @@ async function changeStatus(
         }
       );
 
+
     const text =
       await response.text();
+
 
     console.log(
       "RESPUESTA ESTADO:",
@@ -1123,7 +1278,9 @@ async function changeStatus(
       text
     );
 
+
     let data = {};
+
 
     try {
 
@@ -1136,6 +1293,7 @@ async function changeStatus(
 
     }
 
+
     if (
       !response.ok ||
       !data.ok
@@ -1147,19 +1305,22 @@ async function changeStatus(
       );
     }
 
+
     alert(
       status === "confirmed"
         ? "Reserva confirmada correctamente."
         : "Reserva cancelada correctamente."
     );
 
+
     /*
-      Al volver a renderizar,
-      sortReservations() la coloca
-      automáticamente en su nueva posición.
+       IMPORTANTE:
+       Volvemos a cargar y ordenar las reservas.
+       Al confirmar, automáticamente sube arriba.
     */
 
-    render();
+    await render();
+
 
   } catch (error) {
 
@@ -1167,6 +1328,7 @@ async function changeStatus(
       "ERROR CAMBIANDO ESTADO:",
       error
     );
+
 
     alert(
       error.message ||
@@ -1193,6 +1355,7 @@ async function deleteReservation(
     return;
   }
 
+
   const confirmar =
     confirm(
       "¿ESTÁS SEGURO?\n\n" +
@@ -1201,9 +1364,11 @@ async function deleteReservation(
       "No se puede deshacer."
     );
 
+
   if (!confirmar) {
     return;
   }
+
 
   try {
 
@@ -1231,8 +1396,10 @@ async function deleteReservation(
         }
       );
 
+
     const text =
       await response.text();
+
 
     console.log(
       "RESPUESTA ELIMINAR:",
@@ -1240,7 +1407,9 @@ async function deleteReservation(
       text
     );
 
+
     let data = {};
+
 
     try {
 
@@ -1253,6 +1422,7 @@ async function deleteReservation(
 
     }
 
+
     if (
       !response.ok ||
       !data.ok
@@ -1264,11 +1434,14 @@ async function deleteReservation(
       );
     }
 
+
     alert(
       "Reserva eliminada correctamente."
     );
 
+
     render();
+
 
   } catch (error) {
 
@@ -1276,6 +1449,7 @@ async function deleteReservation(
       "ERROR ELIMINANDO RESERVA:",
       error
     );
+
 
     alert(
       error.message ||
@@ -1310,5 +1484,5 @@ console.log(
   "Aguará Paintball — admin.js cargado correctamente."
 );
 
+
 render();
-```
