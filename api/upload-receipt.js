@@ -2,6 +2,7 @@
 /* =====================================================
    AGUARÁ PAINTBALL
    API UPLOAD RECEIPT
+
    Recibe y guarda comprobantes de pago
    + AVISO TELEGRAM SOLO AL RECIBIR COMPROBANTE
 ===================================================== */
@@ -45,19 +46,21 @@ function getSupabaseConfig() {
 
 function supabaseHeaders(key, prefer) {
 
-  return {
+  const headers = {
     apikey: key,
 
     Authorization:
-      `Bearer ${key}`,
+      "Bearer " + key,
 
     "Content-Type":
-      "application/json",
-
-    ...(prefer
-      ? { Prefer: prefer }
-      : {})
+      "application/json"
   };
+
+  if (prefer) {
+    headers.Prefer = prefer;
+  }
+
+  return headers;
 }
 
 
@@ -112,10 +115,13 @@ function getExtension(fileName, contentType) {
 
 /* =====================================================
    TELEGRAM
-   AVISO SOLO CUANDO SE RECIBE COMPROBANTE
+   AVISO SOLAMENTE AL RECIBIR COMPROBANTE
 ===================================================== */
 
-async function enviarAvisoTelegram(reserva, storagePath) {
+async function enviarAvisoTelegram(
+  reserva,
+  storagePath
+) {
 
   const botToken =
     process.env.TELEGRAM_BOT_TOKEN;
@@ -140,8 +146,14 @@ async function enviarAvisoTelegram(reserva, storagePath) {
     );
 
 
-  const mensaje = `
+  const jugadores =
+    Number(
+      reserva.players || 0
+    );
 
+
+  const mensaje =
+`
 💳 COMPROBANTE DE PAGO RECIBIDO
 
 🎯 AGUARÁ PAINTBALL
@@ -154,7 +166,7 @@ async function enviarAvisoTelegram(reserva, storagePath) {
 
 🕐 Horario: ${reserva.booking_time}
 
-👥 Jugadores: ${reserva.players}
+👥 Jugadores: ${jugadores}
 
 💵 Seña requerida: $${sena.toLocaleString("es-AR")}
 
@@ -166,7 +178,6 @@ ${storagePath}
 ⚠️ ESTADO: PENDIENTE DE VERIFICACIÓN
 
 👉 Revisar el comprobante y confirmar la reserva desde el panel administrativo.
-
 `;
 
 
@@ -174,7 +185,9 @@ ${storagePath}
 
     const response =
       await fetch(
-        `https://api.telegram.org/bot${botToken}/sendMessage`,
+        "https://api.telegram.org/bot" +
+        botToken +
+        "/sendMessage",
         {
           method: "POST",
 
@@ -232,7 +245,10 @@ ${storagePath}
    API
 ===================================================== */
 
-export default async function handler(req, res) {
+export default async function handler(
+  req,
+  res
+) {
 
   if (req.method !== "POST") {
 
@@ -416,7 +432,7 @@ export default async function handler(req, res) {
 
     /* =================================================
        VALIDAR TAMAÑO
-       Máximo 3 MB
+       MÁXIMO 3 MB
     ================================================= */
 
     const maxSize =
@@ -464,6 +480,7 @@ export default async function handler(req, res) {
 
 
     let reservations = [];
+
 
     try {
 
@@ -556,7 +573,7 @@ export default async function handler(req, res) {
               supabaseKey,
 
             Authorization:
-              `Bearer ${supabaseKey}`,
+              "Bearer " + supabaseKey,
 
             "Content-Type":
               contentType,
@@ -577,6 +594,7 @@ export default async function handler(req, res) {
 
 
     let uploadData;
+
 
     try {
 
@@ -653,6 +671,7 @@ export default async function handler(req, res) {
 
     let updateData;
 
+
     try {
 
       updateData =
@@ -713,7 +732,7 @@ export default async function handler(req, res) {
 
     /* =================================================
        TELEGRAM
-       AHORA SÍ SE ENVÍA
+       SE ENVÍA SOLAMENTE AHORA
     ================================================= */
 
     await enviarAvisoTelegram(
