@@ -299,22 +299,7 @@ function cargarHorarios() {
    ESTADO INICIAL
 ===================================================== */
 
-if (timeSelect) {
 
-  timeSelect.innerHTML = "";
-
-  const opcionInicial =
-    document.createElement("option");
-
-  opcionInicial.value = "";
-
-  opcionInicial.textContent =
-    "Elegí una fecha";
-
-  timeSelect.appendChild(
-    opcionInicial
-  );
-}
 
 
 /* =====================================================
