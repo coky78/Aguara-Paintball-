@@ -3,12 +3,22 @@
    AGUARÁ PAINTBALL
    ADMIN.JS
    CONFIGURACIÓN + RESERVAS
-   EDITAR + CONFIRMAR + CANCELAR + ELIMINAR
+
+   CONFIGURACIÓN:
+   - Supabase mediante /api/config
+   - SIN localStorage para configuración
+
+   RESERVAS:
+   - Cargar
+   - Editar
+   - Confirmar
+   - Cancelar
+   - Eliminar
 ===================================================== */
 
 
 /* =====================================================
-   CONFIGURACIÓN
+   CONFIGURACIÓN POR DEFECTO
 ===================================================== */
 
 const DEFAULTS = {
@@ -18,7 +28,7 @@ const DEFAULTS = {
   shotsText:
     "100 TIROS INCLUIDOS",
 
-  hydrogelPrice: 0,
+  hydrogelPrice: 25000,
 
   hydrogelShotsText:
     "MUNICIÓN INCLUIDA",
@@ -45,6 +55,7 @@ const DEFAULTS = {
     "21:00",
     "22:00"
   ]
+
 };
 
 
@@ -68,6 +79,7 @@ function money(value) {
   ).format(
     Number(value) || 0
   );
+
 }
 
 
@@ -79,6 +91,7 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+
 }
 
 
@@ -102,28 +115,188 @@ function formatDate(date) {
     "/" +
     parts[0]
   );
+
 }
 
 
 /* =====================================================
-   CONFIGURACIÓN LOCAL
+   CONFIGURACIÓN ACTUAL
 ===================================================== */
 
-function loadConfig() {
+let cfg = {
+  ...DEFAULTS
+};
+
+
+/* =====================================================
+   APLICAR CONFIGURACIÓN AL FORMULARIO
+===================================================== */
+
+function applyConfigToForm(config) {
+
+  cfg = {
+    ...DEFAULTS,
+    ...(config || {})
+  };
+
+
+  if ($("gamePrice")) {
+
+    $("gamePrice").value =
+      cfg.gamePrice;
+
+  }
+
+
+  if ($("shotsText")) {
+
+    $("shotsText").value =
+      cfg.shotsText;
+
+  }
+
+
+  if ($("hydrogelPrice")) {
+
+    $("hydrogelPrice").value =
+      cfg.hydrogelPrice;
+
+  }
+
+
+  if ($("hydrogelShotsText")) {
+
+    $("hydrogelShotsText").value =
+      cfg.hydrogelShotsText;
+
+  }
+
+
+  if ($("deposit")) {
+
+    $("deposit").value =
+      cfg.deposit;
+
+  }
+
+
+  if ($("minPlayers")) {
+
+    $("minPlayers").value =
+      cfg.minPlayers;
+
+  }
+
+
+  if ($("whatsapp")) {
+
+    $("whatsapp").value =
+      cfg.whatsapp;
+
+  }
+
+
+  if ($("slots")) {
+
+    $("slots").value =
+      Array.isArray(cfg.slots)
+        ? cfg.slots.join(", ")
+        : DEFAULTS.slots.join(", ");
+
+  }
+
+}
+
+
+/* =====================================================
+   CARGAR CONFIGURACIÓN DESDE SUPABASE
+   A TRAVÉS DE /api/config
+===================================================== */
+
+async function loadConfig() {
+
+  console.log(
+    "Cargando configuración desde Supabase..."
+  );
+
 
   try {
 
-    const saved =
-      JSON.parse(
-        localStorage.getItem(
-          "aguaraConfig"
-        ) || "{}"
+    const response =
+      await fetch(
+        "/api/config",
+        {
+          method: "GET",
+
+          headers: {
+            Accept:
+              "application/json"
+          },
+
+          cache:
+            "no-store"
+        }
       );
 
-    return {
-      ...DEFAULTS,
-      ...saved
-    };
+
+    const text =
+      await response.text();
+
+
+    console.log(
+      "RESPUESTA CONFIG:",
+      response.status,
+      text
+    );
+
+
+    let data = {};
+
+
+    try {
+
+      data =
+        JSON.parse(text);
+
+    } catch {
+
+      data = {};
+
+    }
+
+
+    if (
+      !response.ok ||
+      !data.ok
+    ) {
+
+      throw new Error(
+        data.message ||
+        "No se pudo cargar la configuración."
+      );
+
+    }
+
+
+    const config =
+      data.config ||
+      data.configuracion ||
+      {};
+
+
+    applyConfigToForm(
+      config
+    );
+
+
+    console.log(
+      "CONFIGURACIÓN CARGADA:",
+      cfg
+    );
+
+
+    return cfg;
+
 
   } catch (error) {
 
@@ -132,80 +305,417 @@ function loadConfig() {
       error
     );
 
-    return {
-      ...DEFAULTS
-    };
+
+    /*
+       Si Supabase todavía no está configurado,
+       mostramos los valores por defecto.
+    */
+
+    applyConfigToForm(
+      DEFAULTS
+    );
+
+
+    if ($("saved")) {
+
+      $("saved").hidden =
+        false;
+
+      $("saved").textContent =
+        "No se pudo cargar la configuración de Supabase. Se muestran valores predeterminados.";
+
+      $("saved").style.color =
+        "#ff7777";
+
+    }
+
+    return DEFAULTS;
+
   }
+
 }
 
 
-const cfg =
-  loadConfig();
-
-
 /* =====================================================
-   CARGAR CONFIGURACIÓN EN EL PANEL
+   LEER CONFIGURACIÓN DEL FORMULARIO
 ===================================================== */
 
-if ($("gamePrice")) {
+function readConfigFromForm() {
 
-  $("gamePrice").value =
-    cfg.gamePrice;
-}
+  const gamePriceInput =
+    $("gamePrice");
 
+  const hydrogelPriceInput =
+    $("hydrogelPrice");
 
-if ($("shotsText")) {
+  const depositInput =
+    $("deposit");
 
-  $("shotsText").value =
-    cfg.shotsText;
-}
-
-
-if ($("hydrogelPrice")) {
-
-  $("hydrogelPrice").value =
-    cfg.hydrogelPrice;
-}
+  const minPlayersInput =
+    $("minPlayers");
 
 
-if ($("hydrogelShotsText")) {
-
-  $("hydrogelShotsText").value =
-    cfg.hydrogelShotsText;
-}
-
-
-if ($("deposit")) {
-
-  $("deposit").value =
-    cfg.deposit;
-}
+  const gamePrice =
+    Number(
+      gamePriceInput?.value
+    );
 
 
-if ($("minPlayers")) {
-
-  $("minPlayers").value =
-    cfg.minPlayers;
-}
-
-
-if ($("whatsapp")) {
-
-  $("whatsapp").value =
-    cfg.whatsapp;
-}
+  const hydrogelPrice =
+    Number(
+      hydrogelPriceInput?.value
+    );
 
 
-if ($("slots")) {
+  const deposit =
+    Number(
+      depositInput?.value
+    );
 
-  $("slots").value =
-    cfg.slots.join(", ");
+
+  const minPlayers =
+    Number(
+      minPlayersInput?.value
+    );
+
+
+  const slots =
+    $("slots")
+      ? $("slots")
+          .value
+          .split(",")
+          .map(
+            function (slot) {
+
+              return slot.trim();
+
+            }
+          )
+          .filter(Boolean)
+      : [];
+
+
+  return {
+
+    gamePrice:
+      Number.isFinite(gamePrice)
+        ? gamePrice
+        : 0,
+
+    shotsText:
+      $("shotsText")
+        ? $("shotsText")
+            .value
+            .trim()
+        : "",
+
+    hydrogelPrice:
+      Number.isFinite(hydrogelPrice)
+        ? hydrogelPrice
+        : 0,
+
+    hydrogelShotsText:
+      $("hydrogelShotsText")
+        ? $("hydrogelShotsText")
+            .value
+            .trim()
+        : "",
+
+    deposit:
+      Number.isFinite(deposit)
+        ? deposit
+        : 0,
+
+    minPlayers:
+      Number.isFinite(minPlayers)
+        ? minPlayers
+        : 1,
+
+    whatsapp:
+      $("whatsapp")
+        ? $("whatsapp")
+            .value
+            .replace(/\D/g, "")
+        : "",
+
+    slots:
+      slots
+
+  };
+
 }
 
 
 /* =====================================================
-   GUARDAR CONFIGURACIÓN
-   UNA SOLA FUNCIÓN SUBMIT
+   VALIDAR CONFIGURACIÓN
+===================================================== */
+
+function validateConfig(config) {
+
+  if (
+    !Number.isFinite(
+      Number(config.gamePrice)
+    ) ||
+    Number(config.gamePrice) < 0
+  ) {
+
+    alert(
+      "El precio de Paintball no es válido."
+    );
+
+    return false;
+
+  }
+
+
+  if (
+    !Number.isFinite(
+      Number(config.hydrogelPrice)
+    ) ||
+    Number(config.hydrogelPrice) < 0
+  ) {
+
+    alert(
+      "El precio de Hidrogel no es válido."
+    );
+
+    return false;
+
+  }
+
+
+  if (
+    !Number.isFinite(
+      Number(config.deposit)
+    ) ||
+    Number(config.deposit) < 0
+  ) {
+
+    alert(
+      "La seña no es válida."
+    );
+
+    return false;
+
+  }
+
+
+  if (
+    !Number.isInteger(
+      Number(config.minPlayers)
+    ) ||
+    Number(config.minPlayers) < 1
+  ) {
+
+    alert(
+      "El mínimo de jugadores no es válido."
+    );
+
+    return false;
+
+  }
+
+
+  if (
+    !Array.isArray(
+      config.slots
+    ) ||
+    !config.slots.length
+  ) {
+
+    alert(
+      "Debe existir al menos un horario."
+    );
+
+    return false;
+
+  }
+
+
+  return true;
+
+}
+
+
+/* =====================================================
+   GUARDAR CONFIGURACIÓN EN SUPABASE
+   A TRAVÉS DE /api/config
+===================================================== */
+
+async function saveConfig() {
+
+  const next =
+    readConfigFromForm();
+
+
+  if (
+    !validateConfig(next)
+  ) {
+
+    return;
+
+  }
+
+
+  console.log(
+    "GUARDANDO CONFIGURACIÓN:",
+    next
+  );
+
+
+  const savedElement =
+    $("saved");
+
+
+  if (savedElement) {
+
+    savedElement.hidden =
+      false;
+
+    savedElement.style.color =
+      "";
+
+    savedElement.textContent =
+      "Guardando configuración...";
+
+  }
+
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/config",
+        {
+          method: "POST",
+
+          headers: {
+
+            "Content-Type":
+              "application/json",
+
+            Accept:
+              "application/json"
+
+          },
+
+          body:
+            JSON.stringify(
+              next
+            )
+
+        }
+      );
+
+
+    const text =
+      await response.text();
+
+
+    console.log(
+      "RESPUESTA GUARDAR CONFIG:",
+      response.status,
+      text
+    );
+
+
+    let data = {};
+
+
+    try {
+
+      data =
+        JSON.parse(text);
+
+    } catch {
+
+      data = {};
+
+    }
+
+
+    if (
+      !response.ok ||
+      !data.ok
+    ) {
+
+      throw new Error(
+        data.message ||
+        "No se pudo guardar la configuración."
+      );
+
+    }
+
+
+    /*
+       Actualizamos la configuración
+       local del panel solamente como estado
+       de memoria.
+
+       NO utilizamos localStorage.
+    */
+
+    cfg = {
+      ...DEFAULTS,
+      ...next
+    };
+
+
+    if (savedElement) {
+
+      savedElement.hidden =
+        false;
+
+      savedElement.style.color =
+        "#22c55e";
+
+      savedElement.textContent =
+        "Configuración guardada correctamente en Supabase.";
+
+    }
+
+
+    console.log(
+      "CONFIGURACIÓN GUARDADA EN SUPABASE:",
+      data
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "ERROR GUARDANDO CONFIGURACIÓN:",
+      error
+    );
+
+
+    if (savedElement) {
+
+      savedElement.hidden =
+        false;
+
+      savedElement.style.color =
+        "#ff7777";
+
+      savedElement.textContent =
+        error.message ||
+        "No se pudo guardar la configuración.";
+
+    }
+
+
+    alert(
+      error.message ||
+      "No se pudo guardar la configuración."
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   FORMULARIO DE CONFIGURACIÓN
 ===================================================== */
 
 if ($("configForm")) {
@@ -213,331 +723,20 @@ if ($("configForm")) {
   $("configForm")
     .addEventListener(
       "submit",
-      function (event) {
+      async function (event) {
 
         event.preventDefault();
 
-
-        /* =============================================
-           LEER VALORES
-        ============================================= */
-
-        const gamePriceInput =
-          $("gamePrice");
-
-        const shotsTextInput =
-          $("shotsText");
-
-        const hydrogelPriceInput =
-          $("hydrogelPrice");
-
-        const hydrogelShotsTextInput =
-          $("hydrogelShotsText");
-
-        const depositInput =
-          $("deposit");
-
-        const minPlayersInput =
-          $("minPlayers");
-
-        const whatsappInput =
-          $("whatsapp");
-
-        const slotsInput =
-          $("slots");
-
-
-        /* =============================================
-           VALIDAR ELEMENTOS
-        ============================================= */
-
-        if (
-          !gamePriceInput ||
-          !shotsTextInput ||
-          !hydrogelPriceInput ||
-          !hydrogelShotsTextInput ||
-          !depositInput ||
-          !minPlayersInput ||
-          !whatsappInput ||
-          !slotsInput
-        ) {
-
-          alert(
-            "Faltan campos de configuración en el panel."
-          );
-
-          return;
-        }
-
-
-        /* =============================================
-           CONSTRUIR CONFIGURACIÓN
-        ============================================= */
-
-        const next = {
-
-          gamePrice:
-            Number(
-              gamePriceInput.value
-            ) || 0,
-
-
-          shotsText:
-            shotsTextInput
-              .value
-              .trim(),
-
-
-          hydrogelPrice:
-            Number(
-              hydrogelPriceInput.value
-            ) || 0,
-
-
-          hydrogelShotsText:
-            hydrogelShotsTextInput
-              .value
-              .trim(),
-
-
-          deposit:
-            Number(
-              depositInput.value
-            ) || 0,
-
-
-          minPlayers:
-            Number(
-              minPlayersInput.value
-            ) || 1,
-
-
-          whatsapp:
-            whatsappInput
-              .value
-              .replace(/\D/g, ""),
-
-
-          /* =========================================
-             HORARIOS
-             SE CONSERVAN TAL COMO ESTÁN
-          ========================================= */
-
-          slots:
-            slotsInput
-              .value
-              .split(",")
-              .map(
-                function (x) {
-
-                  return x.trim();
-
-                }
-              )
-              .filter(Boolean)
-
-        };
-
-
-        /* =============================================
-           VALIDAR PRECIO PAINTBALL
-        ============================================= */
-
-        if (
-          !Number.isFinite(
-            next.gamePrice
-          ) ||
-          next.gamePrice < 0
-        ) {
-
-          alert(
-            "El precio de Paintball no es válido."
-          );
-
-          return;
-        }
-
-
-        /* =============================================
-           VALIDAR PRECIO HIDROGEL
-        ============================================= */
-
-        if (
-          !Number.isFinite(
-            next.hydrogelPrice
-          ) ||
-          next.hydrogelPrice < 0
-        ) {
-
-          alert(
-            "El precio de Hidrogel no es válido."
-          );
-
-          return;
-        }
-
-
-        /* =============================================
-           VALIDAR SEÑA
-        ============================================= */
-
-        if (
-          !Number.isFinite(
-            next.deposit
-          ) ||
-          next.deposit < 0
-        ) {
-
-          alert(
-            "El monto de la seña no es válido."
-          );
-
-          return;
-        }
-
-
-        /* =============================================
-           VALIDAR MÍNIMO DE JUGADORES
-        ============================================= */
-
-        if (
-          !Number.isInteger(
-            next.minPlayers
-          ) ||
-          next.minPlayers < 1
-        ) {
-
-          alert(
-            "El mínimo de jugadores no es válido."
-          );
-
-          return;
-        }
-
-
-        /* =============================================
-           VALIDAR HORARIOS
-        ============================================= */
-
-        if (
-          !Array.isArray(
-            next.slots
-          ) ||
-          next.slots.length === 0
-        ) {
-
-          alert(
-            "Debe existir al menos un horario."
-          );
-
-          return;
-        }
-
-
-        /* =============================================
-           GUARDAR
-        ============================================= */
-
-        try {
-
-          localStorage.setItem(
-            "aguaraConfig",
-            JSON.stringify(next)
-          );
-
-
-          /* ===========================================
-             VERIFICAR GUARDADO
-          =========================================== */
-
-          const saved =
-            JSON.parse(
-              localStorage.getItem(
-                "aguaraConfig"
-              ) || "{}"
-            );
-
-
-          console.log(
-            "CONFIGURACIÓN GUARDADA:",
-            saved
-          );
-
-
-          console.log(
-            "PRECIO PAINTBALL:",
-            saved.gamePrice
-          );
-
-
-          console.log(
-            "PRECIO HIDROGEL:",
-            saved.hydrogelPrice
-          );
-
-
-          console.log(
-            "SEÑA:",
-            saved.deposit
-          );
-
-
-          console.log(
-            "MÍNIMO JUGADORES:",
-            saved.minPlayers
-          );
-
-
-          /* ===========================================
-             MENSAJE DE CONFIRMACIÓN
-          =========================================== */
-
-          if ($("saved")) {
-
-            $("saved").hidden =
-              false;
-
-            $("saved").textContent =
-              "Configuración guardada correctamente. " +
-              "Paintball: " +
-              money(saved.gamePrice) +
-              " · Hidrogel: " +
-              money(saved.hydrogelPrice);
-
-          } else {
-
-            alert(
-              "Configuración guardada correctamente."
-            );
-
-          }
-
-
-        } catch (error) {
-
-          console.error(
-            "ERROR GUARDANDO CONFIGURACIÓN:",
-            error
-          );
-
-
-          alert(
-            "No se pudo guardar la configuración."
-          );
-
-        }
+        await saveConfig();
 
       }
     );
+
 }
 
 
 /* =====================================================
    ORDEN DE RESERVAS
-
-   CONFIRMADAS ARRIBA
-   PENDIENTES EN EL MEDIO
-   CANCELADAS ABAJO
 ===================================================== */
 
 function sortBookings(bookings) {
@@ -577,20 +776,14 @@ function sortBookings(bookings) {
       const orderA =
         statusOrder[
           statusA
-        ] ??
-        1;
+        ] ?? 1;
 
 
       const orderB =
         statusOrder[
           statusB
-        ] ??
-        1;
+        ] ?? 1;
 
-
-      /* ---------------------------------------------
-         PRIMERO: ESTADO
-      --------------------------------------------- */
 
       if (
         orderA !== orderB
@@ -600,12 +793,9 @@ function sortBookings(bookings) {
           orderA -
           orderB
         );
+
       }
 
-
-      /* ---------------------------------------------
-         SEGUNDO: FECHA
-      --------------------------------------------- */
 
       const dateA =
         String(
@@ -630,12 +820,9 @@ function sortBookings(bookings) {
         return dateA.localeCompare(
           dateB
         );
+
       }
 
-
-      /* ---------------------------------------------
-         TERCERO: HORARIO
-      --------------------------------------------- */
 
       const timeA =
         String(
@@ -659,6 +846,7 @@ function sortBookings(bookings) {
 
     }
   );
+
 }
 
 
@@ -673,7 +861,6 @@ async function render() {
 
 
   if (!container) {
-
     return;
   }
 
@@ -693,7 +880,10 @@ async function render() {
           headers: {
             Accept:
               "application/json"
-          }
+          },
+
+          cache:
+            "no-store"
         }
       );
 
@@ -733,6 +923,7 @@ async function render() {
         data.message ||
         "No se pudieron cargar las reservas."
       );
+
     }
 
 
@@ -744,26 +935,15 @@ async function render() {
         : [];
 
 
-    if (
-      !bookings.length
-    ) {
+    if (!bookings.length) {
 
       container.innerHTML =
         "<p class='muted'>No hay reservas todavía.</p>";
 
       return;
+
     }
 
-
-    /* ---------------------------------------------
-       ORDENAR RESERVAS
-
-       CONFIRMADAS
-       ↓
-       PENDIENTES
-       ↓
-       CANCELADAS
-    --------------------------------------------- */
 
     bookings =
       sortBookings(
@@ -826,6 +1006,7 @@ async function render() {
       `;
 
   }
+
 }
 
 
@@ -861,6 +1042,7 @@ function reservationHtml(b) {
 
     statusText =
       "CONFIRMADA";
+
   }
 
 
@@ -870,12 +1052,9 @@ function reservationHtml(b) {
 
     statusText =
       "CANCELADA";
+
   }
 
-
-  /* -------------------------------------------------
-     DATOS COMPATIBLES CON LA TABLA ACTUAL
-  ------------------------------------------------- */
 
   const name =
     b.name ??
@@ -925,10 +1104,6 @@ function reservationHtml(b) {
     "";
 
 
-  /* -------------------------------------------------
-     RESERVA ANTIGUA SIN PUBLIC_ID
-  ------------------------------------------------- */
-
   const oldReservation =
     !publicId;
 
@@ -961,8 +1136,6 @@ function reservationHtml(b) {
         background:${backgroundColor};
       "
     >
-
-      <!-- CABECERA -->
 
       <div
         style="
@@ -1011,8 +1184,6 @@ function reservationHtml(b) {
       </div>
 
 
-      <!-- DATOS -->
-
       <div
         style="
           line-height:1.8;
@@ -1020,85 +1191,54 @@ function reservationHtml(b) {
       >
 
         <strong>
-
-          ${escapeHtml(
-            name
-          )}
-
+          ${escapeHtml(name)}
         </strong>
 
         <br>
 
-
         📱
-
-        ${escapeHtml(
-          phone
-        )}
+        ${escapeHtml(phone)}
 
         <br>
 
-
         👥
-
-        ${escapeHtml(
-          players
-        )}
-
+        ${escapeHtml(players)}
         jugadores
 
         <br>
 
-
         💰
-
         Seña:
-
-        ${money(
-          deposit
-        )}
+        ${money(deposit)}
 
         <br>
-
 
         🎯
-
         Precio por jugador:
-
-        ${money(
-          gamePrice
-        )}
+        ${money(gamePrice)}
 
         <br>
-
 
         🆔
 
         ${
           publicId
-            ? escapeHtml(
-                publicId
-              )
+            ? escapeHtml(publicId)
             : "<span style='color:#ff5555'>SIN IDENTIFICADOR</span>"
         }
-
 
         ${
           notes
             ? `
               <br>
               📝
-              ${escapeHtml(
-                notes
-              )}
+              ${escapeHtml(notes)}
             `
             : ""
         }
 
       </div>
 
-
-      <!-- BOTONES -->
 
       <div
         style="
@@ -1195,6 +1335,7 @@ function reservationHtml(b) {
     </div>
 
   `;
+
 }
 
 
@@ -1213,6 +1354,7 @@ async function editReservation(
     );
 
     return;
+
   }
 
 
@@ -1225,7 +1367,6 @@ async function editReservation(
   if (
     nombre === null
   ) {
-
     return;
   }
 
@@ -1241,6 +1382,7 @@ async function editReservation(
     );
 
     return;
+
   }
 
 
@@ -1253,7 +1395,6 @@ async function editReservation(
   if (
     telefono === null
   ) {
-
     return;
   }
 
@@ -1269,6 +1410,7 @@ async function editReservation(
     );
 
     return;
+
   }
 
 
@@ -1281,7 +1423,6 @@ async function editReservation(
   if (
     fecha === null
   ) {
-
     return;
   }
 
@@ -1301,6 +1442,7 @@ async function editReservation(
     );
 
     return;
+
   }
 
 
@@ -1313,7 +1455,6 @@ async function editReservation(
   if (
     hora === null
   ) {
-
     return;
   }
 
@@ -1333,6 +1474,7 @@ async function editReservation(
     );
 
     return;
+
   }
 
 
@@ -1345,7 +1487,6 @@ async function editReservation(
   if (
     jugadores === null
   ) {
-
     return;
   }
 
@@ -1357,9 +1498,7 @@ async function editReservation(
 
 
   if (
-    !Number.isInteger(
-      players
-    ) ||
+    !Number.isInteger(players) ||
     players < cfg.minPlayers
   ) {
 
@@ -1370,6 +1509,7 @@ async function editReservation(
     );
 
     return;
+
   }
 
 
@@ -1383,7 +1523,6 @@ async function editReservation(
   if (
     notas === null
   ) {
-
     return;
   }
 
@@ -1431,6 +1570,7 @@ async function editReservation(
                 notas.trim()
 
             })
+
         }
       );
 
@@ -1470,6 +1610,7 @@ async function editReservation(
         data.message ||
         "No se pudo editar la reserva."
       );
+
     }
 
 
@@ -1495,6 +1636,7 @@ async function editReservation(
     );
 
   }
+
 }
 
 
@@ -1514,6 +1656,7 @@ async function changeStatus(
     );
 
     return;
+
   }
 
 
@@ -1528,6 +1671,7 @@ async function changeStatus(
   ) {
 
     return;
+
   }
 
 
@@ -1559,6 +1703,7 @@ async function changeStatus(
                 status
 
             })
+
         }
       );
 
@@ -1598,6 +1743,7 @@ async function changeStatus(
         data.message ||
         "No se pudo cambiar el estado."
       );
+
     }
 
 
@@ -1607,12 +1753,6 @@ async function changeStatus(
         : "Reserva cancelada correctamente."
     );
 
-
-    /*
-       IMPORTANTE:
-       Volvemos a cargar y ordenar las reservas.
-       Al confirmar, automáticamente sube arriba.
-    */
 
     await render();
 
@@ -1631,6 +1771,7 @@ async function changeStatus(
     );
 
   }
+
 }
 
 
@@ -1649,6 +1790,7 @@ async function deleteReservation(
     );
 
     return;
+
   }
 
 
@@ -1662,7 +1804,6 @@ async function deleteReservation(
 
 
   if (!confirmar) {
-
     return;
   }
 
@@ -1692,6 +1833,7 @@ async function deleteReservation(
                 publicId
 
             })
+
         }
       );
 
@@ -1731,6 +1873,7 @@ async function deleteReservation(
         data.message ||
         "No se pudo eliminar la reserva."
       );
+
     }
 
 
@@ -1756,6 +1899,7 @@ async function deleteReservation(
     );
 
   }
+
 }
 
 
@@ -1766,14 +1910,17 @@ async function deleteReservation(
 window.render =
   render;
 
+window.loadConfig =
+  loadConfig;
+
+window.saveConfig =
+  saveConfig;
 
 window.editReservation =
   editReservation;
 
-
 window.changeStatus =
   changeStatus;
-
 
 window.deleteReservation =
   deleteReservation;
@@ -1788,5 +1935,16 @@ console.log(
 );
 
 
-render();
+/*
+   Cargamos primero la configuración
+   desde Supabase y después las reservas.
+*/
+
+(async function initAdmin() {
+
+  await loadConfig();
+
+  await render();
+
+})();
 ```
