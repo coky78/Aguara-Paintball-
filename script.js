@@ -1093,19 +1093,25 @@ async function createReservation() {
     );
 
 
-  } finally {
+    } finally {
 
     if (submitButton) {
 
-      submitButton.disabled =
-        false;
+      if (!currentReservationId) {
 
-      submitButton.innerHTML =
-        textoOriginal;
+        submitButton.disabled =
+          false;
+
+        submitButton.innerHTML =
+          textoOriginal;
+
+      } else {
+
+        submitButton.style.display =
+          "none";
+      }
     }
   }
-}
-
 
 /* =====================================================
    FORMULARIO
