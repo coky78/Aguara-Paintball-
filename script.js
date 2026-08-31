@@ -6,19 +6,14 @@
 
 
 /* =====================================================
-   CONFIGURACIÓN
-===================================================== */
-
-/* =====================================================
-   CONFIGURACIÓN
-   LEE LOS VALORES GUARDADOS DESDE EL PANEL ADMIN
+   CONFIGURACIÓN POR DEFECTO
 ===================================================== */
 
 const DEFAULT_CONFIG = {
   gamePrice: 29000,
   shotsText: "100 TIROS INCLUIDOS",
 
-  hydrogelPrice: 0,
+  hydrogelPrice: 25000,
   hydrogelShotsText: "MUNICIÓN INCLUIDA",
 
   deposit: 50000,
@@ -46,52 +41,15 @@ const DEFAULT_CONFIG = {
 
 
 /* =====================================================
-   CARGAR CONFIGURACIÓN GUARDADA
+   CONFIGURACIÓN ACTUAL
+   SE INICIA CON LOS VALORES POR DEFECTO
+   Y LUEGO SE ACTUALIZA DESDE /api/config
 ===================================================== */
 
-function loadPublicConfig() {
-
-  try {
-
-    const saved =
-      JSON.parse(
-        localStorage.getItem("aguaraConfig") || "{}"
-      );
-
-
-    return {
-      ...DEFAULT_CONFIG,
-      ...saved,
-
-      /*
-         Los horarios siempre quedan protegidos.
-         NO SE MODIFICAN.
-      */
-      slots: DEFAULT_CONFIG.slots
-    };
-
-  } catch (error) {
-
-    console.error(
-      "ERROR CARGANDO CONFIGURACIÓN:",
-      error
-    );
-
-    return {
-      ...DEFAULT_CONFIG
-    };
-  }
-}
-
-
-const CONFIG =
-  loadPublicConfig();
-
-
-console.log(
-  "CONFIGURACIÓN AGUARÁ:",
-  CONFIG
-);
+let CONFIG = {
+  ...DEFAULT_CONFIG,
+  slots: [...DEFAULT_CONFIG.slots]
+};
 
 
 /* =====================================================
@@ -173,91 +131,229 @@ const receiptAmount =
   document.getElementById("receiptAmount");
 
 
-/*
-   ID de la reserva recién creada.
-*/
+/* =====================================================
+   VARIABLES DE RESERVA
+===================================================== */
 
 let currentReservationId = null;
-
-
-/*
-   Evita que el formulario vuelva a enviarse
-   después de crear correctamente la reserva.
-*/
 
 let reservationCreated = false;
 
 
 /* =====================================================
-   PRECIOS
+   ACTUALIZAR PRECIOS Y DATOS EN LA PÁGINA
 ===================================================== */
 
-const publicGamePrice =
-  document.getElementById("publicGamePrice");
+function actualizarPrecios() {
 
-if (publicGamePrice) {
-  publicGamePrice.textContent =
-    money(CONFIG.gamePrice);
+  const publicGamePrice =
+    document.getElementById("publicGamePrice");
+
+  if (publicGamePrice) {
+    publicGamePrice.textContent =
+      money(CONFIG.gamePrice);
+  }
+
+
+  const publicShotsText =
+    document.getElementById("publicShotsText");
+
+  if (publicShotsText) {
+    publicShotsText.textContent =
+      CONFIG.shotsText;
+  }
+
+
+  const publicHydrogelPrice =
+    document.getElementById("publicHydrogelPrice");
+
+  if (publicHydrogelPrice) {
+    publicHydrogelPrice.textContent =
+      money(CONFIG.hydrogelPrice);
+  }
+
+
+  const publicHydrogelShotsText =
+    document.getElementById("publicHydrogelShotsText");
+
+  if (publicHydrogelShotsText) {
+    publicHydrogelShotsText.textContent =
+      CONFIG.hydrogelShotsText;
+  }
+
+
+  const publicDeposit =
+    document.getElementById("publicDeposit");
+
+  if (publicDeposit) {
+    publicDeposit.textContent =
+      money(CONFIG.deposit);
+  }
+
+
+  const depositInline =
+    document.getElementById("depositInline");
+
+  if (depositInline) {
+    depositInline.textContent =
+      money(CONFIG.deposit);
+  }
+
+
+  const publicMinPlayers =
+    document.getElementById("publicMinPlayers");
+
+  if (publicMinPlayers) {
+    publicMinPlayers.textContent =
+      CONFIG.minPlayers;
+  }
+
+
+  if (receiptAmount) {
+    receiptAmount.textContent =
+      money(CONFIG.deposit);
+  }
+
+
+  /*
+     Si el campo de jugadores está vacío,
+     usamos el mínimo configurado.
+  */
+
+  if (
+    playersInput &&
+    (
+      !playersInput.value ||
+      Number(playersInput.value) < CONFIG.minPlayers
+    )
+  ) {
+    playersInput.value =
+      CONFIG.minPlayers;
+  }
+
+
+  console.log(
+    "PRECIOS ACTUALIZADOS:",
+    CONFIG
+  );
 }
 
 
-const publicShotsText =
-  document.getElementById("publicShotsText");
+/* =====================================================
+   CARGAR CONFIGURACIÓN DESDE LA API
+===================================================== */
 
-if (publicShotsText) {
-  publicShotsText.textContent =
-    CONFIG.shotsText;
-}
+async function loadPublicConfig() {
 
+  try {
 
-const publicHydrogelPrice =
-  document.getElementById("publicHydrogelPrice");
+    const response =
+      await fetch(
+        "/api/config",
+        {
+          method: "GET",
 
-if (publicHydrogelPrice) {
-  publicHydrogelPrice.textContent =
-    money(CONFIG.hydrogelPrice);
-}
+          headers: {
+            "Accept":
+              "application/json"
+          },
 
-
-const publicHydrogelShotsText =
-  document.getElementById("publicHydrogelShotsText");
-
-if (publicHydrogelShotsText) {
-  publicHydrogelShotsText.textContent =
-    CONFIG.hydrogelShotsText;
-}
+          cache: "no-store"
+        }
+      );
 
 
-const publicDeposit =
-  document.getElementById("publicDeposit");
-
-if (publicDeposit) {
-  publicDeposit.textContent =
-    money(CONFIG.deposit);
-}
+    const text =
+      await response.text();
 
 
-const depositInline =
-  document.getElementById("depositInline");
-
-if (depositInline) {
-  depositInline.textContent =
-    money(CONFIG.deposit);
-}
+    console.log(
+      "RESPUESTA CONFIG:",
+      response.status,
+      text
+    );
 
 
-const publicMinPlayers =
-  document.getElementById("publicMinPlayers");
+    let data = {};
 
-if (publicMinPlayers) {
-  publicMinPlayers.textContent =
-    CONFIG.minPlayers;
-}
+    try {
+
+      data =
+        JSON.parse(text);
+
+    } catch {
+
+      data = {};
+
+    }
 
 
-if (receiptAmount) {
-  receiptAmount.textContent =
-    money(CONFIG.deposit);
+    if (
+      !response.ok ||
+      !data.ok ||
+      !data.config
+    ) {
+
+      throw new Error(
+        data.message ||
+        "No se pudo cargar la configuración."
+      );
+    }
+
+
+    /*
+       Tomamos los datos directamente
+       desde Supabase a través de /api/config.
+    */
+
+    CONFIG = {
+      ...DEFAULT_CONFIG,
+      ...data.config,
+
+      /*
+         Los horarios quedan protegidos.
+         La configuración del panel puede devolverlos,
+         pero mantenemos los horarios actuales.
+      */
+      slots:
+        Array.isArray(data.config.slots) &&
+        data.config.slots.length
+          ? data.config.slots
+          : [...DEFAULT_CONFIG.slots]
+    };
+
+
+    actualizarPrecios();
+
+
+    console.log(
+      "CONFIGURACIÓN AGUARÁ CARGADA DESDE /api/config:",
+      CONFIG
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "ERROR CARGANDO CONFIGURACIÓN:",
+      error
+    );
+
+
+    /*
+       Si la API falla, mantenemos
+       los valores por defecto para
+       que la página siga funcionando.
+    */
+
+    CONFIG = {
+      ...DEFAULT_CONFIG,
+      slots: [...DEFAULT_CONFIG.slots]
+    };
+
+
+    actualizarPrecios();
+  }
 }
 
 
@@ -269,6 +365,7 @@ const yearElement =
   document.getElementById("year");
 
 if (yearElement) {
+
   yearElement.textContent =
     new Date().getFullYear();
 }
@@ -887,14 +984,14 @@ async function createReservation() {
   ================================================= */
 
   const precioPorJugador =
-    CONFIG.gamePrice;
+    Number(CONFIG.gamePrice);
 
   const total =
     precioPorJugador *
     players;
 
   const senaRequerida =
-    CONFIG.deposit;
+    Number(CONFIG.deposit);
 
 
   /* =================================================
@@ -1108,7 +1205,7 @@ async function createReservation() {
        NO BORRAMOS timeSelect.
        NO VOLVEMOS A EJECUTAR
        cargarHorarios().
-       
+
        Así los horarios no desaparecen.
     */
 
@@ -1360,3 +1457,11 @@ console.log(
   "Horarios disponibles:",
   CONFIG.slots
 );
+
+
+/* =====================================================
+   CARGAR CONFIGURACIÓN REAL
+   DESDE SUPABASE → /api/config
+===================================================== */
+
+loadPublicConfig();
