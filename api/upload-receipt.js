@@ -3,7 +3,7 @@
    AGUARÁ PAINTBALL
    API UPLOAD RECEIPT
    Recibe y guarda comprobantes de pago
-   + AVISO TELEGRAM AL RECIBIR COMPROBANTE
+   + AVISO TELEGRAM
 ===================================================== */
 
 
@@ -21,8 +21,12 @@ function sendJson(res, status, payload) {
 ===================================================== */
 
 function getSupabaseConfig() {
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  const supabaseUrl =
+    process.env.SUPABASE_URL;
+
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     return null;
@@ -40,6 +44,7 @@ function getSupabaseConfig() {
 ===================================================== */
 
 function supabaseHeaders(key, prefer) {
+
   const headers = {
     apikey: key,
     Authorization: "Bearer " + key,
@@ -55,10 +60,11 @@ function supabaseHeaders(key, prefer) {
 
 
 /* =====================================================
-   NOMBRE SEGURO DEL ARCHIVO
+   NOMBRE SEGURO
 ===================================================== */
 
 function safeFileName(name) {
+
   return String(name || "comprobante")
     .replace(/[^a-zA-Z0-9._-]/g, "_")
     .slice(0, 100);
@@ -66,16 +72,21 @@ function safeFileName(name) {
 
 
 /* =====================================================
-   EXTENSIÓN DEL ARCHIVO
+   EXTENSIÓN
 ===================================================== */
 
 function getExtension(fileName, contentType) {
-  const original = safeFileName(fileName);
 
-  const dot = original.lastIndexOf(".");
+  const original =
+    safeFileName(fileName);
+
+  const dot =
+    original.lastIndexOf(".");
 
   if (dot >= 0) {
-    return original.slice(dot).toLowerCase();
+    return original
+      .slice(dot)
+      .toLowerCase();
   }
 
   const extensions = {
@@ -91,10 +102,12 @@ function getExtension(fileName, contentType) {
 
 /* =====================================================
    TELEGRAM
-   AVISO SOLAMENTE CUANDO LLEGA EL COMPROBANTE
 ===================================================== */
 
-async function enviarAvisoTelegram(reserva, comprobante) {
+async function enviarAvisoTelegram(
+  reserva,
+  comprobante
+) {
 
   const botToken =
     process.env.TELEGRAM_BOT_TOKEN;
@@ -114,56 +127,100 @@ async function enviarAvisoTelegram(reserva, comprobante) {
 
 
   const precio =
-    Number(reserva.game_price || 0);
+    Number(
+      reserva.game_price || 0
+    );
 
 
   const jugadores =
-    Number(reserva.players || 0);
+    Number(
+      reserva.players || 0
+    );
 
 
   const sena =
-    Number(reserva.deposit_amount || 0);
+    Number(
+      reserva.deposit_amount || 0
+    );
 
 
   const total =
     precio * jugadores;
 
 
-  const mensaje =
-`
-💰 COMPROBANTE DE PAGO RECIBIDO
+  /*
+     Usamos un array de líneas y join()
+     para evitar problemas de sintaxis
+     con textos multilínea.
+  */
 
-🎯 AGUARÁ PAINTBALL
+  const mensaje = [
 
-👤 Nombre: ${reserva.name}
-📱 WhatsApp: ${reserva.phone}
+    "COMPROBANTE DE PAGO RECIBIDO",
 
-📅 Fecha: ${reserva.booking_date}
-🕐 Horario: ${reserva.booking_time}
+    "",
 
-👥 Jugadores: ${jugadores}
+    "AGUARA PAINTBALL",
 
-💰 Precio por jugador: $${precio.toLocaleString("es-AR")}
-💵 Seña requerida: $${sena.toLocaleString("es-AR")}
-💳 Total estimado: $${total.toLocaleString("es-AR")}
+    "",
 
-🆔 Reserva: ${reserva.public_id}
+    "Nombre: " +
+      String(reserva.name || ""),
 
-📎 Comprobante:
-${comprobante}
+    "WhatsApp: " +
+      String(reserva.phone || ""),
 
-⚠️ ESTADO: PENDIENTE DE REVISIÓN
-`;
+    "",
+
+    "Fecha: " +
+      String(reserva.booking_date || ""),
+
+    "Horario: " +
+      String(reserva.booking_time || ""),
+
+    "",
+
+    "Jugadores: " +
+      String(jugadores),
+
+    "Precio por jugador: $" +
+      precio.toLocaleString("es-AR"),
+
+    "Sena requerida: $" +
+      sena.toLocaleString("es-AR"),
+
+    "Total estimado: $" +
+      total.toLocaleString("es-AR"),
+
+    "",
+
+    "Reserva: " +
+      String(reserva.public_id || ""),
+
+    "",
+
+    "Comprobante:",
+
+    String(comprobante || ""),
+
+    "",
+
+    "ESTADO: PENDIENTE DE REVISION"
+
+  ].join("\n");
 
 
   try {
 
     const response =
       await fetch(
+
         "https://api.telegram.org/bot" +
         botToken +
         "/sendMessage",
+
         {
+
           method: "POST",
 
           headers: {
@@ -173,13 +230,17 @@ ${comprobante}
 
           body:
             JSON.stringify({
+
               chat_id:
                 chatId,
 
               text:
                 mensaje
+
             })
+
         }
+
       );
 
 
@@ -199,7 +260,7 @@ ${comprobante}
 
 
     console.log(
-      "AVISO TELEGRAM DE COMPROBANTE ENVIADO CORRECTAMENTE"
+      "AVISO TELEGRAM ENVIADO CORRECTAMENTE"
     );
 
 
@@ -222,7 +283,15 @@ ${comprobante}
    API
 ===================================================== */
 
-export default async function handler(req, res) {
+export default async function handler(
+  req,
+  res
+) {
+
+
+  /* =================================================
+     MÉTODO
+  ================================================= */
 
   if (req.method !== "POST") {
 
@@ -244,7 +313,7 @@ export default async function handler(req, res) {
 
 
   /* =================================================
-     CONFIGURACIÓN SUPABASE
+     SUPABASE
   ================================================= */
 
   const config =
@@ -269,21 +338,26 @@ export default async function handler(req, res) {
   }
 
 
-  const {
-    supabaseUrl,
-    supabaseKey
-  } = config;
+  const supabaseUrl =
+    config.supabaseUrl;
+
+  const supabaseKey =
+    config.supabaseKey;
 
 
   const baseUrl =
-    supabaseUrl.replace(/\/$/, "");
+    supabaseUrl.replace(
+      /\/$/,
+      ""
+    );
 
-
-  /* =================================================
-     PROCESAR COMPROBANTE
-  ================================================= */
 
   try {
+
+
+    /* =================================================
+       DATOS RECIBIDOS
+    ================================================= */
 
     const body =
       req.body &&
@@ -300,7 +374,8 @@ export default async function handler(req, res) {
 
     const fileName =
       String(
-        body.file_name || "comprobante"
+        body.file_name ||
+        "comprobante"
       ).trim();
 
 
@@ -317,7 +392,7 @@ export default async function handler(req, res) {
 
 
     /* =================================================
-       VALIDAR RESERVA
+       VALIDAR ID
     ================================================= */
 
     if (!publicId) {
@@ -353,10 +428,12 @@ export default async function handler(req, res) {
 
 
     const allowedTypes = [
+
       "image/jpeg",
       "image/png",
       "image/webp",
       "application/pdf"
+
     ];
 
 
@@ -379,10 +456,11 @@ export default async function handler(req, res) {
 
 
     /* =================================================
-       DECODIFICAR BASE64
+       BASE64
     ================================================= */
 
     let fileBuffer;
+
 
     try {
 
@@ -412,8 +490,7 @@ export default async function handler(req, res) {
 
 
     /* =================================================
-       VALIDAR TAMAÑO
-       MÁXIMO 3 MB
+       TAMAÑO
     ================================================= */
 
     const maxSize =
@@ -474,6 +551,7 @@ export default async function handler(req, res) {
               supabaseKey
             )
         }
+
       );
 
 
@@ -494,6 +572,7 @@ export default async function handler(req, res) {
     } catch {
 
       reservations = [];
+
     }
 
 
@@ -542,7 +621,7 @@ export default async function handler(req, res) {
 
 
     /* =================================================
-       CREAR RUTA DEL COMPROBANTE
+       RUTA DEL COMPROBANTE
     ================================================= */
 
     const extension =
@@ -565,7 +644,7 @@ export default async function handler(req, res) {
 
 
     /* =================================================
-       SUBIR A SUPABASE STORAGE
+       SUBIR A STORAGE
     ================================================= */
 
     const uploadResponse =
@@ -576,6 +655,7 @@ export default async function handler(req, res) {
         storagePath,
 
         {
+
           method: "POST",
 
           headers: {
@@ -592,11 +672,14 @@ export default async function handler(req, res) {
 
             "x-upsert":
               "false"
+
           },
 
           body:
             fileBuffer
+
         }
+
       );
 
 
@@ -618,6 +701,7 @@ export default async function handler(req, res) {
 
       uploadData =
         uploadText;
+
     }
 
 
@@ -635,17 +719,20 @@ export default async function handler(req, res) {
         500,
         {
           ok: false,
+
           message:
             "No se pudo guardar el comprobante en Supabase.",
+
           error:
             uploadData
+
         }
       );
     }
 
 
     /* =================================================
-       GUARDAR REFERENCIA EN RESERVA
+       ACTUALIZAR RESERVA
     ================================================= */
 
     const updateResponse =
@@ -657,6 +744,7 @@ export default async function handler(req, res) {
         encodeURIComponent(publicId),
 
         {
+
           method: "PATCH",
 
           headers:
@@ -673,8 +761,11 @@ export default async function handler(req, res) {
 
               status:
                 "pending"
+
             })
+
         }
+
       );
 
 
@@ -696,6 +787,7 @@ export default async function handler(req, res) {
 
       updateData =
         updateText;
+
     }
 
 
@@ -712,6 +804,7 @@ export default async function handler(req, res) {
         res,
         500,
         {
+
           ok: false,
 
           message:
@@ -719,14 +812,14 @@ export default async function handler(req, res) {
 
           error:
             updateData
+
         }
       );
     }
 
 
     /* =================================================
-       AVISO TELEGRAM
-       AHORA SÍ: COMPROBANTE RECIBIDO
+       TELEGRAM
     ================================================= */
 
     await enviarAvisoTelegram(
@@ -742,29 +835,38 @@ export default async function handler(req, res) {
     console.log(
       "COMPROBANTE RECIBIDO CORRECTAMENTE:",
       {
-        publicId,
+
+        publicId:
+          publicId,
+
         nombre:
           reserva.name,
+
         telefono:
           reserva.phone,
+
         fecha:
           reserva.booking_date,
+
         horario:
           reserva.booking_time,
+
         archivo:
           storagePath
+
       }
     );
 
 
     /* =================================================
-       RESPUESTA FINAL
+       RESPUESTA
     ================================================= */
 
     return sendJson(
       res,
       200,
       {
+
         ok: true,
 
         message:
@@ -775,11 +877,17 @@ export default async function handler(req, res) {
 
         comprobante:
           storagePath
+
       }
     );
 
 
   } catch (error) {
+
+
+    /* =================================================
+       ERROR GENERAL
+    ================================================= */
 
     console.error(
       "ERROR GENERAL UPLOAD RECEIPT:",
@@ -791,13 +899,16 @@ export default async function handler(req, res) {
       res,
       500,
       {
+
         ok: false,
 
         message:
           error?.message ||
           "Error interno al recibir el comprobante."
+
       }
     );
   }
+
 }
 ```
