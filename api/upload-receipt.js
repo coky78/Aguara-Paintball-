@@ -5,28 +5,52 @@
 ===================================================== */
 
 function sendJson(res, status, payload) {
-  return res.status(status).json(payload);
+  return res
+    .status(status)
+    .setHeader("Content-Type", "application/json")
+    .json(payload);
 }
 
+
+/* =====================================================
+   SUPABASE
+===================================================== */
+
 function getSupabaseConfig() {
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const supabaseUrl =
+    process.env.SUPABASE_URL;
+
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     return null;
   }
 
   return {
-    supabaseUrl,
+    supabaseUrl:
+      supabaseUrl.replace(/\/$/, ""),
+
     supabaseKey
   };
 }
 
-function supabaseHeaders(key, prefer) {
+
+function supabaseHeaders(
+  key,
+  prefer
+) {
   const headers = {
     apikey: key,
-    Authorization: "Bearer " + key,
-    "Content-Type": "application/json"
+
+    Authorization:
+      "Bearer " + key,
+
+    "Content-Type":
+      "application/json",
+
+    Accept:
+      "application/json"
   };
 
   if (prefer) {
@@ -36,22 +60,42 @@ function supabaseHeaders(key, prefer) {
   return headers;
 }
 
-function getExtension(fileName, contentType) {
-  const name = String(fileName || "").toLowerCase();
 
-  if (name.endsWith(".jpg") || name.endsWith(".jpeg")) {
+/* =====================================================
+   EXTENSIÓN
+===================================================== */
+
+function getExtension(
+  fileName,
+  contentType
+) {
+  const name =
+    String(
+      fileName || ""
+    ).toLowerCase();
+
+  if (
+    name.endsWith(".jpg") ||
+    name.endsWith(".jpeg")
+  ) {
     return ".jpg";
   }
 
-  if (name.endsWith(".png")) {
+  if (
+    name.endsWith(".png")
+  ) {
     return ".png";
   }
 
-  if (name.endsWith(".webp")) {
+  if (
+    name.endsWith(".webp")
+  ) {
     return ".webp";
   }
 
-  if (name.endsWith(".pdf")) {
+  if (
+    name.endsWith(".pdf")
+  ) {
     return ".pdf";
   }
 
@@ -62,86 +106,185 @@ function getExtension(fileName, contentType) {
     "application/pdf": ".pdf"
   };
 
-  return extensions[contentType] || "";
+  return (
+    extensions[contentType] ||
+    ""
+  );
 }
 
 
 /* =====================================================
    TELEGRAM
+   SOLO MENSAJE DE TEXTO
 ===================================================== */
 
-async function enviarAvisoTelegram(reserva, comprobante) {
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+async function enviarAvisoTelegram(
+  reserva
+) {
+  const botToken =
+    process.env.TELEGRAM_BOT_TOKEN;
 
-  if (!botToken || !chatId) {
-    console.error("FALTAN VARIABLES DE TELEGRAM");
-    return false;
+  const chatId =
+    process.env.TELEGRAM_CHAT_ID;
+
+  if (!botToken) {
+    console.error(
+      "TELEGRAM_BOT_TOKEN NO ESTÁ CONFIGURADO."
+    );
+
+    return {
+      ok: false,
+      error:
+        "Falta TELEGRAM_BOT_TOKEN."
+    };
   }
 
-  const precio = Number(reserva.game_price || 0);
-  const jugadores = Number(reserva.players || 0);
-  const sena = Number(reserva.deposit_amount || 0);
-  const total = precio * jugadores;
+  if (!chatId) {
+    console.error(
+      "TELEGRAM_CHAT_ID NO ESTÁ CONFIGURADO."
+    );
+
+    return {
+      ok: false,
+      error:
+        "Falta TELEGRAM_CHAT_ID."
+    };
+  }
+
+
+  /* =================================================
+     MENSAJE
+     SIN PRECIO
+     SIN SEÑA
+     SIN ARCHIVO
+  ================================================= */
 
   const mensaje = [
-    "💰 COMPROBANTE DE PAGO RECIBIDO",
+    "🚨 NUEVO COMPROBANTE RECIBIDO",
     "",
     "🎯 AGUARÁ PAINTBALL",
     "",
-    "👤 Nombre: " + (reserva.name || ""),
-    "📱 WhatsApp: " + (reserva.phone || ""),
+    "👤 Nombre: " +
+      String(
+        reserva.name ||
+        reserva.nombre ||
+        ""
+      ),
+
+    "📱 WhatsApp: " +
+      String(
+        reserva.phone ||
+        reserva.whatsapp ||
+        ""
+      ),
+
     "",
-    "📅 Fecha: " + (reserva.booking_date || ""),
-    "🕐 Horario: " + (reserva.booking_time || ""),
+
+    "📅 Fecha: " +
+      String(
+        reserva.booking_date ||
+        reserva.fecha ||
+        ""
+      ),
+
+    "🕐 Horario: " +
+      String(
+        reserva.booking_time ||
+        reserva.horario ||
+        ""
+      ),
+
+    "👥 Jugadores: " +
+      String(
+        reserva.players ??
+        reserva.jugadores ??
+        0
+      ),
+
     "",
-    "👥 Jugadores: " + jugadores,
-    "",
-    "💰 Precio por jugador: $" +
-      precio.toLocaleString("es-AR"),
-    "💵 Seña requerida: $" +
-      sena.toLocaleString("es-AR"),
-    "💳 Total estimado: $" +
-      total.toLocaleString("es-AR"),
-    "",
+
     "🆔 Reserva: " +
-      (reserva.public_id || ""),
+      String(
+        reserva.public_id ||
+        ""
+      ),
+
     "",
-    "📎 Comprobante:",
-    comprobante,
-    "",
-    "⚠️ ESTADO: PENDIENTE DE REVISIÓN"
+
+    "⚠️ PENDIENTE DE REVISIÓN"
   ].join("\n");
 
+
   try {
-    const response = await fetch(
-      "https://api.telegram.org/bot" +
-      botToken +
-      "/sendMessage",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: mensaje
-        })
-      }
-    );
+    const response =
+      await fetch(
+        "https://api.telegram.org/bot" +
+          botToken +
+          "/sendMessage",
+        {
+          method: "POST",
 
-    const data = await response.json();
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-    if (!response.ok || !data.ok) {
-      console.error("ERROR TELEGRAM:", data);
-      return false;
+          body:
+            JSON.stringify({
+              chat_id:
+                chatId,
+
+              text:
+                mensaje
+            })
+        }
+      );
+
+
+    const text =
+      await response.text();
+
+
+    let data = {};
+
+    try {
+      data =
+        JSON.parse(text);
+    } catch {
+      data = {};
     }
 
+
+    if (
+      !response.ok ||
+      !data.ok
+    ) {
+      console.error(
+        "ERROR TELEGRAM:",
+        data
+      );
+
+      return {
+        ok: false,
+
+        error:
+          data.description ||
+          "Telegram rechazó el mensaje.",
+
+        telegramResponse:
+          data
+      };
+    }
+
+
     console.log(
-      "AVISO TELEGRAM ENVIADO CORRECTAMENTE"
+      "AVISO TELEGRAM ENVIADO CORRECTAMENTE."
     );
 
-    return true;
+
+    return {
+      ok: true
+    };
 
   } catch (error) {
     console.error(
@@ -149,43 +292,70 @@ async function enviarAvisoTelegram(reserva, comprobante) {
       error
     );
 
-    return false;
+    return {
+      ok: false,
+
+      error:
+        error?.message ||
+        "No se pudo conectar con Telegram."
+    };
   }
 }
 
 
 /* =====================================================
-   API
+   HANDLER
 ===================================================== */
 
-export default async function handler(req, res) {
+export default async function handler(
+  req,
+  res
+) {
 
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
+  if (
+    req.method !== "POST"
+  ) {
+    res.setHeader(
+      "Allow",
+      "POST"
+    );
 
-    return sendJson(res, 405, {
-      ok: false,
-      message: "Método no permitido."
-    });
+    return sendJson(
+      res,
+      405,
+      {
+        ok: false,
+
+        message:
+          "Método no permitido."
+      }
+    );
   }
 
-  const config = getSupabaseConfig();
+
+  const config =
+    getSupabaseConfig();
+
 
   if (!config) {
-    return sendJson(res, 500, {
-      ok: false,
-      message:
-        "Faltan SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en Vercel."
-    });
+    return sendJson(
+      res,
+      500,
+      {
+        ok: false,
+
+        message:
+          "Faltan SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en Vercel."
+      }
+    );
   }
+
 
   const {
     supabaseUrl,
     supabaseKey
   } = config;
 
-  const baseUrl =
-    supabaseUrl.replace(/\/$/, "");
 
   try {
 
@@ -195,17 +365,33 @@ export default async function handler(req, res) {
         ? req.body
         : {};
 
+
     const publicId =
-      String(body.public_id || "").trim();
+      String(
+        body.public_id ||
+        ""
+      ).trim();
+
 
     const fileName =
-      String(body.file_name || "comprobante").trim();
+      String(
+        body.file_name ||
+        "comprobante"
+      ).trim();
+
 
     const contentType =
-      String(body.content_type || "").trim();
+      String(
+        body.content_type ||
+        ""
+      ).trim();
+
 
     const fileBase64 =
-      String(body.file_base64 || "").trim();
+      String(
+        body.file_base64 ||
+        ""
+      ).trim();
 
 
     /* =================================================
@@ -213,20 +399,32 @@ export default async function handler(req, res) {
     ================================================= */
 
     if (!publicId) {
-      return sendJson(res, 400, {
-        ok: false,
-        message:
-          "Falta el identificador de la reserva."
-      });
+      return sendJson(
+        res,
+        400,
+        {
+          ok: false,
+
+          message:
+            "Falta el identificador de la reserva."
+        }
+      );
     }
 
+
     if (!fileBase64) {
-      return sendJson(res, 400, {
-        ok: false,
-        message:
-          "No se recibió el comprobante."
-      });
+      return sendJson(
+        res,
+        400,
+        {
+          ok: false,
+
+          message:
+            "No se recibió el comprobante."
+        }
+      );
     }
+
 
     const allowedTypes = [
       "image/jpeg",
@@ -235,12 +433,22 @@ export default async function handler(req, res) {
       "application/pdf"
     ];
 
-    if (!allowedTypes.includes(contentType)) {
-      return sendJson(res, 400, {
-        ok: false,
-        message:
-          "Formato no permitido. Usá JPG, PNG, WEBP o PDF."
-      });
+
+    if (
+      !allowedTypes.includes(
+        contentType
+      )
+    ) {
+      return sendJson(
+        res,
+        400,
+        {
+          ok: false,
+
+          message:
+            "Formato no permitido. Usá JPG, PNG, WEBP o PDF."
+        }
+      );
     }
 
 
@@ -249,25 +457,46 @@ export default async function handler(req, res) {
     ================================================= */
 
     const fileBuffer =
-      Buffer.from(fileBase64, "base64");
+      Buffer.from(
+        fileBase64,
+        "base64"
+      );
+
 
     const maxSize =
       3 * 1024 * 1024;
 
-    if (fileBuffer.length === 0) {
-      return sendJson(res, 400, {
-        ok: false,
-        message:
-          "El comprobante está vacío o no es válido."
-      });
+
+    if (
+      fileBuffer.length === 0
+    ) {
+      return sendJson(
+        res,
+        400,
+        {
+          ok: false,
+
+          message:
+            "El comprobante está vacío o no es válido."
+        }
+      );
     }
 
-    if (fileBuffer.length > maxSize) {
-      return sendJson(res, 400, {
-        ok: false,
-        message:
-          "El comprobante no puede superar los 3 MB."
-      });
+
+    if (
+      fileBuffer.length >
+      maxSize
+    ) {
+      return sendJson(
+        res,
+        400,
+        {
+          ok: false,
+
+          message:
+            "El comprobante no puede superar los 3 MB."
+        }
+      );
     }
 
 
@@ -277,60 +506,87 @@ export default async function handler(req, res) {
 
     const reservationResponse =
       await fetch(
-        baseUrl +
-        "/rest/v1/reservations" +
-        "?public_id=eq." +
-        encodeURIComponent(publicId) +
-        "&select=id,public_id,name,phone,booking_date,booking_time,players,game_price,deposit_amount,status",
+        supabaseUrl +
+          "/rest/v1/reservations" +
+          "?public_id=eq." +
+          encodeURIComponent(
+            publicId
+          ) +
+          "&select=id,public_id,name,phone,booking_date,booking_time,players,status",
         {
           method: "GET",
+
           headers:
-            supabaseHeaders(supabaseKey)
+            supabaseHeaders(
+              supabaseKey
+            )
         }
       );
+
 
     const reservationText =
       await reservationResponse.text();
 
+
     let reservations = [];
+
 
     try {
       reservations =
-        JSON.parse(reservationText);
+        JSON.parse(
+          reservationText
+        );
     } catch {
       reservations = [];
     }
 
-    if (!reservationResponse.ok) {
+
+    if (
+      !reservationResponse.ok
+    ) {
       console.error(
         "ERROR BUSCANDO RESERVA:",
         reservationText
       );
 
-      return sendJson(res, 500, {
-        ok: false,
-        message:
-          "No se pudo verificar la reserva."
-      });
+      return sendJson(
+        res,
+        500,
+        {
+          ok: false,
+
+          message:
+            "No se pudo verificar la reserva."
+        }
+      );
     }
 
+
     if (
-      !Array.isArray(reservations) ||
+      !Array.isArray(
+        reservations
+      ) ||
       reservations.length === 0
     ) {
-      return sendJson(res, 404, {
-        ok: false,
-        message:
-          "No encontramos esa reserva."
-      });
+      return sendJson(
+        res,
+        404,
+        {
+          ok: false,
+
+          message:
+            "No encontramos esa reserva."
+        }
+      );
     }
+
 
     const reserva =
       reservations[0];
 
 
     /* =================================================
-       CREAR RUTA
+       CREAR RUTA DEL COMPROBANTE
     ================================================= */
 
     const extension =
@@ -338,6 +594,7 @@ export default async function handler(req, res) {
         fileName,
         contentType
       );
+
 
     const storagePath =
       publicId +
@@ -348,52 +605,77 @@ export default async function handler(req, res) {
 
 
     /* =================================================
-       SUBIR A STORAGE
+       SUBIR COMPROBANTE A SUPABASE
     ================================================= */
 
     const uploadResponse =
       await fetch(
-        baseUrl +
-        "/storage/v1/object/comprobantes/" +
-        storagePath,
+        supabaseUrl +
+          "/storage/v1/object/comprobantes/" +
+          storagePath,
         {
           method: "POST",
+
           headers: {
-            apikey: supabaseKey,
+            apikey:
+              supabaseKey,
+
             Authorization:
-              "Bearer " + supabaseKey,
-            "Content-Type": contentType,
-            "x-upsert": "false"
+              "Bearer " +
+              supabaseKey,
+
+            "Content-Type":
+              contentType,
+
+            "x-upsert":
+              "false"
           },
-          body: fileBuffer
+
+          body:
+            fileBuffer
         }
       );
+
 
     const uploadText =
       await uploadResponse.text();
 
+
     let uploadData;
+
 
     try {
       uploadData =
-        JSON.parse(uploadText);
+        JSON.parse(
+          uploadText
+        );
     } catch {
       uploadData =
         uploadText;
     }
 
-    if (!uploadResponse.ok) {
+
+    if (
+      !uploadResponse.ok
+    ) {
       console.error(
         "ERROR SUBIENDO COMPROBANTE:",
         uploadData
       );
 
-      return sendJson(res, 500, {
-        ok: false,
-        message:
-          "No se pudo guardar el comprobante en Supabase.",
-        error: uploadData
-      });
+      return sendJson(
+        res,
+        500,
+        {
+          ok: false,
+
+          message:
+            "No se pudo guardar el comprobante en Supabase.",
+
+          error:
+            uploadData
+        }
+      );
     }
 
 
@@ -403,49 +685,72 @@ export default async function handler(req, res) {
 
     const updateResponse =
       await fetch(
-        baseUrl +
-        "/rest/v1/reservations" +
-        "?public_id=eq." +
-        encodeURIComponent(publicId),
+        supabaseUrl +
+          "/rest/v1/reservations" +
+          "?public_id=eq." +
+          encodeURIComponent(
+            publicId
+          ),
         {
           method: "PATCH",
+
           headers:
             supabaseHeaders(
               supabaseKey,
               "return=representation"
             ),
-          body: JSON.stringify({
-            payment_id: storagePath,
-            status: "pending"
-          })
+
+          body:
+            JSON.stringify({
+              payment_id:
+                storagePath,
+
+              status:
+                "pending"
+            })
         }
       );
+
 
     const updateText =
       await updateResponse.text();
 
+
     let updateData;
+
 
     try {
       updateData =
-        JSON.parse(updateText);
+        JSON.parse(
+          updateText
+        );
     } catch {
       updateData =
         updateText;
     }
 
-    if (!updateResponse.ok) {
+
+    if (
+      !updateResponse.ok
+    ) {
       console.error(
         "ERROR ACTUALIZANDO RESERVA:",
         updateData
       );
 
-      return sendJson(res, 500, {
-        ok: false,
-        message:
-          "El comprobante se guardó, pero no pudimos asociarlo a la reserva.",
-        error: updateData
-      });
+      return sendJson(
+        res,
+        500,
+        {
+          ok: false,
+
+          message:
+            "El comprobante se guardó, pero no pudimos asociarlo a la reserva.",
+
+          error:
+            updateData
+        }
+      );
     }
 
 
@@ -453,25 +758,67 @@ export default async function handler(req, res) {
        TELEGRAM
     ================================================= */
 
-    const telegramEnviado =
+    const telegram =
       await enviarAvisoTelegram(
-        reserva,
-        storagePath
+        reserva
       );
 
 
     /* =================================================
-       RESPUESTA
+       RESPUESTA FINAL
     ================================================= */
 
-    return sendJson(res, 200, {
-      ok: true,
-      message:
-        "Comprobante recibido correctamente. Aguará revisará el pago y confirmará tu turno.",
-      public_id: publicId,
-      comprobante: storagePath,
-      telegram: telegramEnviado
-    });
+    if (!telegram.ok) {
+
+      console.error(
+        "EL COMPROBANTE SE GUARDÓ, PERO TELEGRAM FALLÓ:",
+        telegram.error
+      );
+
+
+      return sendJson(
+        res,
+        200,
+        {
+          ok: true,
+
+          message:
+            "Comprobante recibido correctamente. Aguará revisará el pago y confirmará tu turno.",
+
+          public_id:
+            publicId,
+
+          comprobante:
+            storagePath,
+
+          telegram: false,
+
+          telegram_error:
+            telegram.error
+        }
+      );
+    }
+
+
+    return sendJson(
+      res,
+      200,
+      {
+        ok: true,
+
+        message:
+          "Comprobante recibido correctamente. Aguará revisará el pago y confirmará tu turno.",
+
+        public_id:
+          publicId,
+
+        comprobante:
+          storagePath,
+
+        telegram: true
+      }
+    );
+
 
   } catch (error) {
 
@@ -480,11 +827,17 @@ export default async function handler(req, res) {
       error
     );
 
-    return sendJson(res, 500, {
-      ok: false,
-      message:
-        error?.message ||
-        "Error interno al recibir el comprobante."
-    });
+
+    return sendJson(
+      res,
+      500,
+      {
+        ok: false,
+
+        message:
+          error?.message ||
+          "Error interno al recibir el comprobante."
+      }
+    );
   }
 }
