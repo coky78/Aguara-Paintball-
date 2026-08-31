@@ -1513,3 +1513,170 @@ box-shadow .25s ease;
   }
 
 }
+/* =====================================================
+   AGUARÁ PAINTBALL
+   CALENDARIO — MÁS COMPACTO
+   SOLO DISEÑO
+===================================================== */
+
+.aguara-calendar-shell {
+  padding: 10px !important;
+  margin-bottom: 10px !important;
+  border-radius: 12px !important;
+}
+
+.aguara-calendar-head {
+  margin-bottom: 8px !important;
+}
+
+.aguara-calendar-title {
+  font-size: .95rem !important;
+}
+
+.aguara-calendar-nav {
+  gap: 5px !important;
+}
+
+.aguara-calendar-nav button {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 8px !important;
+  font-size: .95rem !important;
+}
+
+.aguara-calendar-weekdays {
+  margin-bottom: 4px !important;
+}
+
+.aguara-calendar-weekdays,
+.aguara-calendar-grid {
+  gap: 3px !important;
+}
+
+.aguara-calendar-weekday {
+  padding: 3px 0 !important;
+  font-size: .58rem !important;
+}
+
+
+/* =====================================================
+   DÍAS — MÁS PEQUEÑOS Y CUADRADOS
+===================================================== */
+
+.aguara-day {
+  aspect-ratio: 1 / 1 !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+
+  padding: 2px !important;
+
+  border-radius: 7px !important;
+}
+
+.aguara-day-number {
+  font-size: .82rem !important;
+  margin-top: 5px !important;
+}
+
+.aguara-day-label {
+  font-size: .32rem !important;
+  bottom: 2px !important;
+}
+
+.aguara-day-x {
+  top: 2px !important;
+  font-size: .82rem !important;
+}
+
+
+/* =====================================================
+   ESTADO
+===================================================== */
+
+.aguara-calendar-status {
+  margin-top: 8px !important;
+  padding: 7px 9px !important;
+  font-size: .70rem !important;
+}
+
+
+/* =====================================================
+   HORARIOS — MÁS COMPACTOS
+===================================================== */
+
+.aguara-time-panel {
+  margin-top: 9px !important;
+  padding-top: 9px !important;
+}
+
+.aguara-time-title {
+  margin-bottom: 7px !important;
+  font-size: .78rem !important;
+}
+
+.aguara-time-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 4px !important;
+}
+
+.aguara-time-card {
+  aspect-ratio: 1 / 1 !important;
+  min-height: 0 !important;
+
+  padding: 5px !important;
+
+  border-radius: 7px !important;
+}
+
+.aguara-time-card span {
+  font-size: .78rem !important;
+}
+
+.aguara-time-card small {
+  font-size: .45rem !important;
+  margin-top: 2px !important;
+}
+
+
+/* =====================================================
+   MÓVIL — TODAVÍA MÁS COMPACTO
+===================================================== */
+
+@media(max-width:640px) {
+
+  .aguara-calendar-shell {
+    padding: 8px !important;
+  }
+
+  .aguara-calendar-grid,
+  .aguara-calendar-weekdays {
+    gap: 2px !important;
+  }
+
+  .aguara-day {
+    border-radius: 6px !important;
+    padding: 1px !important;
+  }
+
+  .aguara-day-number {
+    font-size: .76rem !important;
+  }
+
+  .aguara-time-grid {
+    gap: 3px !important;
+  }
+
+  .aguara-time-card {
+    border-radius: 6px !important;
+    padding: 3px !important;
+  }
+
+  .aguara-time-card span {
+    font-size: .72rem !important;
+  }
+
+  .aguara-time-card small {
+    font-size: .40rem !important;
+  }
+}
