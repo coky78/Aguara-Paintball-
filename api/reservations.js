@@ -1317,15 +1317,7 @@ export default async function handler(
         : data;
 
 
-    /* -----------------------------------------------
-       AVISO TELEGRAM
-    ----------------------------------------------- */
-
-    await enviarAvisoTelegram(
-      reservaCreada
-    );
-
-
+   
     /* -----------------------------------------------
        RESPUESTA FINAL
     ----------------------------------------------- */
