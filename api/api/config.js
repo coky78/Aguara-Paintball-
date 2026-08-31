@@ -1,4 +1,3 @@
-```javascript
 /* =====================================================
    AGUARÁ PAINTBALL
    API CONFIG
