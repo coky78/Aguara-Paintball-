@@ -373,8 +373,41 @@ if (yearElement) {
 
 /* =====================================================
    FECHA MÍNIMA
+   NO PERMITIR DÍAS ANTERIORES
 ===================================================== */
 
+if (dateInput) {
+
+  const today = new Date();
+
+  const year =
+    today.getFullYear();
+
+  const month =
+    String(today.getMonth() + 1)
+      .padStart(2, "0");
+
+  const day =
+    String(today.getDate())
+      .padStart(2, "0");
+
+  const todayString =
+    year +
+    "-" +
+    month +
+    "-" +
+    day;
+
+  /* No permite seleccionar días anteriores */
+  dateInput.min =
+    todayString;
+
+  /* Si por algún motivo ya tenía una fecha anterior,
+     la limpiamos */
+  if (dateInput.value && dateInput.value < todayString) {
+    dateInput.value = "";
+  }
+}
 if (dateInput) {
 
   const today =
