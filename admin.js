@@ -2,7 +2,7 @@
    AGUARÁ PAINTBALL
    ADMIN.JS
    RESERVAS + CONFIGURACIÓN
-   VERSIÓN CORREGIDA
+   VERSIÓN LIMPIA Y CORREGIDA
 ===================================================== */
 
 const DEFAULTS = {
@@ -13,6 +13,7 @@ const DEFAULTS = {
   deposit: 50000,
   minPlayers: 10,
   whatsapp: "5493794250285",
+
   slots: [
     "10:00",
     "11:00",
@@ -125,7 +126,6 @@ function showSavedMessage(message, color) {
 ===================================================== */
 
 function applyConfigToForm(config) {
-
   const incoming =
     config && typeof config === "object"
       ? config
@@ -140,12 +140,10 @@ function applyConfigToForm(config) {
     cfg.slots = [...DEFAULTS.slots];
   }
 
-
   if ($("gamePrice")) {
     $("gamePrice").value =
       Number(cfg.gamePrice) || 0;
   }
-
 
   if ($("shotsText")) {
     $("shotsText").value =
@@ -153,12 +151,10 @@ function applyConfigToForm(config) {
       DEFAULTS.shotsText;
   }
 
-
   if ($("hydrogelPrice")) {
     $("hydrogelPrice").value =
       Number(cfg.hydrogelPrice) || 0;
   }
-
 
   if ($("hydrogelShotsText")) {
     $("hydrogelShotsText").value =
@@ -166,12 +162,10 @@ function applyConfigToForm(config) {
       DEFAULTS.hydrogelShotsText;
   }
 
-
   if ($("deposit")) {
     $("deposit").value =
       Number(cfg.deposit) || 0;
   }
-
 
   if ($("minPlayers")) {
     $("minPlayers").value =
@@ -179,18 +173,15 @@ function applyConfigToForm(config) {
       DEFAULTS.minPlayers;
   }
 
-
   if ($("whatsapp")) {
     $("whatsapp").value =
       String(cfg.whatsapp || "");
   }
 
-
   if ($("slots")) {
     $("slots").value =
       cfg.slots.join(", ");
   }
-
 
   console.log(
     "CONFIGURACIÓN APLICADA AL FORMULARIO:",
@@ -204,55 +195,36 @@ function applyConfigToForm(config) {
 ===================================================== */
 
 function readConfigFromForm() {
-
   const gamePrice =
-    Number(
-      $("gamePrice")?.value || 0
-    );
-
+    Number($("gamePrice")?.value || 0);
 
   const hydrogelPrice =
-    Number(
-      $("hydrogelPrice")?.value || 0
-    );
-
+    Number($("hydrogelPrice")?.value || 0);
 
   const deposit =
-    Number(
-      $("deposit")?.value || 0
-    );
-
+    Number($("deposit")?.value || 0);
 
   const minPlayers =
-    Number(
-      $("minPlayers")?.value || 1
-    );
-
+    Number($("minPlayers")?.value || 1);
 
   let slots = [];
 
-
   if ($("slots")) {
-
-    slots =
-      $("slots")
-        .value
-        .split(",")
-        .map(function(slot) {
-          return slot.trim();
-        })
-        .filter(Boolean);
+    slots = $("slots")
+      .value
+      .split(",")
+      .map(function (slot) {
+        return slot.trim();
+      })
+      .filter(Boolean);
   }
 
-
   return {
-
     gamePrice,
 
-    shotsText:
-      $("shotsText")
-        ? $("shotsText").value.trim()
-        : DEFAULTS.shotsText,
+    shotsText: $("shotsText")
+      ? $("shotsText").value.trim()
+      : DEFAULTS.shotsText,
 
     hydrogelPrice,
 
@@ -265,10 +237,9 @@ function readConfigFromForm() {
 
     minPlayers,
 
-    whatsapp:
-      $("whatsapp")
-        ? $("whatsapp").value.replace(/\D/g, "")
-        : "",
+    whatsapp: $("whatsapp")
+      ? $("whatsapp").value.replace(/\D/g, "")
+      : "",
 
     slots
   };
@@ -280,7 +251,6 @@ function readConfigFromForm() {
 ===================================================== */
 
 function validateConfig(config) {
-
   if (
     !Number.isFinite(config.gamePrice) ||
     config.gamePrice < 0
@@ -291,7 +261,6 @@ function validateConfig(config) {
 
     return false;
   }
-
 
   if (
     !Number.isFinite(config.hydrogelPrice) ||
@@ -304,18 +273,14 @@ function validateConfig(config) {
     return false;
   }
 
-
   if (
     !Number.isFinite(config.deposit) ||
     config.deposit < 0
   ) {
-    alert(
-      "La seña no es válida."
-    );
+    alert("La seña no es válida.");
 
     return false;
   }
-
 
   if (
     !Number.isInteger(config.minPlayers) ||
@@ -328,7 +293,6 @@ function validateConfig(config) {
     return false;
   }
 
-
   if (
     !Array.isArray(config.slots) ||
     config.slots.length === 0
@@ -340,13 +304,8 @@ function validateConfig(config) {
     return false;
   }
 
-
   for (const slot of config.slots) {
-
-    if (
-      !/^\d{2}:\d{2}$/.test(slot)
-    ) {
-
+    if (!/^\d{2}:\d{2}$/.test(slot)) {
       alert(
         'El horario "' +
         slot +
@@ -357,7 +316,6 @@ function validateConfig(config) {
     }
   }
 
-
   return true;
 }
 
@@ -367,36 +325,24 @@ function validateConfig(config) {
 ===================================================== */
 
 async function loadConfig() {
-
   console.log(
     "AGUARÁ ADMIN → Cargando configuración..."
   );
 
-
   try {
+    const response = await fetch(
+      "/api/config",
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json"
+        },
+        cache: "no-store",
+        credentials: "same-origin"
+      }
+    );
 
-    const response =
-      await fetch(
-        "/api/config",
-        {
-          method: "GET",
-
-          headers: {
-            Accept:
-              "application/json"
-          },
-
-          cache: "no-store",
-
-          credentials:
-            "same-origin"
-        }
-      );
-
-
-    const text =
-      await response.text();
-
+    const text = await response.text();
 
     console.log(
       "RESPUESTA CONFIG:",
@@ -404,34 +350,22 @@ async function loadConfig() {
       text
     );
 
-
     let data = {};
 
-
     try {
-
-      data =
-        JSON.parse(text);
-
+      data = JSON.parse(text);
     } catch (error) {
-
       throw new Error(
         "La API de configuración no devolvió JSON válido."
       );
     }
 
-
-    if (
-      !response.ok ||
-      !data.ok
-    ) {
-
+    if (!response.ok || !data.ok) {
       throw new Error(
         data.message ||
         "No se pudo cargar la configuración."
       );
     }
-
 
     const config =
       data.config ||
@@ -439,54 +373,40 @@ async function loadConfig() {
       data.data ||
       {};
 
-
-    applyConfigToForm(
-      config
-    );
-
+    applyConfigToForm(config);
 
     configLoaded = true;
-
 
     showSavedMessage(
       "Configuración cargada correctamente.",
       "#22c55e"
     );
 
-
     console.log(
       "CONFIGURACIÓN CARGADA:",
       cfg
     );
 
-
     return cfg;
 
   } catch (error) {
-
     console.error(
       "ERROR CARGANDO CONFIGURACIÓN:",
       error
     );
 
-
     if (!configLoaded) {
-
       applyConfigToForm(
         cloneDefaults()
       );
     }
 
-
     showSavedMessage(
       "No se pudo cargar la configuración: " +
-      (
-        error.message ||
-        "Error desconocido."
-      ),
+      (error.message ||
+        "Error desconocido."),
       "#ff7777"
     );
-
 
     return cfg;
   }
@@ -498,58 +418,42 @@ async function loadConfig() {
 ===================================================== */
 
 async function saveConfig() {
-
   const next =
     readConfigFromForm();
-
 
   if (!validateConfig(next)) {
     return;
   }
-
 
   showSavedMessage(
     "Guardando configuración...",
     ""
   );
 
-
   try {
-
     console.log(
       "CONFIGURACIÓN A ENVIAR:",
       next
     );
 
-
-    const response =
-      await fetch(
-        "/api/config",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-
-            Accept:
-              "application/json"
-          },
-
-          cache: "no-store",
-
-          credentials:
-            "same-origin",
-
-          body:
-            JSON.stringify(next)
-        }
-      );
-
+    const response = await fetch(
+      "/api/config",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json",
+          Accept:
+            "application/json"
+        },
+        cache: "no-store",
+        credentials: "same-origin",
+        body: JSON.stringify(next)
+      }
+    );
 
     const text =
       await response.text();
-
 
     console.log(
       "RESPUESTA GUARDAR CONFIG:",
@@ -557,60 +461,40 @@ async function saveConfig() {
       text
     );
 
-
     let data = {};
 
-
     try {
-
-      data =
-        JSON.parse(text);
-
+      data = JSON.parse(text);
     } catch (error) {
-
       throw new Error(
         "La API de configuración no devolvió JSON válido."
       );
     }
 
-
-    if (
-      !response.ok ||
-      !data.ok
-    ) {
-
+    if (!response.ok || !data.ok) {
       throw new Error(
         data.message ||
         "No se pudo guardar la configuración."
       );
     }
 
-
     if (
       data.config &&
       typeof data.config === "object"
     ) {
-
       applyConfigToForm(
         data.config
       );
-
     } else {
-
-      applyConfigToForm(
-        next
-      );
+      applyConfigToForm(next);
     }
 
-
     configLoaded = true;
-
 
     showSavedMessage(
       "Configuración guardada correctamente.",
       "#22c55e"
     );
-
 
     console.log(
       "CONFIGURACIÓN GUARDADA:",
@@ -618,19 +502,16 @@ async function saveConfig() {
     );
 
   } catch (error) {
-
     console.error(
       "ERROR GUARDANDO CONFIGURACIÓN:",
       error
     );
-
 
     showSavedMessage(
       error.message ||
       "No se pudo guardar la configuración.",
       "#ff7777"
     );
-
 
     alert(
       error.message ||
@@ -645,53 +526,37 @@ async function saveConfig() {
 ===================================================== */
 
 function sortBookings(bookings) {
-
   const statusOrder = {
     confirmed: 0,
     pending: 1,
     cancelled: 2
   };
 
-
   return bookings.sort(
-    function(a, b) {
-
+    function (a, b) {
       const statusA =
         String(
-          a.status ||
-          "pending"
+          a.status || "pending"
         )
           .trim()
           .toLowerCase();
-
 
       const statusB =
         String(
-          b.status ||
-          "pending"
+          b.status || "pending"
         )
           .trim()
           .toLowerCase();
-
 
       const orderA =
         statusOrder[statusA] ?? 1;
 
-
       const orderB =
         statusOrder[statusB] ?? 1;
 
-
-      if (
-        orderA !== orderB
-      ) {
-
-        return (
-          orderA -
-          orderB
-        );
+      if (orderA !== orderB) {
+        return orderA - orderB;
       }
-
 
       const dateA =
         String(
@@ -700,7 +565,6 @@ function sortBookings(bookings) {
           ""
         );
 
-
       const dateB =
         String(
           b.booking_date ||
@@ -708,16 +572,11 @@ function sortBookings(bookings) {
           ""
         );
 
-
-      if (
-        dateA !== dateB
-      ) {
-
+      if (dateA !== dateB) {
         return dateA.localeCompare(
           dateB
         );
       }
-
 
       const timeA =
         String(
@@ -726,14 +585,12 @@ function sortBookings(bookings) {
           ""
         );
 
-
       const timeB =
         String(
           b.booking_time ||
           b.horario ||
           ""
         );
-
 
       return timeA.localeCompare(
         timeB
@@ -748,13 +605,10 @@ function sortBookings(bookings) {
 ===================================================== */
 
 async function render() {
-
   const container =
     $("bookings");
 
-
   if (!container) {
-
     console.error(
       "No existe #bookings en admin.html."
     );
@@ -762,35 +616,29 @@ async function render() {
     return;
   }
 
-
-  container.innerHTML =
-    "<p class='muted'>Cargando reservas...</p>";
-
+  container.innerHTML = `
+    <div class="admin-loading">
+      Cargando reservas...
+    </div>
+  `;
 
   try {
-
     const response =
       await fetch(
         "/api/reservations",
         {
           method: "GET",
-
           headers: {
             Accept:
               "application/json"
           },
-
           cache: "no-store",
-
-          credentials:
-            "same-origin"
+          credentials: "same-origin"
         }
       );
 
-
     const text =
       await response.text();
-
 
     console.log(
       "RESPUESTA RESERVAS:",
@@ -798,150 +646,98 @@ async function render() {
       text
     );
 
-
     let data = {};
 
-
     try {
-
-      data =
-        JSON.parse(text);
-
+      data = JSON.parse(text);
     } catch (error) {
-
       throw new Error(
         "La API de reservas no devolvió JSON válido."
       );
     }
 
-
-    if (
-      !response.ok ||
-      !data.ok
-    ) {
-
+    if (!response.ok || !data.ok) {
       throw new Error(
         data.message ||
         "No se pudieron cargar las reservas."
       );
     }
 
-
     let bookings = [];
 
-
-    if (
-      Array.isArray(
-        data.reservas
-      )
-    ) {
-
-      bookings =
-        data.reservas;
-
+    if (Array.isArray(data.reservas)) {
+      bookings = data.reservas;
     } else if (
-      Array.isArray(
-        data.reservations
-      )
+      Array.isArray(data.reservations)
     ) {
-
       bookings =
         data.reservations;
-
     } else if (
-      Array.isArray(
-        data.data
-      )
+      Array.isArray(data.data)
     ) {
-
-      bookings =
-        data.data;
-
+      bookings = data.data;
     } else if (
       Array.isArray(data)
     ) {
-
-      bookings =
-        data;
+      bookings = data;
     }
-
 
     console.log(
       "RESERVAS RECIBIDAS:",
       bookings
     );
 
-
     reservationsLoaded = true;
 
-
-    if (
-      bookings.length === 0
-    ) {
-
-      container.innerHTML =
-        "<p class='muted'>" +
-        "No hay reservas todavía." +
-        "</p>";
+    if (bookings.length === 0) {
+      container.innerHTML = `
+        <div class="admin-empty">
+          No hay reservas todavía.
+        </div>
+      `;
 
       return;
     }
 
-
     bookings =
-      sortBookings(
-        bookings
-      );
-
+      sortBookings(bookings);
 
     container.innerHTML =
       bookings
-        .map(
-          function(booking) {
-            return reservationHtml(
-              booking
-            );
-          }
-        )
+        .map(function (booking) {
+          return reservationHtml(
+            booking
+          );
+        })
         .join("");
 
-
   } catch (error) {
-
     console.error(
       "ERROR CARGANDO RESERVAS:",
       error
     );
 
+    container.innerHTML = `
+      <div class="admin-error">
+        <strong>
+          Error cargando reservas
+        </strong>
 
-    container.innerHTML =
-      "<div style='" +
-      "padding:20px;" +
-      "border:1px solid #663333;" +
-      "border-radius:10px;" +
-      "'>" +
+        <p>
+          ${escapeHtml(
+            error.message ||
+            "Error desconocido."
+          )}
+        </p>
 
-      "<strong>" +
-      "Error cargando reservas" +
-      "</strong>" +
-
-      "<p class='muted'>" +
-      escapeHtml(
-        error.message ||
-        "Error desconocido."
-      ) +
-      "</p>" +
-
-      "<button " +
-      "type='button' " +
-      "class='btn btn-primary' " +
-      "onclick='render()'>" +
-
-      "Reintentar" +
-
-      "</button>" +
-
-      "</div>";
+        <button
+          type="button"
+          onclick="render()"
+        >
+          Reintentar
+        </button>
+      </div>
+    `;
   }
 }
 
@@ -951,92 +747,70 @@ async function render() {
 ===================================================== */
 
 function reservationHtml(b) {
-
   const publicId =
     String(
-      b.public_id ||
-      ""
+      b.public_id || ""
     ).trim();
-
 
   const status =
     String(
-      b.status ||
-      "pending"
+      b.status || "pending"
     )
       .trim()
       .toLowerCase();
 
-
   let statusText =
     "PENDIENTE";
 
-
-  if (
-    status === "confirmed"
-  ) {
-
+  if (status === "confirmed") {
     statusText =
       "CONFIRMADA";
   }
 
-
-  if (
-    status === "cancelled"
-  ) {
-
+  if (status === "cancelled") {
     statusText =
       "CANCELADA";
   }
-
 
   const name =
     b.name ||
     b.nombre ||
     "Sin nombre";
 
-
   const phone =
     b.phone ||
     b.whatsapp ||
     "Sin teléfono";
-
 
   const bookingDate =
     b.booking_date ||
     b.fecha ||
     "";
 
-
   const bookingTime =
     b.booking_time ||
     b.horario ||
     "";
-
 
   const players =
     b.players ??
     b.jugadores ??
     0;
 
-
   const deposit =
     b.deposit_amount ??
     b.sena_requerida ??
     0;
-
 
   const gamePrice =
     b.game_price ??
     b.precio_por_jugador ??
     0;
 
-
   const notes =
     b.notes ||
     b.observaciones ||
     "";
-
 
   const borderColor =
     status === "confirmed"
@@ -1045,7 +819,6 @@ function reservationHtml(b) {
         ? "#ef4444"
         : "#333";
 
-
   const backgroundColor =
     status === "confirmed"
       ? "rgba(34,197,94,0.15)"
@@ -1053,220 +826,150 @@ function reservationHtml(b) {
         ? "rgba(239,68,68,0.10)"
         : "#111";
 
-
   let html = "";
 
+  html += `
+    <div
+      class="booking-card"
+      style="
+        border: 1px solid ${borderColor};
+        background: ${backgroundColor};
+      "
+    >
+  `;
 
-  html +=
-    "<div " +
-    "class='admin-reservation' " +
-    "style='" +
-    "border:2px solid " +
-    borderColor +
-    ";" +
-    "border-radius:14px;" +
-    "padding:20px;" +
-    "margin-bottom:18px;" +
-    "background:" +
-    backgroundColor +
-    ";" +
-    "'>";
+  html += `
+    <div class="booking-header">
+      <strong>
+        ${escapeHtml(
+          formatDate(
+            bookingDate
+          )
+        )}
+        ·
+        ${escapeHtml(
+          bookingTime
+        )}
+      </strong>
 
+      <span class="booking-status">
+        ${escapeHtml(
+          statusText
+        )}
+      </span>
+    </div>
+  `;
 
-  html +=
-    "<div " +
-    "style='" +
-    "display:flex;" +
-    "justify-content:space-between;" +
-    "gap:15px;" +
-    "flex-wrap:wrap;" +
-    "align-items:center;" +
-    "margin-bottom:15px;" +
-    "'>";
+  html += `
+    <div class="booking-body">
+      <strong>
+        ${escapeHtml(name)}
+      </strong>
 
+      <div>
+        📱
+        ${escapeHtml(phone)}
+      </div>
 
-  html +=
-    "<strong " +
-    "style='font-size:18px;'>" +
+      <div>
+        👥
+        ${escapeHtml(players)}
+        jugadores
+      </div>
 
-    escapeHtml(
-      formatDate(
-        bookingDate
-      )
-    ) +
+      <div>
+        💰 Seña:
+        ${money(deposit)}
+      </div>
 
-    " · " +
-
-    escapeHtml(
-      bookingTime
-    ) +
-
-    "</strong>";
-
-
-  html +=
-    "<span " +
-    "style='font-weight:bold;'>" +
-
-    escapeHtml(
-      statusText
-    ) +
-
-    "</span>";
-
-
-  html +=
-    "</div>";
-
-
-  html +=
-    "<div " +
-    "style='line-height:1.8;'>";
-
-
-  html +=
-    "<strong>" +
-    escapeHtml(name) +
-    "</strong><br>";
-
-
-  html +=
-    "📱 " +
-    escapeHtml(phone) +
-    "<br>";
-
-
-  html +=
-    "👥 " +
-    escapeHtml(players) +
-    " jugadores<br>";
-
-
-  html +=
-    "💰 Seña: " +
-    money(deposit) +
-    "<br>";
-
-
-  html +=
-    "🎯 Precio por jugador: " +
-    money(gamePrice);
-
+      <div>
+        🎯 Precio por jugador:
+        ${money(gamePrice)}
+      </div>
+  `;
 
   if (publicId) {
-
-    html +=
-      "<br>" +
-      "🆔 " +
-      escapeHtml(publicId);
+    html += `
+      <div>
+        🆔
+        ${escapeHtml(publicId)}
+      </div>
+    `;
   }
-
 
   if (notes) {
-
-    html +=
-      "<br>" +
-      "📝 " +
-      escapeHtml(notes);
+    html += `
+      <div>
+        📝
+        ${escapeHtml(notes)}
+      </div>
+    `;
   }
 
+  html += `
+    </div>
+  `;
 
-  html +=
-    "</div>";
-
-
-  html +=
-    "<div " +
-    "style='" +
-    "display:flex;" +
-    "gap:10px;" +
-    "flex-wrap:wrap;" +
-    "margin-top:18px;" +
-    "'>";
-
+  html += `
+    <div class="booking-actions">
+  `;
 
   if (publicId) {
+    html += `
+      <button
+        type="button"
+        onclick="editReservation('${escapeHtml(publicId)}')"
+      >
+        ✏️ Editar
+      </button>
+    `;
 
-    html +=
-      "<button " +
-      "type='button' " +
-      "class='btn btn-outline' " +
-      "onclick=\"editReservation('" +
-      escapeHtml(publicId) +
-      "')\">" +
-
-      "✏️ Editar" +
-
-      "</button>";
-
-
-    if (
-      status !== "confirmed"
-    ) {
-
-      html +=
-        "<button " +
-        "type='button' " +
-        "class='btn btn-primary' " +
-        "onclick=\"changeStatus('" +
-        escapeHtml(publicId) +
-        "','confirmed')\">" +
-
-        "✓ Confirmar" +
-
-        "</button>";
+    if (status !== "confirmed") {
+      html += `
+        <button
+          type="button"
+          onclick="changeStatus('${escapeHtml(publicId)}', 'confirmed')"
+        >
+          ✓ Confirmar
+        </button>
+      `;
     }
 
-
-    if (
-      status !== "cancelled"
-    ) {
-
-      html +=
-        "<button " +
-        "type='button' " +
-        "class='btn btn-outline' " +
-        "onclick=\"changeStatus('" +
-        escapeHtml(publicId) +
-        "','cancelled')\">" +
-
-        "✕ Cancelar" +
-
-        "</button>";
+    if (status !== "cancelled") {
+      html += `
+        <button
+          type="button"
+          onclick="changeStatus('${escapeHtml(publicId)}', 'cancelled')"
+        >
+          ✕ Cancelar
+        </button>
+      `;
     }
 
-
-    html +=
-      "<button " +
-      "type='button' " +
-      "class='btn btn-outline' " +
-      "onclick=\"deleteReservation('" +
-      escapeHtml(publicId) +
-      "')\">" +
-
-      "🗑️ Eliminar" +
-
-      "</button>";
+    html += `
+      <button
+        type="button"
+        onclick="deleteReservation('${escapeHtml(publicId)}')"
+      >
+        🗑️ Eliminar
+      </button>
+    `;
 
   } else {
-
-    html +=
-      "<span " +
-      "style='color:#ff7777;font-size:14px;'>" +
-
-      "Esta reserva no tiene public_id." +
-
-      "</span>";
+    html += `
+      <div class="booking-warning">
+        Esta reserva no tiene public_id.
+      </div>
+    `;
   }
 
+  html += `
+    </div>
+  `;
 
-  html +=
-    "</div>";
-
-
-  html +=
-    "</div>";
-
+  html += `
+    </div>
+  `;
 
   return html;
 }
@@ -1276,12 +979,8 @@ function reservationHtml(b) {
    EDITAR RESERVA
 ===================================================== */
 
-async function editReservation(
-  publicId
-) {
-
+async function editReservation(publicId) {
   if (!publicId) {
-
     alert(
       "Falta el identificador de la reserva."
     );
@@ -1289,24 +988,19 @@ async function editReservation(
     return;
   }
 
-
   const nombre =
     prompt(
       "Nombre y apellido:"
     );
 
-
   if (nombre === null) {
     return;
   }
 
-
   const name =
     nombre.trim();
 
-
   if (!name) {
-
     alert(
       "El nombre no puede estar vacío."
     );
@@ -1314,24 +1008,19 @@ async function editReservation(
     return;
   }
 
-
   const telefono =
     prompt(
       "Número de WhatsApp:"
     );
 
-
   if (telefono === null) {
     return;
   }
 
-
   const phone =
     telefono.trim();
 
-
   if (!phone) {
-
     alert(
       "El teléfono no puede estar vacío."
     );
@@ -1339,28 +1028,23 @@ async function editReservation(
     return;
   }
 
-
   const fecha =
     prompt(
       "Fecha (AAAA-MM-DD):"
     );
 
-
   if (fecha === null) {
     return;
   }
 
-
   const bookingDate =
     fecha.trim();
-
 
   if (
     !/^\d{4}-\d{2}-\d{2}$/.test(
       bookingDate
     )
   ) {
-
     alert(
       "La fecha no es válida."
     );
@@ -1368,28 +1052,23 @@ async function editReservation(
     return;
   }
 
-
   const hora =
     prompt(
       "Horario (HH:MM):"
     );
 
-
   if (hora === null) {
     return;
   }
 
-
   const bookingTime =
     hora.trim();
-
 
   if (
     !/^\d{2}:\d{2}$/.test(
       bookingTime
     )
   ) {
-
     alert(
       "El horario no es válido."
     );
@@ -1397,27 +1076,22 @@ async function editReservation(
     return;
   }
 
-
   const jugadores =
     prompt(
       "Cantidad de jugadores:"
     );
 
-
   if (jugadores === null) {
     return;
   }
 
-
   const players =
     Number(jugadores);
-
 
   if (
     !Number.isInteger(players) ||
     players < Number(cfg.minPlayers)
   ) {
-
     alert(
       "La reserva requiere un mínimo de " +
       cfg.minPlayers +
@@ -1427,115 +1101,77 @@ async function editReservation(
     return;
   }
 
-
   const notas =
     prompt(
       "Observaciones:",
       ""
     );
 
-
   if (notas === null) {
     return;
   }
 
-
   try {
-
     const response =
       await fetch(
         "/api/reservations",
         {
           method: "PATCH",
-
           headers: {
             "Content-Type":
               "application/json",
-
             Accept:
               "application/json"
           },
-
           cache: "no-store",
-
-          credentials:
-            "same-origin",
-
-          body:
-            JSON.stringify({
-
-              public_id:
-                publicId,
-
-              name:
-                name,
-
-              phone:
-                phone,
-
-              booking_date:
-                bookingDate,
-
-              booking_time:
-                bookingTime,
-
-              players:
-                players,
-
-              notes:
-                notas.trim()
-            })
+          credentials: "same-origin",
+          body: JSON.stringify({
+            public_id: publicId,
+            name: name,
+            phone: phone,
+            booking_date:
+              bookingDate,
+            booking_time:
+              bookingTime,
+            players: players,
+            notes:
+              notas.trim()
+          })
         }
       );
-
 
     const text =
       await response.text();
 
-
     let data = {};
 
-
     try {
-
       data =
         JSON.parse(text);
-
     } catch {
-
       throw new Error(
         "La API no devolvió JSON válido."
       );
     }
 
-
-    if (
-      !response.ok ||
-      !data.ok
-    ) {
-
+    if (!response.ok || !data.ok) {
       throw new Error(
         data.message ||
         "No se pudo editar la reserva."
       );
     }
 
-
     alert(
       "Reserva actualizada correctamente."
     );
 
-
     await render();
 
-
   } catch (error) {
-
     console.error(
       "ERROR EDITANDO RESERVA:",
       error
     );
-
 
     alert(
       error.message ||
@@ -1553,9 +1189,7 @@ async function changeStatus(
   publicId,
   status
 ) {
-
   if (!publicId) {
-
     alert(
       "Falta el identificador de la reserva."
     );
@@ -1563,83 +1197,56 @@ async function changeStatus(
     return;
   }
 
-
   const texto =
     status === "confirmed"
       ? "¿Confirmar esta reserva?"
       : "¿Cancelar esta reserva?";
 
-
   if (!confirm(texto)) {
     return;
   }
 
-
   try {
-
     const response =
       await fetch(
         "/api/reservations",
         {
           method: "PATCH",
-
           headers: {
             "Content-Type":
               "application/json",
-
             Accept:
               "application/json"
           },
-
           cache: "no-store",
-
-          credentials:
-            "same-origin",
-
-          body:
-            JSON.stringify({
-
-              public_id:
-                publicId,
-
-              status:
-                status
-            })
+          credentials: "same-origin",
+          body: JSON.stringify({
+            public_id: publicId,
+            status: status
+          })
         }
       );
-
 
     const text =
       await response.text();
 
-
     let data = {};
 
-
     try {
-
       data =
         JSON.parse(text);
-
     } catch {
-
       throw new Error(
         "La API no devolvió JSON válido."
       );
     }
 
-
-    if (
-      !response.ok ||
-      !data.ok
-    ) {
-
+    if (!response.ok || !data.ok) {
       throw new Error(
         data.message ||
         "No se pudo cambiar el estado."
       );
     }
-
 
     alert(
       status === "confirmed"
@@ -1647,17 +1254,13 @@ async function changeStatus(
         : "Reserva cancelada correctamente."
     );
 
-
     await render();
 
-
   } catch (error) {
-
     console.error(
       "ERROR CAMBIANDO ESTADO:",
       error
     );
-
 
     alert(
       error.message ||
@@ -1674,16 +1277,13 @@ async function changeStatus(
 async function deleteReservation(
   publicId
 ) {
-
   if (!publicId) {
-
     alert(
       "Falta el identificador de la reserva."
     );
 
     return;
   }
-
 
   const confirmar =
     confirm(
@@ -1693,90 +1293,62 @@ async function deleteReservation(
       "No se puede deshacer."
     );
 
-
   if (!confirmar) {
     return;
   }
 
-
   try {
-
     const response =
       await fetch(
         "/api/reservations",
         {
           method: "DELETE",
-
           headers: {
             "Content-Type":
               "application/json",
-
             Accept:
               "application/json"
           },
-
           cache: "no-store",
-
-          credentials:
-            "same-origin",
-
-          body:
-            JSON.stringify({
-
-              public_id:
-                publicId
-            })
+          credentials: "same-origin",
+          body: JSON.stringify({
+            public_id: publicId
+          })
         }
       );
-
 
     const text =
       await response.text();
 
-
     let data = {};
 
-
     try {
-
       data =
         JSON.parse(text);
-
     } catch {
-
       throw new Error(
         "La API no devolvió JSON válido."
       );
     }
 
-
-    if (
-      !response.ok ||
-      !data.ok
-    ) {
-
+    if (!response.ok || !data.ok) {
       throw new Error(
         data.message ||
         "No se pudo eliminar la reserva."
       );
     }
 
-
     alert(
       "Reserva eliminada correctamente."
     );
 
-
     await render();
 
-
   } catch (error) {
-
     console.error(
       "ERROR ELIMINANDO RESERVA:",
       error
     );
-
 
     alert(
       error.message ||
@@ -1791,9 +1363,7 @@ async function deleteReservation(
 ===================================================== */
 
 async function initAdmin() {
-
   if (adminInitialized) {
-
     console.log(
       "ADMIN.JS ya estaba inicializado."
     );
@@ -1801,13 +1371,10 @@ async function initAdmin() {
     return;
   }
 
-
   const panel =
     $("admin-panel");
 
-
   if (!panel) {
-
     console.error(
       "No existe #admin-panel."
     );
@@ -1815,9 +1382,7 @@ async function initAdmin() {
     return;
   }
 
-
   adminInitialized = true;
-
 
   console.log(
     "===================================="
@@ -1835,10 +1400,11 @@ async function initAdmin() {
     "===================================="
   );
 
-
   /*
-     Primero cargamos configuración.
-     Después cargamos reservas.
+    Primero configuración.
+    Después reservas.
+    Esto evita llamadas prematuras
+    durante el login.
   */
 
   await loadConfig();
@@ -1852,20 +1418,16 @@ async function initAdmin() {
 ===================================================== */
 
 function watchAdminLogin() {
-
   const loginScreen =
     $("login-screen");
 
-
   const adminPanel =
     $("admin-panel");
-
 
   if (
     !loginScreen ||
     !adminPanel
   ) {
-
     console.warn(
       "No se encontraron los elementos del login."
     );
@@ -1873,39 +1435,31 @@ function watchAdminLogin() {
     return;
   }
 
-
   /*
-     El admin.html cambia:
+    El admin.html cambia:
 
-     loginScreen.style.display = "none";
+    loginScreen.style.display = "none";
 
-     y después:
+    y después:
 
-     adminPanel.style.display = "block";
-
-     Observamos ese cambio.
+    adminPanel.style.display = "block";
   */
-
 
   const observer =
     new MutationObserver(
-      function() {
-
+      function () {
         const loginHidden =
           loginScreen.style.display ===
           "none";
-
 
         const panelVisible =
           adminPanel.style.display ===
           "block";
 
-
         if (
           loginHidden &&
           panelVisible
         ) {
-
           observer.disconnect();
 
           initAdmin();
@@ -1913,21 +1467,17 @@ function watchAdminLogin() {
       }
     );
 
-
   observer.observe(
     loginScreen,
     {
       attributes: true,
-
-      attributeFilter: [
-        "style"
-      ]
+      attributeFilter: ["style"]
     }
   );
 
-
   /*
-     Por si el login ya se completó.
+    Por si el login ya se completó
+    antes de instalar el observer.
   */
 
   if (
@@ -1936,7 +1486,6 @@ function watchAdminLogin() {
     adminPanel.style.display ===
       "block"
   ) {
-
     observer.disconnect();
 
     initAdmin();
@@ -1949,17 +1498,13 @@ function watchAdminLogin() {
 ===================================================== */
 
 function bindEvents() {
-
   const configForm =
     $("configForm");
 
-
   if (configForm) {
-
     configForm.addEventListener(
       "submit",
-      function(event) {
-
+      function (event) {
         event.preventDefault();
 
         saveConfig();
@@ -2003,22 +1548,18 @@ console.log(
   "Aguará Paintball — admin.js cargado."
 );
 
-
 bindEvents();
 
-
 /*
-   IMPORTANTE:
+  NO cargamos aquí:
 
-   NO ejecutamos directamente:
+  loadConfig();
+  render();
 
-   loadConfig();
-   render();
+  porque el usuario todavía puede
+  no haberse autenticado.
 
-   porque el usuario todavía
-   puede no haberse autenticado.
-
-   Esperamos al login.
+  Esperamos al login.
 */
 
 watchAdminLogin();
