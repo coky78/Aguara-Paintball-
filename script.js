@@ -1,7 +1,7 @@
 /* =====================================================
    AGUARÁ PAINTBALL
    SCRIPT.JS
-   RESERVAS + COMPROBANTE + GALERÍA
+   RESERVAS + COMPROBANTE + GALERÍA + CONFIGURACIÓN
 ===================================================== */
 
 
@@ -21,7 +21,6 @@ const DEFAULT_CONFIG = {
 
   whatsapp: "5493794250285",
 
-  /* HORARIOS — NO MODIFICAR */
   slots: [
     "10:00",
     "11:00",
@@ -42,8 +41,6 @@ const DEFAULT_CONFIG = {
 
 /* =====================================================
    CONFIGURACIÓN ACTUAL
-   SE INICIA CON LOS VALORES POR DEFECTO
-   Y LUEGO SE ACTUALIZA DESDE /api/config
 ===================================================== */
 
 let CONFIG = {
@@ -84,6 +81,62 @@ function formatDate(date) {
     "/" +
     parts[0]
   );
+}
+
+
+function getTodayString() {
+
+  const today = new Date();
+
+  const year =
+    today.getFullYear();
+
+  const month =
+    String(today.getMonth() + 1)
+      .padStart(2, "0");
+
+  const day =
+    String(today.getDate())
+      .padStart(2, "0");
+
+  return (
+    year +
+    "-" +
+    month +
+    "-" +
+    day
+  );
+}
+
+
+function horaYaPaso(hora) {
+
+  const ahora = new Date();
+
+  const partes =
+    String(hora).split(":");
+
+  if (partes.length !== 2) {
+    return false;
+  }
+
+  const horaNumero =
+    Number(partes[0]);
+
+  const minutosNumero =
+    Number(partes[1]);
+
+  const horaDelTurno =
+    new Date();
+
+  horaDelTurno.setHours(
+    horaNumero,
+    minutosNumero,
+    0,
+    0
+  );
+
+  return ahora >= horaDelTurno;
 }
 
 
@@ -141,7 +194,7 @@ let reservationCreated = false;
 
 
 /* =====================================================
-   ACTUALIZAR PRECIOS Y DATOS EN LA PÁGINA
+   ACTUALIZAR INFORMACIÓN PÚBLICA
 ===================================================== */
 
 function actualizarPrecios() {
@@ -215,11 +268,6 @@ function actualizarPrecios() {
   }
 
 
-  /*
-     Si el campo de jugadores está vacío,
-     usamos el mínimo configurado.
-  */
-
   if (
     playersInput &&
     (
@@ -230,17 +278,11 @@ function actualizarPrecios() {
     playersInput.value =
       CONFIG.minPlayers;
   }
-
-
-  console.log(
-    "PRECIOS ACTUALIZADOS:",
-    CONFIG
-  );
 }
 
 
 /* =====================================================
-   CARGAR CONFIGURACIÓN DESDE LA API
+   CARGAR CONFIGURACIÓN DESDE /api/config
 ===================================================== */
 
 async function loadPublicConfig() {
@@ -301,20 +343,10 @@ async function loadPublicConfig() {
     }
 
 
-    /*
-       Tomamos los datos directamente
-       desde Supabase a través de /api/config.
-    */
-
     CONFIG = {
       ...DEFAULT_CONFIG,
       ...data.config,
 
-      /*
-         Los horarios quedan protegidos.
-         La configuración del panel puede devolverlos,
-         pero mantenemos los horarios actuales.
-      */
       slots:
         Array.isArray(data.config.slots) &&
         data.config.slots.length
@@ -327,7 +359,7 @@ async function loadPublicConfig() {
 
 
     console.log(
-      "CONFIGURACIÓN AGUARÁ CARGADA DESDE /api/config:",
+      "CONFIGURACIÓN CARGADA:",
       CONFIG
     );
 
@@ -339,12 +371,6 @@ async function loadPublicConfig() {
       error
     );
 
-
-    /*
-       Si la API falla, mantenemos
-       los valores por defecto para
-       que la página siga funcionando.
-    */
 
     CONFIG = {
       ...DEFAULT_CONFIG,
@@ -378,66 +404,24 @@ if (yearElement) {
 
 if (dateInput) {
 
-  const today = new Date();
-
-  const year =
-    today.getFullYear();
-
-  const month =
-    String(today.getMonth() + 1)
-      .padStart(2, "0");
-
-  const day =
-    String(today.getDate())
-      .padStart(2, "0");
-
   const todayString =
-    year +
-    "-" +
-    month +
-    "-" +
-    day;
+    getTodayString();
 
-  /* No permite seleccionar días anteriores */
   dateInput.min =
     todayString;
 
-  /* Si por algún motivo ya tenía una fecha anterior,
-     la limpiamos */
-  if (dateInput.value && dateInput.value < todayString) {
+  if (
+    dateInput.value &&
+    dateInput.value < todayString
+  ) {
     dateInput.value = "";
   }
-}
-if (dateInput) {
-
-  const today =
-    new Date();
-
-  const year =
-    today.getFullYear();
-
-  const month =
-    String(today.getMonth() + 1)
-      .padStart(2, "0");
-
-  const day =
-    String(today.getDate())
-      .padStart(2, "0");
-
-  dateInput.min =
-    year +
-    "-" +
-    month +
-    "-" +
-    day;
 }
 
 
 /* =====================================================
    HORARIOS
-   IMPORTANTE:
-   ESTA FUNCIÓN NO BORRA LOS HORARIOS DESPUÉS
-   DE CREAR UNA RESERVA.
+   NO MUESTRA HORARIOS PASADOS SI ES HOY
 ===================================================== */
 
 function cargarHorarios() {
@@ -464,8 +448,31 @@ function cargarHorarios() {
   );
 
 
+  const fechaSeleccionada =
+    dateInput
+      ? dateInput.value
+      : "";
+
+
+  const hoy =
+    getTodayString();
+
+
   CONFIG.slots.forEach(
     function (hora) {
+
+      /*
+         Si es HOY y el horario ya pasó,
+         no lo mostramos.
+      */
+
+      if (
+        fechaSeleccionada === hoy &&
+        horaYaPaso(hora)
+      ) {
+        return;
+      }
+
 
       const opcion =
         document.createElement("option");
@@ -482,6 +489,21 @@ function cargarHorarios() {
 
     }
   );
+
+
+  /*
+     Si hoy ya no quedan horarios,
+     mostramos un mensaje.
+  */
+
+  if (
+    fechaSeleccionada === hoy &&
+    timeSelect.options.length === 1
+  ) {
+
+    primeraOpcion.textContent =
+      "No quedan horarios disponibles hoy";
+  }
 
 
   console.log(
@@ -523,6 +545,44 @@ if (dateInput) {
   dateInput.addEventListener(
     "change",
     function () {
+
+      const todayString =
+        getTodayString();
+
+
+      /*
+         Seguridad adicional:
+         nunca aceptar una fecha anterior.
+      */
+
+      if (
+        dateInput.value &&
+        dateInput.value < todayString
+      ) {
+
+        dateInput.value = "";
+
+        if (timeSelect) {
+
+          timeSelect.innerHTML = "";
+
+          const opcion =
+            document.createElement("option");
+
+          opcion.value =
+            "";
+
+          opcion.textContent =
+            "Elegí una fecha";
+
+          timeSelect.appendChild(
+            opcion
+          );
+        }
+
+        return;
+      }
+
 
       if (!dateInput.value) {
 
@@ -900,11 +960,6 @@ async function createReservation() {
   }
 
 
-  /*
-     Si ya se creó la reserva,
-     no permitir otro envío.
-  */
-
   if (reservationCreated) {
     return;
   }
@@ -985,12 +1040,48 @@ async function createReservation() {
   }
 
 
+  /*
+     No permitir fechas anteriores.
+  */
+
+  if (date < getTodayString()) {
+
+    showMessage(
+      "No se pueden reservar días anteriores.",
+      "error"
+    );
+
+    return;
+  }
+
+
   if (!time) {
 
     showMessage(
       "Elegí un horario.",
       "error"
     );
+
+    return;
+  }
+
+
+  /*
+     Si es hoy, verificar nuevamente
+     que el horario no haya pasado.
+  */
+
+  if (
+    date === getTodayString() &&
+    horaYaPaso(time)
+  ) {
+
+    showMessage(
+      "Ese horario ya pasó. Elegí otro horario.",
+      "error"
+    );
+
+    cargarHorarios();
 
     return;
   }
@@ -1178,10 +1269,6 @@ async function createReservation() {
     }
 
 
-    /*
-       MARCAMOS LA RESERVA COMO CREADA.
-    */
-
     reservationCreated =
       true;
 
@@ -1233,13 +1320,11 @@ async function createReservation() {
 
 
     /*
-       IMPORTANTE:
-       NO BORRAMOS dateInput.
-       NO BORRAMOS timeSelect.
-       NO VOLVEMOS A EJECUTAR
-       cargarHorarios().
+       NO BORRAMOS:
+       dateInput
+       timeSelect
 
-       Así los horarios no desaparecen.
+       Así no desaparecen los horarios.
     */
 
 
@@ -1278,11 +1363,6 @@ async function createReservation() {
       "error"
     );
 
-
-    /*
-       Si hubo error, permitimos
-       intentar nuevamente.
-    */
 
     reservationCreated =
       false;
@@ -1327,58 +1407,61 @@ if (bookingForm) {
    WHATSAPP
 ===================================================== */
 
-const whatsappNumber =
-  CONFIG.whatsapp;
+function configurarWhatsApp() {
+
+  const whatsappNumber =
+    CONFIG.whatsapp;
 
 
-const whatsappMessage =
-  encodeURIComponent(
-    "Hola, quiero consultar por una reserva en Aguará Paintball."
-  );
+  const whatsappMessage =
+    encodeURIComponent(
+      "Hola, quiero consultar por una reserva en Aguará Paintball."
+    );
 
 
-const whatsappUrl =
-  "https://wa.me/" +
-  whatsappNumber +
-  "?text=" +
-  whatsappMessage;
+  const whatsappUrl =
+    "https://wa.me/" +
+    whatsappNumber +
+    "?text=" +
+    whatsappMessage;
 
 
-const whatsappHero =
-  document.getElementById(
-    "whatsappHero"
-  );
+  const whatsappHero =
+    document.getElementById(
+      "whatsappHero"
+    );
 
 
-const whatsappBooking =
-  document.getElementById(
-    "whatsappBooking"
-  );
+  const whatsappBooking =
+    document.getElementById(
+      "whatsappBooking"
+    );
 
 
-if (whatsappHero) {
+  if (whatsappHero) {
 
-  whatsappHero.href =
-    whatsappUrl;
+    whatsappHero.href =
+      whatsappUrl;
 
-  whatsappHero.target =
-    "_blank";
+    whatsappHero.target =
+      "_blank";
 
-  whatsappHero.rel =
-    "noopener noreferrer";
-}
+    whatsappHero.rel =
+      "noopener noreferrer";
+  }
 
 
-if (whatsappBooking) {
+  if (whatsappBooking) {
 
-  whatsappBooking.href =
-    whatsappUrl;
+    whatsappBooking.href =
+      whatsappUrl;
 
-  whatsappBooking.target =
-    "_blank";
+    whatsappBooking.target =
+      "_blank";
 
-  whatsappBooking.rel =
-    "noopener noreferrer";
+    whatsappBooking.rel =
+      "noopener noreferrer";
+  }
 }
 
 
@@ -1482,19 +1565,22 @@ if (lightbox) {
    INICIO
 ===================================================== */
 
+actualizarPrecios();
+
+configurarWhatsApp();
+
 console.log(
   "Aguará Paintball — script.js cargado correctamente."
 );
 
 console.log(
-  "Horarios disponibles:",
-  CONFIG.slots
+  "Configuración inicial:",
+  CONFIG
 );
 
 
 /* =====================================================
    CARGAR CONFIGURACIÓN REAL
-   DESDE SUPABASE → /api/config
 ===================================================== */
 
 loadPublicConfig();
