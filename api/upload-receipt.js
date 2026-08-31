@@ -2,9 +2,8 @@
 /* =====================================================
    AGUARÁ PAINTBALL
    API UPLOAD RECEIPT
-
    Recibe y guarda comprobantes de pago
-   + AVISO TELEGRAM SOLO AL RECIBIR COMPROBANTE
+   + AVISO TELEGRAM AL RECIBIR COMPROBANTE
 ===================================================== */
 
 
@@ -22,12 +21,8 @@ function sendJson(res, status, payload) {
 ===================================================== */
 
 function getSupabaseConfig() {
-
-  const supabaseUrl =
-    process.env.SUPABASE_URL;
-
-  const supabaseKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     return null;
@@ -45,15 +40,10 @@ function getSupabaseConfig() {
 ===================================================== */
 
 function supabaseHeaders(key, prefer) {
-
   const headers = {
     apikey: key,
-
-    Authorization:
-      "Bearer " + key,
-
-    "Content-Type":
-      "application/json"
+    Authorization: "Bearer " + key,
+    "Content-Type": "application/json"
   };
 
   if (prefer) {
@@ -69,7 +59,6 @@ function supabaseHeaders(key, prefer) {
 ===================================================== */
 
 function safeFileName(name) {
-
   return String(name || "comprobante")
     .replace(/[^a-zA-Z0-9._-]/g, "_")
     .slice(0, 100);
@@ -77,37 +66,24 @@ function safeFileName(name) {
 
 
 /* =====================================================
-   EXTENSIÓN
+   EXTENSIÓN DEL ARCHIVO
 ===================================================== */
 
 function getExtension(fileName, contentType) {
+  const original = safeFileName(fileName);
 
-  const original =
-    safeFileName(fileName);
-
-  const dot =
-    original.lastIndexOf(".");
+  const dot = original.lastIndexOf(".");
 
   if (dot >= 0) {
-
-    return original
-      .slice(dot)
-      .toLowerCase();
+    return original.slice(dot).toLowerCase();
   }
 
-
   const extensions = {
-
     "image/jpeg": ".jpg",
-
     "image/png": ".png",
-
     "image/webp": ".webp",
-
     "application/pdf": ".pdf"
-
   };
-
 
   return extensions[contentType] || "";
 }
@@ -115,13 +91,10 @@ function getExtension(fileName, contentType) {
 
 /* =====================================================
    TELEGRAM
-   AVISO SOLAMENTE AL RECIBIR COMPROBANTE
+   AVISO SOLAMENTE CUANDO LLEGA EL COMPROBANTE
 ===================================================== */
 
-async function enviarAvisoTelegram(
-  reserva,
-  storagePath
-) {
+async function enviarAvisoTelegram(reserva, comprobante) {
 
   const botToken =
     process.env.TELEGRAM_BOT_TOKEN;
@@ -136,48 +109,50 @@ async function enviarAvisoTelegram(
       "FALTAN VARIABLES DE TELEGRAM"
     );
 
-    return;
+    return false;
   }
 
 
-  const sena =
-    Number(
-      reserva.deposit_amount || 0
-    );
+  const precio =
+    Number(reserva.game_price || 0);
 
 
   const jugadores =
-    Number(
-      reserva.players || 0
-    );
+    Number(reserva.players || 0);
+
+
+  const sena =
+    Number(reserva.deposit_amount || 0);
+
+
+  const total =
+    precio * jugadores;
 
 
   const mensaje =
 `
-💳 COMPROBANTE DE PAGO RECIBIDO
+💰 COMPROBANTE DE PAGO RECIBIDO
 
 🎯 AGUARÁ PAINTBALL
 
 👤 Nombre: ${reserva.name}
-
 📱 WhatsApp: ${reserva.phone}
 
 📅 Fecha: ${reserva.booking_date}
-
 🕐 Horario: ${reserva.booking_time}
 
 👥 Jugadores: ${jugadores}
 
+💰 Precio por jugador: $${precio.toLocaleString("es-AR")}
 💵 Seña requerida: $${sena.toLocaleString("es-AR")}
+💳 Total estimado: $${total.toLocaleString("es-AR")}
 
 🆔 Reserva: ${reserva.public_id}
 
 📎 Comprobante:
-${storagePath}
+${comprobante}
 
-⚠️ ESTADO: PENDIENTE DE VERIFICACIÓN
-
-👉 Revisar el comprobante y confirmar la reserva desde el panel administrativo.
+⚠️ ESTADO: PENDIENTE DE REVISIÓN
 `;
 
 
@@ -198,13 +173,11 @@ ${storagePath}
 
           body:
             JSON.stringify({
-
               chat_id:
                 chatId,
 
               text:
                 mensaje
-
             })
         }
       );
@@ -221,13 +194,17 @@ ${storagePath}
         data
       );
 
-    } else {
-
-      console.log(
-        "AVISO TELEGRAM — COMPROBANTE RECIBIDO"
-      );
-
+      return false;
     }
+
+
+    console.log(
+      "AVISO TELEGRAM DE COMPROBANTE ENVIADO CORRECTAMENTE"
+    );
+
+
+    return true;
+
 
   } catch (error) {
 
@@ -236,8 +213,8 @@ ${storagePath}
       error
     );
 
+    return false;
   }
-
 }
 
 
@@ -245,10 +222,7 @@ ${storagePath}
    API
 ===================================================== */
 
-export default async function handler(
-  req,
-  res
-) {
+export default async function handler(req, res) {
 
   if (req.method !== "POST") {
 
@@ -306,7 +280,7 @@ export default async function handler(
 
 
   /* =================================================
-     DATOS RECIBIDOS
+     PROCESAR COMPROBANTE
   ================================================= */
 
   try {
@@ -379,16 +353,18 @@ export default async function handler(
 
 
     const allowedTypes = [
-
       "image/jpeg",
       "image/png",
       "image/webp",
       "application/pdf"
-
     ];
 
 
-    if (!allowedTypes.includes(contentType)) {
+    if (
+      !allowedTypes.includes(
+        contentType
+      )
+    ) {
 
       return sendJson(
         res,
@@ -418,6 +394,11 @@ export default async function handler(
 
     } catch (error) {
 
+      console.error(
+        "ERROR DECODIFICANDO BASE64:",
+        error
+      );
+
       return sendJson(
         res,
         400,
@@ -439,7 +420,10 @@ export default async function handler(
       3 * 1024 * 1024;
 
 
-    if (fileBuffer.length > maxSize) {
+    if (
+      fileBuffer.length >
+      maxSize
+    ) {
 
       return sendJson(
         res,
@@ -453,6 +437,22 @@ export default async function handler(
     }
 
 
+    if (
+      fileBuffer.length === 0
+    ) {
+
+      return sendJson(
+        res,
+        400,
+        {
+          ok: false,
+          message:
+            "El comprobante está vacío o no es válido."
+        }
+      );
+    }
+
+
     /* =================================================
        BUSCAR RESERVA
     ================================================= */
@@ -460,9 +460,11 @@ export default async function handler(
     const reservationResponse =
       await fetch(
 
-        `${baseUrl}/rest/v1/reservations` +
-        `?public_id=eq.${encodeURIComponent(publicId)}` +
-        `&select=id,public_id,name,phone,booking_date,booking_time,players,deposit_amount,status`,
+        baseUrl +
+        "/rest/v1/reservations" +
+        "?public_id=eq." +
+        encodeURIComponent(publicId) +
+        "&select=id,public_id,name,phone,booking_date,booking_time,players,game_price,deposit_amount,status",
 
         {
           method: "GET",
@@ -492,11 +494,12 @@ export default async function handler(
     } catch {
 
       reservations = [];
-
     }
 
 
-    if (!reservationResponse.ok) {
+    if (
+      !reservationResponse.ok
+    ) {
 
       console.error(
         "ERROR BUSCANDO RESERVA:",
@@ -516,7 +519,9 @@ export default async function handler(
 
 
     if (
-      !Array.isArray(reservations) ||
+      !Array.isArray(
+        reservations
+      ) ||
       reservations.length === 0
     ) {
 
@@ -537,7 +542,7 @@ export default async function handler(
 
 
     /* =================================================
-       CREAR NOMBRE DEL ARCHIVO
+       CREAR RUTA DEL COMPROBANTE
     ================================================= */
 
     const extension =
@@ -552,7 +557,11 @@ export default async function handler(
 
 
     const storagePath =
-      `${publicId}/${timestamp}-comprobante${extension}`;
+      publicId +
+      "/" +
+      timestamp +
+      "-comprobante" +
+      extension;
 
 
     /* =================================================
@@ -562,7 +571,9 @@ export default async function handler(
     const uploadResponse =
       await fetch(
 
-        `${baseUrl}/storage/v1/object/comprobantes/${storagePath}`,
+        baseUrl +
+        "/storage/v1/object/comprobantes/" +
+        storagePath,
 
         {
           method: "POST",
@@ -573,14 +584,14 @@ export default async function handler(
               supabaseKey,
 
             Authorization:
-              "Bearer " + supabaseKey,
+              "Bearer " +
+              supabaseKey,
 
             "Content-Type":
               contentType,
 
             "x-upsert":
               "false"
-
           },
 
           body:
@@ -607,11 +618,12 @@ export default async function handler(
 
       uploadData =
         uploadText;
-
     }
 
 
-    if (!uploadResponse.ok) {
+    if (
+      !uploadResponse.ok
+    ) {
 
       console.error(
         "ERROR SUBIENDO COMPROBANTE:",
@@ -633,14 +645,16 @@ export default async function handler(
 
 
     /* =================================================
-       GUARDAR REFERENCIA EN LA RESERVA
+       GUARDAR REFERENCIA EN RESERVA
     ================================================= */
 
     const updateResponse =
       await fetch(
 
-        `${baseUrl}/rest/v1/reservations` +
-        `?public_id=eq.${encodeURIComponent(publicId)}`,
+        baseUrl +
+        "/rest/v1/reservations" +
+        "?public_id=eq." +
+        encodeURIComponent(publicId),
 
         {
           method: "PATCH",
@@ -659,7 +673,6 @@ export default async function handler(
 
               status:
                 "pending"
-
             })
         }
       );
@@ -683,11 +696,12 @@ export default async function handler(
 
       updateData =
         updateText;
-
     }
 
 
-    if (!updateResponse.ok) {
+    if (
+      !updateResponse.ok
+    ) {
 
       console.error(
         "ERROR ACTUALIZANDO RESERVA:",
@@ -699,8 +713,10 @@ export default async function handler(
         500,
         {
           ok: false,
+
           message:
             "El comprobante se guardó, pero no pudimos asociarlo a la reserva.",
+
           error:
             updateData
         }
@@ -709,11 +725,22 @@ export default async function handler(
 
 
     /* =================================================
-       COMPROBANTE GUARDADO CORRECTAMENTE
+       AVISO TELEGRAM
+       AHORA SÍ: COMPROBANTE RECIBIDO
+    ================================================= */
+
+    await enviarAvisoTelegram(
+      reserva,
+      storagePath
+    );
+
+
+    /* =================================================
+       LOG
     ================================================= */
 
     console.log(
-      "COMPROBANTE RECIBIDO:",
+      "COMPROBANTE RECIBIDO CORRECTAMENTE:",
       {
         publicId,
         nombre:
@@ -731,36 +758,23 @@ export default async function handler(
 
 
     /* =================================================
-       TELEGRAM
-       SE ENVÍA SOLAMENTE AHORA
-    ================================================= */
-
-    await enviarAvisoTelegram(
-      reserva,
-      storagePath
-    );
-
-
-    /* =================================================
-       RESPUESTA CORRECTA
+       RESPUESTA FINAL
     ================================================= */
 
     return sendJson(
       res,
       200,
       {
-
         ok: true,
 
         message:
-          "Comprobante recibido correctamente.",
+          "Comprobante recibido correctamente. Aguará revisará el pago y confirmará tu turno.",
 
         public_id:
           publicId,
 
         comprobante:
           storagePath
-
       }
     );
 
@@ -784,8 +798,6 @@ export default async function handler(
           "Error interno al recibir el comprobante."
       }
     );
-
   }
-
 }
 ```
