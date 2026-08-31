@@ -45,6 +45,292 @@ let reservationsLoaded = false;
 
 
 /* =====================================================
+   ESTILO PROFESIONAL
+   Se inyecta desde admin.js
+===================================================== */
+
+function injectAdminStyles() {
+  if (document.getElementById("aguara-admin-button-styles")) {
+    return;
+  }
+
+  const style = document.createElement("style");
+
+  style.id = "aguara-admin-button-styles";
+
+  style.textContent = `
+    .booking-actions {
+      display: flex !important;
+      gap: 10px !important;
+      flex-wrap: wrap !important;
+      margin-top: 20px !important;
+      padding-top: 16px !important;
+      border-top: 1px solid rgba(255,255,255,.08) !important;
+    }
+
+    .admin-action-btn {
+      appearance: none !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px !important;
+
+      min-height: 46px !important;
+      padding: 12px 17px !important;
+
+      border-radius: 11px !important;
+      border: 1px solid rgba(255,255,255,.14) !important;
+
+      color: #fff !important;
+      font-family: inherit !important;
+      font-size: 14px !important;
+      font-weight: 800 !important;
+      letter-spacing: .15px !important;
+      line-height: 1 !important;
+
+      cursor: pointer !important;
+
+      box-shadow:
+        0 7px 18px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.06) !important;
+
+      transition:
+        transform .16s ease,
+        filter .16s ease,
+        box-shadow .16s ease,
+        border-color .16s ease !important;
+    }
+
+    .admin-action-btn:hover {
+      transform: translateY(-2px) !important;
+      filter: brightness(1.1) !important;
+
+      box-shadow:
+        0 11px 25px rgba(0,0,0,.38),
+        inset 0 1px 0 rgba(255,255,255,.08) !important;
+    }
+
+    .admin-action-btn:active {
+      transform: translateY(0) scale(.98) !important;
+
+      box-shadow:
+        0 5px 12px rgba(0,0,0,.25) !important;
+    }
+
+    .admin-action-btn:focus-visible {
+      outline: 2px solid rgba(255,255,255,.9) !important;
+      outline-offset: 3px !important;
+    }
+
+    .admin-action-icon {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+
+      width: 22px !important;
+      height: 22px !important;
+
+      font-size: 17px !important;
+      line-height: 1 !important;
+    }
+
+    .admin-edit {
+      background:
+        linear-gradient(
+          180deg,
+          #3b3b3b 0%,
+          #252525 100%
+        ) !important;
+
+      border-color: #5a5a5a !important;
+    }
+
+    .admin-confirm {
+      background:
+        linear-gradient(
+          180deg,
+          #22a447 0%,
+          #127332 100%
+        ) !important;
+
+      border-color: #39d66a !important;
+    }
+
+    .admin-cancel {
+      background:
+        linear-gradient(
+          180deg,
+          #d68a18 0%,
+          #a85d08 100%
+        ) !important;
+
+      border-color: #f5b642 !important;
+    }
+
+    .admin-delete {
+      background:
+        linear-gradient(
+          180deg,
+          #dc3b3b 0%,
+          #9f2020 100%
+        ) !important;
+
+      border-color: #f06464 !important;
+    }
+
+    .admin-retry {
+      background:
+        linear-gradient(
+          180deg,
+          #414141 0%,
+          #272727 100%
+        ) !important;
+    }
+
+    .admin-reservation {
+      position: relative !important;
+      overflow: hidden !important;
+
+      border-radius: 16px !important;
+      margin-bottom: 18px !important;
+      padding: 20px !important;
+
+      box-shadow:
+        0 12px 30px rgba(0,0,0,.22) !important;
+    }
+
+    .admin-reservation-header {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 15px !important;
+      flex-wrap: wrap !important;
+
+      margin-bottom: 16px !important;
+      padding-bottom: 14px !important;
+
+      border-bottom: 1px solid rgba(255,255,255,.08) !important;
+    }
+
+    .admin-reservation-date {
+      font-size: 18px !important;
+      font-weight: 900 !important;
+      color: #fff !important;
+    }
+
+    .admin-reservation-time {
+      margin-top: 5px !important;
+
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      color: #d0d0d0 !important;
+    }
+
+    .admin-status-badge {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+
+      padding: 8px 12px !important;
+
+      border-radius: 999px !important;
+
+      font-size: 11px !important;
+      font-weight: 900 !important;
+      letter-spacing: .6px !important;
+
+      background: rgba(255,255,255,.06) !important;
+      border: 1px solid rgba(255,255,255,.12) !important;
+    }
+
+    .booking-status-confirmed {
+      border-color: rgba(34,197,94,.55) !important;
+    }
+
+    .booking-status-pending {
+      border-color: rgba(255,255,255,.14) !important;
+    }
+
+    .booking-status-cancelled {
+      border-color: rgba(239,68,68,.55) !important;
+    }
+
+    .admin-reservation-info {
+      line-height: 1.75 !important;
+    }
+
+    .admin-reservation-name {
+      margin-bottom: 8px !important;
+
+      font-size: 18px !important;
+      font-weight: 900 !important;
+      color: #fff !important;
+    }
+
+    .admin-reservation-row {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+
+      color: #dedede !important;
+    }
+
+    .admin-reservation-id {
+      margin-top: 10px !important;
+
+      color: #999 !important;
+      font-size: 12px !important;
+      word-break: break-all !important;
+    }
+
+    .admin-reservation-notes {
+      display: flex !important;
+      gap: 7px !important;
+
+      margin-top: 9px !important;
+      padding-top: 9px !important;
+
+      border-top: 1px solid rgba(255,255,255,.06) !important;
+
+      color: #cfcfcf !important;
+    }
+
+    .booking-warning {
+      padding: 10px 12px !important;
+
+      border-radius: 9px !important;
+
+      color: #ff8a8a !important;
+      background: rgba(239,68,68,.08) !important;
+      border: 1px solid rgba(239,68,68,.22) !important;
+
+      font-size: 13px !important;
+    }
+
+    @media (max-width: 640px) {
+      .booking-actions {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+
+      .admin-action-btn {
+        width: 100% !important;
+        min-height: 48px !important;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .booking-actions {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+}
+
+
+/* =====================================================
    UTILIDADES
 ===================================================== */
 
@@ -72,18 +358,30 @@ function escapeHtml(value) {
 }
 
 
+function escapeAttribute(value) {
+  return escapeHtml(value);
+}
+
+
 function formatDate(date) {
   if (!date) {
     return "";
   }
 
-  const parts = String(date).split("-");
+  const parts =
+    String(date).split("-");
 
   if (parts.length !== 3) {
     return String(date);
   }
 
-  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  return (
+    parts[2] +
+    "/" +
+    parts[1] +
+    "/" +
+    parts[0]
+  );
 }
 
 
@@ -96,11 +394,15 @@ function cloneDefaults() {
 
 
 /* =====================================================
-   MENSAJE DE CONFIGURACIÓN
+   MENSAJE
 ===================================================== */
 
-function showSavedMessage(message, color = "") {
-  const saved = $("saved");
+function showSavedMessage(
+  message,
+  color = ""
+) {
+  const saved =
+    $("saved");
 
   if (!saved) {
     return;
@@ -113,12 +415,13 @@ function showSavedMessage(message, color = "") {
 
 
 /* =====================================================
-   APLICAR CONFIGURACIÓN AL FORMULARIO
+   APLICAR CONFIGURACIÓN
 ===================================================== */
 
 function applyConfigToForm(config) {
   const incoming =
-    config && typeof config === "object"
+    config &&
+    typeof config === "object"
       ? config
       : {};
 
@@ -128,7 +431,8 @@ function applyConfigToForm(config) {
   };
 
   if (!Array.isArray(cfg.slots)) {
-    cfg.slots = [...DEFAULTS.slots];
+    cfg.slots =
+      [...DEFAULTS.slots];
   }
 
   if ($("gamePrice")) {
@@ -187,16 +491,24 @@ function applyConfigToForm(config) {
 
 function readConfigFromForm() {
   const gamePrice =
-    Number($("gamePrice")?.value || 0);
+    Number(
+      $("gamePrice")?.value || 0
+    );
 
   const hydrogelPrice =
-    Number($("hydrogelPrice")?.value || 0);
+    Number(
+      $("hydrogelPrice")?.value || 0
+    );
 
   const deposit =
-    Number($("deposit")?.value || 0);
+    Number(
+      $("deposit")?.value || 0
+    );
 
   const minPlayers =
-    Number($("minPlayers")?.value || 1);
+    Number(
+      $("minPlayers")?.value || 1
+    );
 
   const shotsText =
     $("shotsText")
@@ -220,13 +532,14 @@ function readConfigFromForm() {
   let slots = [];
 
   if ($("slots")) {
-    slots = $("slots")
-      .value
-      .split(",")
-      .map(function (slot) {
-        return slot.trim();
-      })
-      .filter(Boolean);
+    slots =
+      $("slots")
+        .value
+        .split(",")
+        .map(function (slot) {
+          return slot.trim();
+        })
+        .filter(Boolean);
   }
 
   return {
@@ -248,7 +561,9 @@ function readConfigFromForm() {
 
 function validateConfig(config) {
   if (
-    !Number.isFinite(config.gamePrice) ||
+    !Number.isFinite(
+      config.gamePrice
+    ) ||
     config.gamePrice < 0
   ) {
     alert(
@@ -258,7 +573,9 @@ function validateConfig(config) {
   }
 
   if (
-    !Number.isFinite(config.hydrogelPrice) ||
+    !Number.isFinite(
+      config.hydrogelPrice
+    ) ||
     config.hydrogelPrice < 0
   ) {
     alert(
@@ -268,7 +585,9 @@ function validateConfig(config) {
   }
 
   if (
-    !Number.isFinite(config.deposit) ||
+    !Number.isFinite(
+      config.deposit
+    ) ||
     config.deposit < 0
   ) {
     alert(
@@ -278,7 +597,9 @@ function validateConfig(config) {
   }
 
   if (
-    !Number.isInteger(config.minPlayers) ||
+    !Number.isInteger(
+      config.minPlayers
+    ) ||
     config.minPlayers < 1
   ) {
     alert(
@@ -400,11 +721,6 @@ async function loadConfig() {
       "#22c55e"
     );
 
-    console.log(
-      "AGUARÁ → CONFIGURACIÓN CARGADA:",
-      cfg
-    );
-
     return cfg;
 
   } catch (error) {
@@ -451,11 +767,6 @@ async function saveConfig() {
   );
 
   try {
-    console.log(
-      "AGUARÁ → CONFIGURACIÓN A ENVIAR:",
-      next
-    );
-
     const response =
       await fetch(
         "/api/config",
@@ -512,7 +823,8 @@ async function saveConfig() {
 
     if (
       data.config &&
-      typeof data.config === "object"
+      typeof data.config ===
+        "object"
     ) {
       applyConfigToForm(
         data.config
@@ -528,11 +840,6 @@ async function saveConfig() {
     showSavedMessage(
       "Configuración guardada correctamente.",
       "#22c55e"
-    );
-
-    console.log(
-      "AGUARÁ → CONFIGURACIÓN GUARDADA:",
-      cfg
     );
 
   } catch (error) {
@@ -594,7 +901,8 @@ function sortBookings(bookings) {
         orderA !== orderB
       ) {
         return (
-          orderA - orderB
+          orderA -
+          orderB
         );
       }
 
@@ -745,11 +1053,6 @@ async function render() {
         data;
     }
 
-    console.log(
-      "AGUARÁ → RESERVAS RECIBIDAS:",
-      bookings
-    );
-
     reservationsLoaded = true;
 
     if (
@@ -802,7 +1105,8 @@ async function render() {
           class="admin-action-btn admin-retry"
           onclick="render()"
         >
-          🔄 Reintentar
+          <span class="admin-action-icon">🔄</span>
+          <span>Reintentar</span>
         </button>
       </div>
     `;
@@ -832,11 +1136,17 @@ function reservationHtml(b) {
   let statusText =
     "PENDIENTE";
 
+  let statusClass =
+    "booking-status-pending";
+
   if (
     status === "confirmed"
   ) {
     statusText =
       "CONFIRMADA";
+
+    statusClass =
+      "booking-status-confirmed";
   }
 
   if (
@@ -844,6 +1154,9 @@ function reservationHtml(b) {
   ) {
     statusText =
       "CANCELADA";
+
+    statusClass =
+      "booking-status-cancelled";
   }
 
   const name =
@@ -886,44 +1199,48 @@ function reservationHtml(b) {
     b.observaciones ||
     "";
 
-  let statusClass =
-    "booking-status-pending";
-
-  if (
+  const borderColor =
     status === "confirmed"
-  ) {
-    statusClass =
-      "booking-status-confirmed";
-  }
+      ? "#22c55e"
+      : status === "cancelled"
+        ? "#ef4444"
+        : "#444";
 
-  if (
-    status === "cancelled"
-  ) {
-    statusClass =
-      "booking-status-cancelled";
-  }
+  const backgroundColor =
+    status === "confirmed"
+      ? "rgba(34,197,94,0.10)"
+      : status === "cancelled"
+        ? "rgba(239,68,68,0.08)"
+        : "#111";
 
   let html = "";
 
   html += `
     <article
       class="admin-reservation ${statusClass}"
+      style="
+        border: 1px solid ${borderColor};
+        background: ${backgroundColor};
+      "
     >
   `;
 
 
   /* ===============================================
-     ENCABEZADO
+     CABECERA
   =============================================== */
 
   html += `
     <div class="admin-reservation-header">
 
       <div>
+
         <div class="admin-reservation-date">
           📅
           ${escapeHtml(
-            formatDate(bookingDate)
+            formatDate(
+              bookingDate
+            )
           )}
         </div>
 
@@ -933,7 +1250,9 @@ function reservationHtml(b) {
             bookingTime
           )}
         </div>
+
       </div>
+
 
       <span
         class="admin-status-badge ${statusClass}"
@@ -948,7 +1267,7 @@ function reservationHtml(b) {
 
 
   /* ===============================================
-     INFORMACIÓN
+     DATOS
   =============================================== */
 
   html += `
@@ -1007,7 +1326,7 @@ function reservationHtml(b) {
   if (notes) {
     html += `
       <div class="admin-reservation-notes">
-        📝
+        <span>📝</span>
         <span>
           ${escapeHtml(notes)}
         </span>
@@ -1022,78 +1341,107 @@ function reservationHtml(b) {
 
 
   /* ===============================================
-     BOTONES
+     BOTONES PROFESIONALES
   =============================================== */
 
   html += `
     <div class="booking-actions">
+  `;
 
-      ${
-        publicId
-          ? `
-            <button
-              type="button"
-              class="admin-action-btn admin-edit"
-              onclick="editReservation('${escapeHtml(publicId)}')"
-            >
-              <span class="admin-action-icon">✏️</span>
-              <span>Editar</span>
-            </button>
-          `
-          : ""
-      }
 
-      ${
-        publicId &&
-        status !== "confirmed"
-          ? `
-            <button
-              type="button"
-              class="admin-action-btn admin-confirm"
-              onclick="changeStatus('${escapeHtml(publicId)}', 'confirmed')"
-            >
-              <span class="admin-action-icon">✓</span>
-              <span>Confirmar</span>
-            </button>
-          `
-          : ""
-      }
+  if (publicId) {
 
-      ${
-        publicId &&
-        status !== "cancelled"
-          ? `
-            <button
-              type="button"
-              class="admin-action-btn admin-cancel"
-              onclick="changeStatus('${escapeHtml(publicId)}', 'cancelled')"
-            >
-              <span class="admin-action-icon">✕</span>
-              <span>Cancelar</span>
-            </button>
-          `
-          : ""
-      }
+    html += `
+      <button
+        type="button"
+        class="admin-action-btn admin-edit"
+        onclick="editReservation('${escapeAttribute(publicId)}')"
+      >
+        <span class="admin-action-icon">
+          ✏️
+        </span>
 
-      ${
-        publicId
-          ? `
-            <button
-              type="button"
-              class="admin-action-btn admin-delete"
-              onclick="deleteReservation('${escapeHtml(publicId)}')"
-            >
-              <span class="admin-action-icon">🗑️</span>
-              <span>Eliminar</span>
-            </button>
-          `
-          : `
-            <div class="booking-warning">
-              Esta reserva no tiene public_id.
-            </div>
-          `
-      }
+        <span>
+          Editar
+        </span>
+      </button>
+    `;
 
+
+    if (
+      status !== "confirmed"
+    ) {
+
+      html += `
+        <button
+          type="button"
+          class="admin-action-btn admin-confirm"
+          onclick="changeStatus('${escapeAttribute(publicId)}', 'confirmed')"
+        >
+          <span class="admin-action-icon">
+            ✓
+          </span>
+
+          <span>
+            Confirmar
+          </span>
+        </button>
+      `;
+
+    }
+
+
+    if (
+      status !== "cancelled"
+    ) {
+
+      html += `
+        <button
+          type="button"
+          class="admin-action-btn admin-cancel"
+          onclick="changeStatus('${escapeAttribute(publicId)}', 'cancelled')"
+        >
+          <span class="admin-action-icon">
+            ✕
+          </span>
+
+          <span>
+            Cancelar
+          </span>
+        </button>
+      `;
+
+    }
+
+
+    html += `
+      <button
+        type="button"
+        class="admin-action-btn admin-delete"
+        onclick="deleteReservation('${escapeAttribute(publicId)}')"
+      >
+        <span class="admin-action-icon">
+          🗑️
+        </span>
+
+        <span>
+          Eliminar
+        </span>
+      </button>
+    `;
+
+  } else {
+
+    html += `
+      <div class="booking-warning">
+        Esta reserva no tiene public_id.
+      </div>
+    `;
+
+  }
+
+
+  html += `
     </div>
   `;
 
@@ -1228,7 +1576,8 @@ async function editReservation(
 
   if (
     !Number.isInteger(players) ||
-    players < Number(cfg.minPlayers)
+    players <
+      Number(cfg.minPlayers)
   ) {
     alert(
       "La reserva requiere un mínimo de " +
@@ -1251,6 +1600,7 @@ async function editReservation(
   }
 
   try {
+
     const response =
       await fetch(
         "/api/reservations",
@@ -1265,7 +1615,8 @@ async function editReservation(
               "application/json"
           },
 
-          cache: "no-store",
+          cache:
+            "no-store",
 
           credentials:
             "same-origin",
@@ -1327,6 +1678,7 @@ async function editReservation(
     await render();
 
   } catch (error) {
+
     console.error(
       "AGUARÁ → ERROR EDITANDO RESERVA:",
       error
@@ -1377,6 +1729,7 @@ async function changeStatus(
   }
 
   try {
+
     const response =
       await fetch(
         "/api/reservations",
@@ -1391,7 +1744,8 @@ async function changeStatus(
               "application/json"
           },
 
-          cache: "no-store",
+          cache:
+            "no-store",
 
           credentials:
             "same-origin",
@@ -1440,6 +1794,7 @@ async function changeStatus(
     await render();
 
   } catch (error) {
+
     console.error(
       "AGUARÁ → ERROR CAMBIANDO ESTADO:",
       error
@@ -1479,6 +1834,7 @@ async function deleteReservation(
   }
 
   try {
+
     const response =
       await fetch(
         "/api/reservations",
@@ -1493,7 +1849,8 @@ async function deleteReservation(
               "application/json"
           },
 
-          cache: "no-store",
+          cache:
+            "no-store",
 
           credentials:
             "same-origin",
@@ -1537,6 +1894,7 @@ async function deleteReservation(
     await render();
 
   } catch (error) {
+
     console.error(
       "AGUARÁ → ERROR ELIMINANDO RESERVA:",
       error
@@ -1572,6 +1930,9 @@ window.changeStatus =
 window.deleteReservation =
   deleteReservation;
 
+window.initAdmin =
+  initAdmin;
+
 
 /* =====================================================
    INICIAR PANEL
@@ -1585,10 +1946,26 @@ function bindEvents() {
     return;
   }
 
+  /*
+    Evitamos registrar el mismo evento
+    más de una vez.
+  */
+
+  if (
+    configForm.dataset.aguaraBound ===
+    "true"
+  ) {
+    return;
+  }
+
+  configForm.dataset.aguaraBound =
+    "true";
+
   configForm.addEventListener(
     "submit",
     function (event) {
       event.preventDefault();
+
       saveConfig();
     }
   );
@@ -1601,6 +1978,8 @@ async function initAdmin() {
   }
 
   adminInitialized = true;
+
+  injectAdminStyles();
 
   console.log(
     "===================================="
@@ -1639,12 +2018,16 @@ if (
   document.readyState ===
   "loading"
 ) {
+
   document.addEventListener(
     "DOMContentLoaded",
     function () {
       initAdmin();
     }
   );
+
 } else {
+
   initAdmin();
+
 }
