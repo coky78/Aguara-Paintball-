@@ -9,7 +9,12 @@
    CONFIGURACIÓN
 ===================================================== */
 
-const CONFIG = {
+/* =====================================================
+   CONFIGURACIÓN
+   LEE LOS VALORES GUARDADOS DESDE EL PANEL ADMIN
+===================================================== */
+
+const DEFAULT_CONFIG = {
   gamePrice: 29000,
   shotsText: "100 TIROS INCLUIDOS",
 
@@ -38,6 +43,55 @@ const CONFIG = {
     "22:00"
   ]
 };
+
+
+/* =====================================================
+   CARGAR CONFIGURACIÓN GUARDADA
+===================================================== */
+
+function loadPublicConfig() {
+
+  try {
+
+    const saved =
+      JSON.parse(
+        localStorage.getItem("aguaraConfig") || "{}"
+      );
+
+
+    return {
+      ...DEFAULT_CONFIG,
+      ...saved,
+
+      /*
+         Los horarios siempre quedan protegidos.
+         NO SE MODIFICAN.
+      */
+      slots: DEFAULT_CONFIG.slots
+    };
+
+  } catch (error) {
+
+    console.error(
+      "ERROR CARGANDO CONFIGURACIÓN:",
+      error
+    );
+
+    return {
+      ...DEFAULT_CONFIG
+    };
+  }
+}
+
+
+const CONFIG =
+  loadPublicConfig();
+
+
+console.log(
+  "CONFIGURACIÓN AGUARÁ:",
+  CONFIG
+);
 
 
 /* =====================================================
