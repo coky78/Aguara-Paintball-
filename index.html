@@ -151,6 +151,54 @@
         window.location.reload();
       });
     })();
+
+    // Ajustes visuales/interacción del calendario, sin tocar su lógica de reservas.
+    (function () {
+      const style = document.createElement('style');
+      style.textContent = `
+        .aguara-calendar-shell {
+          width: 50%;
+          margin-left: auto;
+          margin-right: auto;
+          box-sizing: border-box;
+        }
+        .aguara-time-card.is-selected {
+          background: #168a3a !important;
+          border-color: #31c95a !important;
+          color: #fff !important;
+        }
+        .aguara-time-card.is-reserved {
+          background: #5b1717 !important;
+          border-color: #e33a3a !important;
+          color: #fff !important;
+        }
+        .aguara-time-card.is-reserved small {
+          color: #ff8d8d !important;
+        }
+        .aguara-day.is-selected {
+          border-color: #f08a35 !important;
+          background: #3a2418 !important;
+        }
+        @media (max-width: 640px) {
+          .aguara-calendar-shell {
+            width: 100%;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+
+      document.addEventListener('click', function (event) {
+        const day = event.target.closest('.aguara-day');
+        if (!day || day.disabled) return;
+
+        setTimeout(function () {
+          const panel = document.getElementById('aguaraTimeGrid');
+          if (panel) {
+            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 80);
+      });
+    })();
   </script>
 </body>
 </html>
