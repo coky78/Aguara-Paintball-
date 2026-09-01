@@ -30,3 +30,5 @@ Restauración Aguará
 
 <!-- deployment trigger after Telegram flow correction -->
 NO FUNCIONA
+
+<!-- trigger Vercel deployment -->
