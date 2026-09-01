@@ -18,13 +18,7 @@ function fromBase64Url(value) {
 }
 
 async function sign(secret, payload) {
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign", "verify"]
-  );
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
   return base64Url(new Uint8Array(signature));
 }
@@ -55,12 +49,7 @@ function getConfig() {
 }
 
 function headers(key, prefer) {
-  const result = {
-    apikey: key,
-    Authorization: "Bearer " + key,
-    "Content-Type": "application/json",
-    Accept: "application/json"
-  };
+  const result = { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json", Accept: "application/json" };
   if (prefer) result.Prefer = prefer;
   return result;
 }
@@ -71,16 +60,10 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     try {
-      const response = await fetch(
-        config.url + "/rest/v1/aguara_booking_info?select=text_content&eq.id=1&limit=1",
-        { headers: headers(config.key) }
-      );
+      const response = await fetch(config.url + "/rest/v1/aguara_booking_info?select=text_content&eq.id=1&limit=1", { headers: headers(config.key) });
       const data = await response.json();
       if (!response.ok) return sendJson(res, response.status, { ok: false, message: "No se pudo leer el texto de reservas." });
-      return sendJson(res, 200, {
-        ok: true,
-        text: data?.[0]?.text_content || "Elegí primero la fecha y después uno de los horarios disponibles. La seña es necesaria para confirmar la reserva."
-      });
+      return sendJson(res, 200, { ok: true, text: data?.[0]?.text_content || "Elegí primero la fecha y después uno de los horarios disponibles. La seña es necesaria para confirmar la reserva." });
     } catch (error) {
       return sendJson(res, 500, { ok: false, message: error.message || "Error leyendo el texto de reservas." });
     }
@@ -91,18 +74,13 @@ export default async function handler(req, res) {
     return sendJson(res, 405, { ok: false, message: "Método no permitido." });
   }
 
-  if (!(await validAdmin(req))) {
-    return sendJson(res, 401, { ok: false, message: "No autorizado." });
-  }
+  if (!(await validAdmin(req))) return sendJson(res, 401, { ok: false, message: "No autorizado." });
 
   const text = String(req.body?.text ?? "").trim();
   if (!text) return sendJson(res, 400, { ok: false, message: "El texto no puede quedar vacío." });
   if (text.length > 1200) return sendJson(res, 400, { ok: false, message: "El texto no puede superar 1200 caracteres." });
 
   try {
-    // The row with id=1 already exists. Update it directly instead of relying on
-    // PostgREST upsert/conflict resolution, which can fail when the REST schema
-    // cache or conflict metadata is stale.
     const response = await fetch(config.url + "/rest/v1/aguara_booking_info?id=eq.1", {
       method: "PATCH",
       headers: headers(config.key, "return=representation"),
@@ -110,9 +88,7 @@ export default async function handler(req, res) {
     });
     const data = await response.json();
     if (!response.ok) return sendJson(res, response.status, { ok: false, message: "No se pudo guardar el texto de reservas.", error: data });
-    if (!Array.isArray(data) || !data.length) {
-      return sendJson(res, 404, { ok: false, message: "No se encontró el registro del texto de reservas." });
-    }
+    if (!Array.isArray(data) || !data.length) return sendJson(res, 404, { ok: false, message: "No se encontró el registro del texto de reservas." });
     return sendJson(res, 200, { ok: true, text: data[0].text_content || text });
   } catch (error) {
     return sendJson(res, 500, { ok: false, message: error.message || "Error guardando el texto de reservas." });
