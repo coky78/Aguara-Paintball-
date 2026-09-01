@@ -23,7 +23,7 @@ function supabaseHeaders(key, extra = {}) {
   };
 }
 
-async function notifyTelegram() {
+async function notifyTelegram(whatsapp) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
@@ -33,6 +33,17 @@ async function notifyTelegram() {
   }
 
   try {
+    const numero = String(whatsapp || "").replace(/\D/g, "");
+
+    // Si el número argentino viene sin código de país, agregamos 54.
+    const numeroWhatsApp = numero.startsWith("54")
+      ? numero
+      : numero.startsWith("0")
+        ? `54${numero.slice(1)}`
+        : `54${numero}`;
+
+    const whatsappUrl = `https://wa.me/${numeroWhatsApp}`;
+
     const response = await fetch(
       `https://api.telegram.org/bot${botToken}/sendMessage`,
       {
@@ -42,7 +53,9 @@ async function notifyTelegram() {
         },
         body: JSON.stringify({
           chat_id: chatId,
-          text: "🔔 Se recibió un comprobante de una nueva reserva."
+          text: `🔔 Se recibió un comprobante de una nueva reserva.\n📲 <a href="${whatsappUrl}">Contactar por WhatsApp</a>`,
+          parse_mode: "HTML",
+          disable_web_page_preview: true
         })
       }
     );
@@ -141,7 +154,7 @@ export default async function handler(req, res) {
     }
 
     const reservationResponse = await fetch(
-      `${baseUrl}/rest/v1/reservations?select=id,public_id,status,receipt_url&public_id=eq.${encodeURIComponent(publicId)}&limit=1`,
+      `${baseUrl}/rest/v1/reservations?select=id,public_id,status,receipt_url,whatsapp&public_id=eq.${encodeURIComponent(publicId)}&limit=1`,
       {
         method: "GET",
         headers: supabaseHeaders(supabaseKey, {
@@ -245,7 +258,7 @@ export default async function handler(req, res) {
     // El aviso se envía solamente después de guardar el comprobante
     // y actualizar correctamente la reserva. Un fallo de Telegram
     // no afecta la confirmación del envío del comprobante.
-    await notifyTelegram();
+    await notifyTelegram(reservation.whatsapp);
 
     return sendJson(res, 200, {
       ok: true,
