@@ -1,0 +1,109 @@
+#equipamiento {
+  background: #0b0b0b;
+}
+
+.equipment-catalog-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.equipment-catalog-head .muted {
+  max-width: 420px;
+  text-align: right;
+}
+
+.equipment-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.equipment-card {
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #151515, #0f0f0f);
+  box-shadow: 0 14px 36px rgba(0,0,0,.25);
+  transition: transform .2s ease, border-color .2s ease;
+}
+
+.equipment-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(240,138,53,.55);
+}
+
+.equipment-image-wrap {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #171717;
+}
+
+.equipment-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .35s ease;
+}
+
+.equipment-card:hover .equipment-image-wrap img {
+  transform: scale(1.035);
+}
+
+.equipment-image-error .equipment-image-wrap {
+  display: grid;
+  place-items: center;
+}
+
+.equipment-image-error .equipment-image-wrap::after {
+  content: "Imagen no disponible";
+  color: #777;
+  font-size: 13px;
+}
+
+.equipment-copy {
+  padding: 18px 18px 20px;
+}
+
+.equipment-label {
+  display: block;
+  margin-bottom: 7px;
+  color: #f08a35;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .16em;
+}
+
+.equipment-copy h3 {
+  margin: 0 0 8px;
+  font-size: 21px;
+}
+
+.equipment-copy p {
+  margin: 0;
+  color: #aaa;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.equipment-catalog-empty {
+  padding: 34px 20px;
+  border: 1px dashed #333;
+  border-radius: 14px;
+  color: #888;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .equipment-catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .equipment-catalog-head { display: block; }
+  .equipment-catalog-head .muted { margin-top: 10px; text-align: left; }
+  .equipment-catalog-grid { grid-template-columns: 1fr; gap: 14px; }
+  .equipment-image-wrap { aspect-ratio: 16 / 11; }
+}

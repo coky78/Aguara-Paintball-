@@ -177,11 +177,19 @@
   }
 
   function escapeHtml(value) {
-    return String(value || "").replace(/[&<>"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[char]));
+    return String(value || "").replace(/[&<>\"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[char]));
   }
 
   const BUCKET = "site-media";
   const SUPABASE_URL = "https://tplnyjgexpfqkaevvflq.supabase.co";
+
+  function loadCatalogAdmin() {
+    if (document.querySelector('script[data-aguara-catalog-admin]')) return;
+    const script = document.createElement("script");
+    script.src = "admin-catalog.js";
+    script.dataset.aguaraCatalogAdmin = "true";
+    document.body.appendChild(script);
+  }
 
   function init() {
     styles();
@@ -189,6 +197,7 @@
     const root = document.getElementById("mediaAdmin");
     if (!panel || !root) return;
     load();
+    loadCatalogAdmin();
   }
 
   const wait = () => {
