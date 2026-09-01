@@ -1,0 +1,19 @@
+/* Ajuste visual de la portada: sube levemente el bloque inicial sin cambiar tamaños ni animaciones. */
+.hero-content{
+  margin-top:70px;
+  transform:translateY(-4vh);
+}
+
+@media(max-width:800px){
+  .hero-content{
+    margin-top:70px;
+    transform:translateY(-6vh);
+  }
+}
+
+@media(max-width:640px){
+  .hero-content{
+    margin-top:50px;
+    transform:translateY(-8vh);
+  }
+}
