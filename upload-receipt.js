@@ -8,10 +8,7 @@ function getSupabaseConfig() {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!supabaseUrl || !supabaseKey) {
-    return null;
-  }
-
+  if (!supabaseUrl || !supabaseKey) return null;
   return { supabaseUrl, supabaseKey };
 }
 
@@ -23,7 +20,7 @@ function supabaseHeaders(key, extra = {}) {
   };
 }
 
-async function notifyTelegram(whatsapp) {
+async function notifyTelegram(phone) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
@@ -33,16 +30,24 @@ async function notifyTelegram(whatsapp) {
   }
 
   try {
-    const numero = String(whatsapp || "").replace(/\D/g, "");
+    // WhatsApp usa formato internacional sin +, espacios ni guiones.
+    let numero = String(phone || "").replace(/\D/g, "");
 
-    // Si el número argentino viene sin código de país, agregamos 54.
-    const numeroWhatsApp = numero.startsWith("54")
-      ? numero
-      : numero.startsWith("0")
-        ? `54${numero.slice(1)}`
-        : `54${numero}`;
+    if (numero.startsWith("0")) {
+      numero = numero.slice(1);
+    }
 
-    const whatsappUrl = `https://wa.me/${numeroWhatsApp}`;
+    if (!numero.startsWith("54")) {
+      numero = `54${numero}`;
+    }
+
+    // En Argentina los celulares suelen escribirse como 9 + código de área.
+    // Si llega como 54 + código de área + número, agregamos el 9 para wa.me.
+    if (numero.startsWith("54") && !numero.startsWith("549")) {
+      numero = `549${numero.slice(2)}`;
+    }
+
+    const whatsappUrl = `https://wa.me/${numero}`;
 
     const response = await fetch(
       `https://api.telegram.org/bot${botToken}/sendMessage`,
@@ -53,7 +58,7 @@ async function notifyTelegram(whatsapp) {
         },
         body: JSON.stringify({
           chat_id: chatId,
-          text: `🔔 Se recibió un comprobante de una nueva reserva.\n📲 <a href="${whatsappUrl}">Contactar por WhatsApp</a>`,
+          text: `🔔 Se recibió un comprobante de una nueva reserva.\n\n📲 <a href="${whatsappUrl}">ABRIR WHATSAPP DEL CLIENTE</a>`,
           parse_mode: "HTML",
           disable_web_page_preview: true
         })
@@ -81,7 +86,6 @@ export default async function handler(req, res) {
   const config = getSupabaseConfig();
 
   if (!config) {
-    console.error("FALTAN VARIABLES DE SUPABASE");
     return sendJson(res, 500, {
       ok: false,
       message: "Faltan SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en Vercel."
@@ -91,116 +95,55 @@ export default async function handler(req, res) {
   try {
     const { supabaseUrl, supabaseKey } = config;
     const baseUrl = supabaseUrl.replace(/\/$/, "");
-
-    const body =
-      req.body && typeof req.body === "object"
-        ? req.body
-        : {};
+    const body = req.body && typeof req.body === "object" ? req.body : {};
 
     const publicId = String(body.public_id || "").trim();
     const fileName = String(body.file_name || "").trim();
     const contentType = String(body.content_type || "").trim();
     const fileBase64 = String(body.file_base64 || "").trim();
 
-    if (!publicId) {
-      return sendJson(res, 400, {
-        ok: false,
-        message: "Falta identificar la reserva."
-      });
-    }
+    if (!publicId) return sendJson(res, 400, { ok: false, message: "Falta identificar la reserva." });
+    if (!fileName) return sendJson(res, 400, { ok: false, message: "Falta el nombre del archivo." });
+    if (!contentType) return sendJson(res, 400, { ok: false, message: "Falta el tipo de archivo." });
+    if (!fileBase64) return sendJson(res, 400, { ok: false, message: "No se recibió el comprobante." });
 
-    if (!fileName) {
-      return sendJson(res, 400, {
-        ok: false,
-        message: "Falta el nombre del archivo."
-      });
-    }
-
-    if (!contentType) {
-      return sendJson(res, 400, {
-        ok: false,
-        message: "Falta el tipo de archivo."
-      });
-    }
-
-    if (!fileBase64) {
-      return sendJson(res, 400, {
-        ok: false,
-        message: "No se recibió el comprobante."
-      });
-    }
-
-    const tiposPermitidos = [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "application/pdf"
-    ];
-
+    const tiposPermitidos = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
     if (!tiposPermitidos.includes(contentType)) {
-      return sendJson(res, 400, {
-        ok: false,
-        message: "Formato no permitido. Subí JPG, PNG, WEBP o PDF."
-      });
+      return sendJson(res, 400, { ok: false, message: "Formato no permitido. Subí JPG, PNG, WEBP o PDF." });
     }
 
     const buffer = Buffer.from(fileBase64, "base64");
-
     if (buffer.length > 5 * 1024 * 1024) {
-      return sendJson(res, 400, {
-        ok: false,
-        message: "El comprobante no puede superar los 5 MB."
-      });
+      return sendJson(res, 400, { ok: false, message: "El comprobante no puede superar los 5 MB." });
     }
 
     const reservationResponse = await fetch(
-      `${baseUrl}/rest/v1/reservations?select=id,public_id,status,receipt_url,whatsapp&public_id=eq.${encodeURIComponent(publicId)}&limit=1`,
+      `${baseUrl}/rest/v1/reservations?select=id,public_id,status,receipt_url,phone&public_id=eq.${encodeURIComponent(publicId)}&limit=1`,
       {
         method: "GET",
-        headers: supabaseHeaders(supabaseKey, {
-          "Content-Type": "application/json"
-        })
+        headers: supabaseHeaders(supabaseKey, { "Content-Type": "application/json" })
       }
     );
 
     const reservationText = await reservationResponse.text();
     let reservationData;
-
     try {
       reservationData = JSON.parse(reservationText);
     } catch {
       reservationData = [];
     }
 
-    if (
-      !reservationResponse.ok ||
-      !Array.isArray(reservationData) ||
-      !reservationData.length
-    ) {
-      return sendJson(res, 404, {
-        ok: false,
-        message: "No encontramos la reserva indicada."
-      });
+    if (!reservationResponse.ok || !Array.isArray(reservationData) || !reservationData.length) {
+      return sendJson(res, 404, { ok: false, message: "No encontramos la reserva indicada." });
     }
 
     const reservation = reservationData[0];
 
     if (reservation.status === "confirmed") {
-      return sendJson(res, 400, {
-        ok: false,
-        message: "Esta reserva ya está confirmada."
-      });
+      return sendJson(res, 400, { ok: false, message: "Esta reserva ya está confirmada." });
     }
 
-    const extension =
-      contentType === "application/pdf"
-        ? "pdf"
-        : contentType === "image/png"
-          ? "png"
-          : contentType === "image/webp"
-            ? "webp"
-            : "jpg";
-
+    const extension = contentType === "application/pdf" ? "pdf" : contentType === "image/png" ? "png" : contentType === "image/webp" ? "webp" : "jpg";
     const random = randomBytes(8).toString("hex");
     const storagePath = `${publicId}/${Date.now()}-${random}.${extension}`;
 
@@ -208,10 +151,7 @@ export default async function handler(req, res) {
       `${baseUrl}/storage/v1/object/receipts/${storagePath}`,
       {
         method: "POST",
-        headers: supabaseHeaders(supabaseKey, {
-          "Content-Type": contentType,
-          "x-upsert": "false"
-        }),
+        headers: supabaseHeaders(supabaseKey, { "Content-Type": contentType, "x-upsert": "false" }),
         body: buffer
       }
     );
@@ -220,14 +160,10 @@ export default async function handler(req, res) {
 
     if (!uploadResponse.ok) {
       console.error("ERROR SUBIENDO COMPROBANTE:", uploadText);
-      return sendJson(res, 500, {
-        ok: false,
-        message: "No se pudo guardar el comprobante."
-      });
+      return sendJson(res, 500, { ok: false, message: "No se pudo guardar el comprobante." });
     }
 
-    const receiptUrl =
-      `${baseUrl}/storage/v1/object/public/receipts/${storagePath}`;
+    const receiptUrl = `${baseUrl}/storage/v1/object/public/receipts/${storagePath}`;
 
     const updateResponse = await fetch(
       `${baseUrl}/rest/v1/reservations?public_id=eq.${encodeURIComponent(publicId)}`,
@@ -255,10 +191,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // El aviso se envía solamente después de guardar el comprobante
-    // y actualizar correctamente la reserva. Un fallo de Telegram
-    // no afecta la confirmación del envío del comprobante.
-    await notifyTelegram(reservation.whatsapp);
+    await notifyTelegram(reservation.phone);
 
     return sendJson(res, 200, {
       ok: true,
