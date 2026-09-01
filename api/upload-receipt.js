@@ -54,6 +54,15 @@ function formatTelegramDate(value) {
   return raw;
 }
 
+function escapeTelegramHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 async function enviarAvisoTelegram(reserva) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
@@ -74,20 +83,29 @@ async function enviarAvisoTelegram(reserva) {
   const horario = String(
     reserva.booking_time || reserva.horario || ""
   ).trim();
+  const whatsapp = String(
+    reserva.phone || reserva.whatsapp || ""
+  ).replace(/\D/g, "");
+  const whatsappLabel = escapeTelegramHtml(
+    String(reserva.phone || reserva.whatsapp || "")
+  );
+  const whatsappHtml = whatsapp
+    ? `<a href="https://wa.me/${whatsapp}">${whatsappLabel || "Abrir WhatsApp"}</a>`
+    : "Sin número";
 
   const mensaje = [
     "🚨 <b>NUEVO COMPROBANTE RECIBIDO</b>",
     "",
     "🎯 <b>AGUARÁ PAINTBALL</b>",
     "",
-    "📅 <b>FECHA: " + fecha + "</b>",
-    "🕐 <b>HORARIO: " + horario + "</b>",
+    "📅 <b>FECHA: " + escapeTelegramHtml(fecha) + "</b>",
+    "🕐 <b>HORARIO: " + escapeTelegramHtml(horario) + "</b>",
     "",
-    "👤 Nombre: " + String(reserva.name || reserva.nombre || ""),
-    "📱 WhatsApp: " + String(reserva.phone || reserva.whatsapp || ""),
+    "👤 Nombre: " + escapeTelegramHtml(reserva.name || reserva.nombre || ""),
+    "📱 WhatsApp: " + whatsappHtml,
     "👥 Jugadores: " + String(reserva.players ?? reserva.jugadores ?? 0),
     "",
-    "🆔 Reserva: " + String(reserva.public_id || ""),
+    "🆔 Reserva: " + escapeTelegramHtml(reserva.public_id || ""),
     "",
     "⚠️ <b>PENDIENTE DE REVISIÓN</b>"
   ].join("\n");
