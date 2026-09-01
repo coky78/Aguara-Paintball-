@@ -41,8 +41,8 @@ async function notifyTelegram(phone) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: chatId,
-          text: `🔔 Se recibió un comprobante de una nueva reserva.\n📱 <a href="${whatsappUrl}">${numeroVisible}</a>`,
-          parse_mode: "HTML",
+          text: `🔔 Se recibió un comprobante de una nueva reserva.\n\n📱 [${numeroVisible}](${whatsappUrl})`,
+          parse_mode: "Markdown",
           disable_web_page_preview: true
         })
       }
@@ -151,12 +151,7 @@ export default async function handler(req, res) {
 
     await notifyTelegram(reservation.phone);
 
-    return sendJson(res, 200, {
-      ok: true,
-      message: "Comprobante recibido correctamente.",
-      public_id: publicId,
-      receipt_url: receiptUrl
-    });
+    return sendJson(res, 200, { ok: true, message: "Comprobante recibido correctamente.", public_id: publicId, receipt_url: receiptUrl });
   } catch (error) {
     console.error("ERROR GENERAL UPLOAD RECEIPT:", error);
     return sendJson(res, 500, { ok: false, message: error?.message || "Error interno al recibir el comprobante." });
