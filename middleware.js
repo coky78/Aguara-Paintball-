@@ -4,6 +4,8 @@
    Protege las operaciones administrativas de las APIs.
 ===================================================== */
 
+import { next } from "@vercel/functions";
+
 export const config = {
   matcher: ["/api/:path*"],
   runtime: "edge"
@@ -35,11 +37,7 @@ async function signature(secret, payload) {
     false,
     ["sign"]
   );
-  const signed = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    new TextEncoder().encode(payload)
-  );
+  const signed = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
   return base64Url(new Uint8Array(signed));
 }
 
@@ -87,19 +85,19 @@ export default async function middleware(request) {
     path === "/api/upload-receipt" ||
     path === "/api/public-reservations"
   ) {
-    return;
+    return next();
   }
 
-  if (path === "/api/config" && method === "GET") return;
-  if (path === "/api/media" && method === "GET") return;
+  if (path === "/api/config" && method === "GET") return next();
+  if (path === "/api/media" && method === "GET") return next();
 
   if (path === "/api/reservations" && method === "GET") {
-    if (await isValidSession(request)) return;
+    if (await isValidSession(request)) return next();
     return Response.redirect(new URL("/api/public-reservations", request.url), 307);
   }
 
-  if (path === "/api/reservations" && method === "POST") return;
+  if (path === "/api/reservations" && method === "POST") return next();
 
-  if (await isValidSession(request)) return;
+  if (await isValidSession(request)) return next();
   return unauthorized();
 }
