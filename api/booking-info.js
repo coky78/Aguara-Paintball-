@@ -100,14 +100,20 @@ export default async function handler(req, res) {
   if (text.length > 1200) return sendJson(res, 400, { ok: false, message: "El texto no puede superar 1200 caracteres." });
 
   try {
-    const response = await fetch(config.url + "/rest/v1/aguara_booking_info?on_conflict=id", {
-      method: "POST",
-      headers: headers(config.key, "resolution=merge-duplicates,return=representation"),
-      body: JSON.stringify({ id: 1, text_content: text, updated_at: new Date().toISOString() })
+    // The row with id=1 already exists. Update it directly instead of relying on
+    // PostgREST upsert/conflict resolution, which can fail when the REST schema
+    // cache or conflict metadata is stale.
+    const response = await fetch(config.url + "/rest/v1/aguara_booking_info?id=eq.1", {
+      method: "PATCH",
+      headers: headers(config.key, "return=representation"),
+      body: JSON.stringify({ text_content: text, updated_at: new Date().toISOString() })
     });
     const data = await response.json();
     if (!response.ok) return sendJson(res, response.status, { ok: false, message: "No se pudo guardar el texto de reservas.", error: data });
-    return sendJson(res, 200, { ok: true, text: data?.[0]?.text_content || text });
+    if (!Array.isArray(data) || !data.length) {
+      return sendJson(res, 404, { ok: false, message: "No se encontró el registro del texto de reservas." });
+    }
+    return sendJson(res, 200, { ok: true, text: data[0].text_content || text });
   } catch (error) {
     return sendJson(res, 500, { ok: false, message: error.message || "Error guardando el texto de reservas." });
   }
