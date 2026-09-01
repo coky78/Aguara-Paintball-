@@ -113,7 +113,9 @@
           <p class="fine">La seña vigente es <strong id="depositInline">$50.000</strong>. El horario queda confirmado una vez acreditado el pago.</p>
         </form>
         <aside class="booking-side">
-          <div class="booking-info-editable" id="bookingInfoPublic"><div class="booking-info-loading">Cargando información...</div></div>
+          <div class="booking-info-editable" id="bookingInfoPublic">
+            <div class="booking-info-loading">Cargando información...</div>
+          </div>
           <div class="secure"><span>✓</span><div><strong>Reserva segura</strong><p>El sistema evita reservas duplicadas del mismo horario.</p></div></div>
           <div class="steps">
             <div><b>01</b><span>Elegí fecha, hora y cantidad.</span></div>
@@ -138,6 +140,7 @@
 
   <script src="script.js"></script>
   <script src="calendar.js"></script>
+
   <script>
     (function () {
       const botonReservarAhora = document.getElementById('reserveNowHeader');
@@ -152,36 +155,70 @@
     (function () {
       const style = document.createElement('style');
       style.textContent = `
-        .aguara-calendar-shell { width:50%; margin-left:auto; margin-right:auto; box-sizing:border-box; }
-        .aguara-time-card.is-selected { background:#168a3a!important; border-color:#31c95a!important; color:#fff!important; }
-        .aguara-time-card.is-reserved { background:#5b1717!important; border-color:#e33a3a!important; color:#fff!important; }
-        .aguara-time-card.is-reserved small { color:#ff8d8d!important; }
-        .aguara-day.is-selected { border-color:#f08a35!important; background:#3a2418!important; }
-        .booking-info-editable { padding:20px; margin-bottom:18px; border:1px solid rgba(240,138,53,.45); border-radius:14px; background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02)); color:#fff; box-shadow:0 10px 25px rgba(0,0,0,.18); }
-        .booking-info-editable h3 { margin:0 0 10px; font-size:18px; }
-        .booking-info-editable p { margin:0; white-space:pre-line; line-height:1.65; color:#ddd; }
-        .booking-info-loading { color:#999; font-size:14px; }
-        @media (max-width:640px) { .aguara-calendar-shell{width:100%;} .booking-info-editable{margin-bottom:14px;} }
+        .aguara-calendar-shell {
+          width: 50%;
+          margin-left: auto;
+          margin-right: auto;
+          box-sizing: border-box;
+        }
+        .aguara-time-card.is-selected {
+          background: #168a3a !important;
+          border-color: #31c95a !important;
+          color: #fff !important;
+        }
+        .aguara-time-card.is-reserved {
+          background: #5b1717 !important;
+          border-color: #e33a3a !important;
+          color: #fff !important;
+        }
+        .aguara-time-card.is-reserved small {
+          color: #ff8d8d !important;
+        }
+        .aguara-day.is-selected {
+          border-color: #f08a35 !important;
+          background: #3a2418 !important;
+        }
+        .booking-info-editable {
+          padding: 20px;
+          margin-bottom: 18px;
+          border: 1px solid rgba(240,138,53,.45);
+          border-radius: 14px;
+          background: linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02));
+          color: #fff;
+          box-shadow: 0 10px 25px rgba(0,0,0,.18);
+        }
+        .booking-info-editable p {
+          margin: 0;
+          white-space: pre-line;
+          line-height: 1.65;
+          color: #ddd;
+        }
+        .booking-info-loading {
+          color: #999;
+          font-size: 14px;
+        }
+        @media (max-width: 640px) {
+          .aguara-calendar-shell { width: 100%; }
+          .booking-info-editable { margin-bottom: 14px; }
+        }
       `;
       document.head.appendChild(style);
-      document.addEventListener('click', function (event) {
-        const day = event.target.closest('.aguara-day');
-        if (!day || day.disabled) return;
-        setTimeout(function () {
-          const panel = document.getElementById('aguaraTimeGrid');
-          if (panel) panel.scrollIntoView({ behavior:'smooth', block:'center' });
-        }, 80);
-      });
     })();
 
     (async function () {
       const box = document.getElementById('bookingInfoPublic');
       if (!box) return;
       try {
-        const response = await fetch('/api/booking-info', { cache:'no-store' });
+        const response = await fetch('/api/booking-info', { cache: 'no-store' });
         const data = await response.json();
-        const text = data && data.ok && data.text ? data.text : 'Elegí primero la fecha y después uno de los horarios disponibles. La seña es necesaria para confirmar la reserva.';
-        box.innerHTML = '<p>' + String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>') + '</p>';
+        const text = data && data.ok && data.text
+          ? data.text
+          : 'Elegí primero la fecha y después uno de los horarios disponibles. La seña es necesaria para confirmar la reserva.';
+        box.innerHTML = '<p>' + String(text)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\n/g, '<br>') + '</p>';
       } catch (error) {
         box.innerHTML = '<p>Elegí primero la fecha y después uno de los horarios disponibles. La seña es necesaria para confirmar la reserva.</p>';
       }
