@@ -29,3 +29,4 @@ La integración de Mercado Pago y el webhook de confirmación de pago no están 
 Restauración Aguará
 
 <!-- deployment trigger after Telegram flow correction -->
+NO FUNCIONA
