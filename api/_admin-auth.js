@@ -1,5 +1,7 @@
 import crypto from "node:crypto";
 
+const COOKIE_NAME = "aguara_admin_session";
+
 function getCookie(req, name) {
   const header = String(req.headers?.cookie || "");
   const prefix = `${name}=`;
@@ -10,15 +12,12 @@ function getCookie(req, name) {
   return "";
 }
 
-function timingSafeEqualText(a, b) {
-  const left = Buffer.from(String(a || ""));
-  const right = Buffer.from(String(b || ""));
-  if (left.length !== right.length) return false;
-  return crypto.timingSafeEqual(left, right);
+function base64Url(buffer) {
+  return Buffer.from(buffer).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
-function sign(value, secret) {
-  return crypto.createHmac("sha256", secret).update(value).digest("hex");
+function sign(secret, payload) {
+  return base64Url(crypto.createHmac("sha256", secret).update(payload).digest());
 }
 
 export function requireAdmin(req, res) {
@@ -28,24 +27,26 @@ export function requireAdmin(req, res) {
     return false;
   }
 
-  const token = getCookie(req, "aguara_admin");
-  const separator = token.lastIndexOf(".");
+  const token = getCookie(req, COOKIE_NAME);
+  const separator = token.indexOf(".");
   if (separator <= 0) {
     res.status(401).json({ ok: false, message: "No autorizado." });
     return false;
   }
 
-  const value = token.slice(0, separator);
+  const expires = token.slice(0, separator);
   const signature = token.slice(separator + 1);
-  const parts = value.split(".");
-  const expiresAt = Number(parts[1]);
+  const expiresSeconds = Number(expires);
 
-  if (!parts[0] || !Number.isFinite(expiresAt) || expiresAt < Date.now()) {
+  if (!/^\d+$/.test(expires) || !Number.isFinite(expiresSeconds) || expiresSeconds * 1000 <= Date.now()) {
     res.status(401).json({ ok: false, message: "Sesión administrativa inválida o vencida." });
     return false;
   }
 
-  if (!timingSafeEqualText(signature, sign(value, secret))) {
+  const expected = sign(secret, expires);
+  const left = Buffer.from(signature);
+  const right = Buffer.from(expected);
+  if (left.length !== right.length || !crypto.timingSafeEqual(left, right)) {
     res.status(401).json({ ok: false, message: "No autorizado." });
     return false;
   }
