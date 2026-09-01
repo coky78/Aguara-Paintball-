@@ -30,13 +30,7 @@ function base64Url(bytes) {
 }
 
 async function signature(secret, payload) {
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   const signed = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
   return base64Url(new Uint8Array(signed));
 }
@@ -44,35 +38,20 @@ async function signature(secret, payload) {
 async function isValidSession(request) {
   const secret = process.env.ADMIN_PASSWORD;
   if (!secret) return false;
-
   const cookies = parseCookies(request.headers.get("cookie"));
   const value = cookies[COOKIE_NAME];
   if (!value) return false;
-
   const parts = value.split(".");
   if (parts.length !== 2) return false;
-
   const [expiresText, receivedSignature] = parts;
   const expires = Number(expiresText);
-  if (!/^\d+$/.test(expiresText) || !Number.isInteger(expires) || expires <= Math.floor(Date.now() / 1000)) {
-    return false;
-  }
-
+  if (!/^\d+$/.test(expiresText) || !Number.isInteger(expires) || expires <= Math.floor(Date.now() / 1000)) return false;
   const expected = await signature(secret, expiresText);
   return expected === receivedSignature;
 }
 
 function unauthorized() {
-  return new Response(
-    JSON.stringify({ ok: false, message: "No autorizado. Iniciá sesión como administrador." }),
-    {
-      status: 401,
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-store"
-      }
-    }
-  );
+  return new Response(JSON.stringify({ ok: false, message: "No autorizado. Iniciá sesión como administrador." }), { status: 401, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
 }
 
 export default async function middleware(request) {
@@ -83,15 +62,13 @@ export default async function middleware(request) {
   if (
     path === "/api/admin-login" ||
     path === "/api/upload-receipt" ||
-    path === "/api/public-reservations"
-  ) {
-    return next();
-  }
+    path === "/api/public-reservations" ||
+    path === "/api/public-media" ||
+    path === "/api/public-catalog"
+  ) return next();
 
   if (path === "/api/config" && method === "GET") return next();
   if (path === "/api/media" && method === "GET") return next();
-
-  // booking-info performs its own admin-session validation.
   if (path === "/api/booking-info") return next();
 
   if (path === "/api/reservations" && method === "GET") {
