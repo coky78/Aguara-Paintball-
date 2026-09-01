@@ -139,21 +139,16 @@
   <script src="calendar.js"></script>
 
   <script>
-    // El comprobante NO recarga ni cambia la página.
-    // Solo "Reservar ahora" inicia una nueva reserva recargando el sitio.
+    // El envío del comprobante NO recarga ni cambia la página.
+    // Solo el botón "Reservar ahora" inicia una nueva reserva recargando el sitio.
     (function () {
-      function nuevaReserva(event) {
+      const botonReservarAhora = document.getElementById('reserveNowHeader');
+      if (!botonReservarAhora) return;
+
+      botonReservarAhora.addEventListener('click', function (event) {
         event.preventDefault();
         window.location.href = window.location.pathname + '#reservas';
         window.location.reload();
-      }
-
-      const botones = document.querySelectorAll(
-        'a[href="#reservas"]'
-      );
-
-      botones.forEach(function (boton) {
-        boton.addEventListener('click', nuevaReserva);
       });
     })();
   </script>
