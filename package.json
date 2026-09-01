@@ -7,8 +7,9 @@
     "node": "24.x"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
     "@supabase/supabase-js": "^2.57.0",
-    "mercadopago": "^2.10.0",
-    "@neondatabase/serverless": "^1.0.2"
+    "@vercel/functions": "^2.0.0",
+    "mercadopago": "^2.10.0"
   }
 }
