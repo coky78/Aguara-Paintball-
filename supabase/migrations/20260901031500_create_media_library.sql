@@ -14,7 +14,8 @@ create table if not exists public.media_library (
 
 alter table public.media_library enable row level security;
 
-create policy if not exists "public can read enabled media"
+drop policy if exists "public can read enabled media" on public.media_library;
+create policy "public can read enabled media"
   on public.media_library for select
   to anon, authenticated
   using (enabled = true);
