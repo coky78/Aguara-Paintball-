@@ -60,9 +60,10 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     try {
-      const response = await fetch(config.url + "/rest/v1/aguara_booking_info?select=text_content&eq.id=1&limit=1", { headers: headers(config.key) });
+      // PostgREST filter syntax must be id=eq.1.
+      const response = await fetch(config.url + "/rest/v1/aguara_booking_info?select=text_content&id=eq.1&limit=1", { headers: headers(config.key) });
       const data = await response.json();
-      if (!response.ok) return sendJson(res, response.status, { ok: false, message: "No se pudo leer el texto de reservas." });
+      if (!response.ok) return sendJson(res, response.status, { ok: false, message: "No se pudo leer el texto de reservas.", error: data });
       return sendJson(res, 200, { ok: true, text: data?.[0]?.text_content || "Elegí primero la fecha y después uno de los horarios disponibles. La seña es necesaria para confirmar la reserva." });
     } catch (error) {
       return sendJson(res, 500, { ok: false, message: error.message || "Error leyendo el texto de reservas." });
