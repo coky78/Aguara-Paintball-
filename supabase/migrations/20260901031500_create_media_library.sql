@@ -24,6 +24,11 @@ insert into storage.buckets (id, name, public)
 values ('site-media', 'site-media', true)
 on conflict (id) do update set public = true;
 
+update storage.buckets
+set file_size_limit = 104857600,
+    allowed_mime_types = array['image/jpeg','image/png','image/webp','image/gif','video/mp4','video/webm','video/quicktime']
+where id = 'site-media';
+
 insert into public.media_library (slot_key, media_type, storage_path, public_url, title, alt_text, sort_order)
 values
   ('hero_video','video','hero.mp4','', 'Video principal', 'Aguará Paintball', 0),
