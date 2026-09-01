@@ -27,3 +27,5 @@ La reserva se guarda con las columnas definidas en `supabase-schema.sql`. La com
 
 La integración de Mercado Pago y el webhook de confirmación de pago no están implementados en este repositorio; no se presenta como una función activa hasta agregar esos endpoints y credenciales.
 Restauración Aguará
+
+<!-- Vercel deployment trigger test: 2026-09-01 -->
