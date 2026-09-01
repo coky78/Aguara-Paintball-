@@ -68,6 +68,14 @@
     `;
     gallery.parentNode.insertBefore(section, gallery);
     injectCatalogStyles();
+
+    const nav = document.querySelector("header.nav nav");
+    if (nav && !nav.querySelector('a[href="#equipamiento"]')) {
+      const link = document.createElement("a");
+      link.href = "#equipamiento";
+      link.textContent = "Equipamiento";
+      nav.insertBefore(link, nav.querySelector('a[href="#galeria"]') || null);
+    }
     return section;
   }
 
