@@ -20,15 +20,22 @@ async function notifyTelegram(phone) {
     if (numero.startsWith("54") && !numero.startsWith("549")) numero = `549${numero.slice(2)}`;
 
     const whatsappUrl = `https://wa.me/${numero}`;
-    const numeroVisible = `+${numero}`;
+    const textoWhatsApp = `📲 WhatsApp +${numero}`;
 
     const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: chatId,
-        text: `🔔 Se recibió un comprobante de una nueva reserva.\n\n📲 <a href="${whatsappUrl}">${numeroVisible}</a>`,
-        parse_mode: "HTML",
+        text: `🔔 Se recibió un comprobante de una nueva reserva.\n\n${textoWhatsApp}`,
+        entities: [
+          {
+            type: "text_link",
+            offset: 2,
+            length: textoWhatsApp.length - 2,
+            url: whatsappUrl
+          }
+        ],
         disable_web_page_preview: true
       })
     });
