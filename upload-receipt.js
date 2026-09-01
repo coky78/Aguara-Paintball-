@@ -27,8 +27,8 @@ async function notifyTelegram(phone) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: chatId,
-        text: `🔔 Se recibió un comprobante de una nueva reserva.\n\n📲 [WhatsApp ${numeroVisible}](${whatsappUrl})`,
-        parse_mode: "MarkdownV2",
+        text: `🔔 Se recibió un comprobante de una nueva reserva.\n\n📲 <a href="${whatsappUrl}">${numeroVisible}</a>`,
+        parse_mode: "HTML",
         disable_web_page_preview: true
       })
     });
