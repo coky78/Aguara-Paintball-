@@ -28,18 +28,14 @@ async function notifyTelegram(phone) {
       body: JSON.stringify({
         chat_id: chatId,
         text: `🔔 Se recibió un comprobante de una nueva reserva.\n\n${textoWhatsApp}`,
-        entities: [
-          {
-            type: "text_link",
-            offset: 2,
-            length: textoWhatsApp.length - 2,
-            url: whatsappUrl
-          }
-        ],
+        entities: [{ type: "text_link", offset: 2, length: textoWhatsApp.length - 2, url: whatsappUrl }],
         disable_web_page_preview: true
       })
     });
-    if (!response.ok) console.error("ERROR ENVIANDO AVISO A TELEGRAM:", await response.text());
+
+    const telegramResult = await response.text();
+    console.log("RESPUESTA TELEGRAM:", telegramResult);
+    if (!response.ok) console.error("ERROR ENVIANDO AVISO A TELEGRAM:", telegramResult);
   } catch (error) { console.error("ERROR CON TELEGRAM:", error); }
 }
 
