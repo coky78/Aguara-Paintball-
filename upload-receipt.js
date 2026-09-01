@@ -7,58 +7,41 @@ function sendJson(res, status, payload) {
 function getSupabaseConfig() {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
   if (!supabaseUrl || !supabaseKey) return null;
   return { supabaseUrl, supabaseKey };
 }
 
 function supabaseHeaders(key, extra = {}) {
-  return {
-    apikey: key,
-    Authorization: `Bearer ${key}`,
-    ...extra
-  };
+  return { apikey: key, Authorization: `Bearer ${key}`, ...extra };
 }
 
 async function notifyTelegram(phone) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
-
   if (!botToken || !chatId) {
     console.error("FALTAN VARIABLES DE TELEGRAM");
     return;
   }
 
   try {
-    // WhatsApp usa formato internacional sin +, espacios ni guiones.
     let numero = String(phone || "").replace(/\D/g, "");
-
-    if (numero.startsWith("0")) {
-      numero = numero.slice(1);
-    }
-
-    if (!numero.startsWith("54")) {
-      numero = `54${numero}`;
-    }
-
-    // En Argentina los celulares suelen escribirse como 9 + código de área.
-    // Si llega como 54 + código de área + número, agregamos el 9 para wa.me.
+    if (numero.startsWith("0")) numero = numero.slice(1);
+    if (!numero.startsWith("54")) numero = `54${numero}`;
     if (numero.startsWith("54") && !numero.startsWith("549")) {
       numero = `549${numero.slice(2)}`;
     }
 
     const whatsappUrl = `https://wa.me/${numero}`;
+    const numeroVisible = `+${numero}`;
 
     const response = await fetch(
       `https://api.telegram.org/bot${botToken}/sendMessage`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: chatId,
-          text: `🔔 Se recibió un comprobante de una nueva reserva.\n\n📲 <a href="${whatsappUrl}">ABRIR WHATSAPP DEL CLIENTE</a>`,
+          text: `🔔 Se recibió un comprobante de una nueva reserva.\n📱 <a href="${whatsappUrl}">${numeroVisible}</a>`,
           parse_mode: "HTML",
           disable_web_page_preview: true
         })
@@ -77,14 +60,10 @@ async function notifyTelegram(phone) {
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
-    return sendJson(res, 405, {
-      ok: false,
-      message: "Método no permitido."
-    });
+    return sendJson(res, 405, { ok: false, message: "Método no permitido." });
   }
 
   const config = getSupabaseConfig();
-
   if (!config) {
     return sendJson(res, 500, {
       ok: false,
@@ -119,26 +98,18 @@ export default async function handler(req, res) {
 
     const reservationResponse = await fetch(
       `${baseUrl}/rest/v1/reservations?select=id,public_id,status,receipt_url,phone&public_id=eq.${encodeURIComponent(publicId)}&limit=1`,
-      {
-        method: "GET",
-        headers: supabaseHeaders(supabaseKey, { "Content-Type": "application/json" })
-      }
+      { method: "GET", headers: supabaseHeaders(supabaseKey, { "Content-Type": "application/json" }) }
     );
 
     const reservationText = await reservationResponse.text();
     let reservationData;
-    try {
-      reservationData = JSON.parse(reservationText);
-    } catch {
-      reservationData = [];
-    }
+    try { reservationData = JSON.parse(reservationText); } catch { reservationData = []; }
 
     if (!reservationResponse.ok || !Array.isArray(reservationData) || !reservationData.length) {
       return sendJson(res, 404, { ok: false, message: "No encontramos la reserva indicada." });
     }
 
     const reservation = reservationData[0];
-
     if (reservation.status === "confirmed") {
       return sendJson(res, 400, { ok: false, message: "Esta reserva ya está confirmada." });
     }
@@ -157,38 +128,25 @@ export default async function handler(req, res) {
     );
 
     const uploadText = await uploadResponse.text();
-
     if (!uploadResponse.ok) {
       console.error("ERROR SUBIENDO COMPROBANTE:", uploadText);
       return sendJson(res, 500, { ok: false, message: "No se pudo guardar el comprobante." });
     }
 
     const receiptUrl = `${baseUrl}/storage/v1/object/public/receipts/${storagePath}`;
-
     const updateResponse = await fetch(
       `${baseUrl}/rest/v1/reservations?public_id=eq.${encodeURIComponent(publicId)}`,
       {
         method: "PATCH",
-        headers: supabaseHeaders(supabaseKey, {
-          "Content-Type": "application/json",
-          Prefer: "return=representation"
-        }),
-        body: JSON.stringify({
-          receipt_url: receiptUrl,
-          receipt_uploaded_at: new Date().toISOString(),
-          status: "receipt_received"
-        })
+        headers: supabaseHeaders(supabaseKey, { "Content-Type": "application/json", Prefer: "return=representation" }),
+        body: JSON.stringify({ receipt_url: receiptUrl, receipt_uploaded_at: new Date().toISOString(), status: "receipt_received" })
       }
     );
 
     const updateText = await updateResponse.text();
-
     if (!updateResponse.ok) {
       console.error("ERROR ACTUALIZANDO RESERVA:", updateText);
-      return sendJson(res, 500, {
-        ok: false,
-        message: "El comprobante se guardó, pero no pudimos actualizar la reserva."
-      });
+      return sendJson(res, 500, { ok: false, message: "El comprobante se guardó, pero no pudimos actualizar la reserva." });
     }
 
     await notifyTelegram(reservation.phone);
@@ -201,9 +159,6 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error("ERROR GENERAL UPLOAD RECEIPT:", error);
-    return sendJson(res, 500, {
-      ok: false,
-      message: error?.message || "Error interno al recibir el comprobante."
-    });
+    return sendJson(res, 500, { ok: false, message: error?.message || "Error interno al recibir el comprobante." });
   }
 }
