@@ -29,3 +29,4 @@ La integración de Mercado Pago y el webhook de confirmación de pago no están 
 Restauración Aguará
 
 <!-- Vercel deployment trigger test: 2026-09-01 -->
+Prueba de conexión Vercel
