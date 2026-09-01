@@ -19,7 +19,7 @@
       <a href="#precios">Precios</a>
       <a href="#reservas">Reservar</a>
     </nav>
-    <a class="btn btn-outline" href="#reservas">Reservar ahora</a>
+    <a class="btn btn-outline" href="#reservas" id="reserveNowHeader">Reservar ahora</a>
   </header>
 
   <main>
@@ -138,43 +138,22 @@
   <script src="script.js"></script>
   <script src="calendar.js"></script>
 
-  <!--
-    Después de enviar correctamente el comprobante, el formulario se reinicia
-    mediante una recarga controlada. Esto limpia la reserva anterior y deja
-    la página lista para una nueva reserva sin tocar la lógica existente de
-    reservas, horarios ni calendario.
-  -->
   <script>
+    // El comprobante NO recarga ni cambia la página.
+    // Solo "Reservar ahora" inicia una nueva reserva recargando el sitio.
     (function () {
-      const receiptMessage = document.getElementById("receiptMessage");
-      if (!receiptMessage) return;
+      function nuevaReserva(event) {
+        event.preventDefault();
+        window.location.href = window.location.pathname + '#reservas';
+        window.location.reload();
+      }
 
-      let alreadyReset = false;
+      const botones = document.querySelectorAll(
+        'a[href="#reservas"]'
+      );
 
-      const observer = new MutationObserver(function () {
-        if (alreadyReset) return;
-
-        const text = (receiptMessage.textContent || "").trim().toLowerCase();
-        const isSuccess =
-          receiptMessage.classList.contains("success") &&
-          text.length > 0;
-
-        if (!isSuccess) return;
-
-        alreadyReset = true;
-
-        setTimeout(function () {
-          window.location.hash = "reservas";
-          window.location.reload();
-        }, 1200);
-      });
-
-      observer.observe(receiptMessage, {
-        childList: true,
-        characterData: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ["class"]
+      botones.forEach(function (boton) {
+        boton.addEventListener('click', nuevaReserva);
       });
     })();
   </script>
