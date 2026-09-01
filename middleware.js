@@ -91,6 +91,9 @@ export default async function middleware(request) {
   if (path === "/api/config" && method === "GET") return next();
   if (path === "/api/media" && method === "GET") return next();
 
+  // booking-info performs its own admin-session validation.
+  if (path === "/api/booking-info") return next();
+
   if (path === "/api/reservations" && method === "GET") {
     if (await isValidSession(request)) return next();
     return Response.redirect(new URL("/api/public-reservations", request.url), 307);
