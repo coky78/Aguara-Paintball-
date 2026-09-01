@@ -26,6 +26,12 @@
       }
     });
 
+    const firstGallery = bySlot.get("gallery_1");
+    if (firstGallery?.public_url) {
+      const feature = document.querySelector(".feature-image");
+      if (feature) feature.style.backgroundImage = `url('${firstGallery.public_url}')`;
+    }
+
     const logo = bySlot.get("logo");
     if (logo?.public_url) {
       document.querySelectorAll("img[alt=\"Aguará Paintball\"]").forEach(image => {
