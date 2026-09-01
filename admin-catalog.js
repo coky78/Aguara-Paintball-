@@ -156,8 +156,15 @@
 
   const BUCKET = "site-media";
   const SUPABASE_URL = "https://tplnyjgexpfqkaevvflq.supabase.co";
+  let initialized = false;
 
-  function init() { styles(); buildBox(); load(); }
+  function init() {
+    if (initialized) return;
+    initialized = true;
+    styles();
+    buildBox();
+    load();
+  }
 
   const wait = () => {
     if (document.getElementById("admin-panel")?.style.display === "block") init();
