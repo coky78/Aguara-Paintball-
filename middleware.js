@@ -7,6 +7,8 @@
    hace falta agregar otra variable secreta en Vercel.
 ===================================================== */
 
+import { NextResponse } from "next/server";
+
 export const config = {
   matcher: ["/api/:path*"],
   runtime: "edge"
@@ -103,8 +105,12 @@ export default async function middleware(request) {
   const path = url.pathname;
   const method = request.method.toUpperCase();
 
-  // Login y comprobantes son endpoints públicos.
-  if (path === "/api/admin-login" || path === "/api/upload-receipt") {
+  // Login, comprobantes y disponibilidad pública son endpoints públicos.
+  if (
+    path === "/api/admin-login" ||
+    path === "/api/upload-receipt" ||
+    path === "/api/public-reservations"
+  ) {
     return;
   }
 
@@ -117,7 +123,19 @@ export default async function middleware(request) {
     return;
   }
 
-  // Crear una reserva es público; listar/modificar/eliminar es administrativo.
+  // El calendario público necesita consultar solamente fecha y horario.
+  // Los datos completos de /api/reservations siguen protegidos.
+  if (path === "/api/reservations" && method === "GET") {
+    if (await isValidSession(request)) {
+      return;
+    }
+
+    return NextResponse.rewrite(
+      new URL("/api/public-reservations", request.url)
+    );
+  }
+
+  // Crear una reserva es público; modificar/eliminar es administrativo.
   if (path === "/api/reservations" && method === "POST") {
     return;
   }
