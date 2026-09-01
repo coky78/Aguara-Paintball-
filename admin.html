@@ -63,6 +63,23 @@
             <button class="btn btn-primary full" type="submit">Guardar configuración</button>
           </form>
           <div id="saved" class="form-message" hidden>Configuración guardada.</div>
+
+          <section class="promotion-admin-box" id="promotionAdmin">
+            <h2>Promoción / evento especial</h2>
+            <p>Mostrá una promoción pequeña en la portada. Podés activarla, ocultarla y cambiar su contenido cuando quieras.</p>
+            <div class="promotion-admin-grid">
+              <label class="full-row promotion-admin-toggle"><input id="promoEnabled" type="checkbox"> Mostrar en la portada</label>
+              <label>Título<input id="promoTitle" type="text" maxlength="120" placeholder="Gran inauguración"></label>
+              <label>Fecha o vigencia<input id="promoDate" type="text" maxlength="80" placeholder="20 de junio · 10:00 a 22:00"></label>
+              <label class="full-row">Texto<textarea id="promoText" maxlength="500" placeholder="Escribí aquí la promoción o el evento especial..."></textarea></label>
+              <label>Texto del botón (opcional)<input id="promoCtaText" type="text" maxlength="60" placeholder="Reservar ahora"></label>
+              <label>Enlace del botón (opcional)<input id="promoCtaUrl" type="url" maxlength="500" placeholder="https://..."></label>
+            </div>
+            <div class="promotion-admin-actions">
+              <button id="promotionSave" class="btn btn-primary" type="button">Guardar promoción</button>
+            </div>
+            <div id="promotionStatus" class="form-message" hidden></div>
+          </section>
         </section>
 
         <section class="booking-card">
@@ -83,6 +100,7 @@
   <script src="admin.js"></script>
   <script src="admin-booking-info.js"></script>
   <script src="admin-media.js"></script>
+  <script src="admin-promotion.js"></script>
 
   <script>
     const loginScreen = document.getElementById("login-screen");
