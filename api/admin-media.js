@@ -8,6 +8,8 @@ const DEFAULT_SLOTS = {
   gallery_2: { type: "image", path: "gallery-2.jpg", title: "Galería 2", alt: "Partida de paintball" },
   gallery_3: { type: "image", path: "gallery-3.jpg", title: "Galería 3", alt: "Jugadores de Aguará Paintball" },
   gallery_4: { type: "image", path: "gallery-4.jpg", title: "Galería 4", alt: "Campo de paintball" },
+  gallery_5: { type: "image", path: "gallery-5.jpg", title: "Galería 5", alt: "Aguará Paintball" },
+  gallery_6: { type: "image", path: "gallery-6.jpg", title: "Galería 6", alt: "Aguará Paintball" },
   logo: { type: "image", path: "logo.png", title: "Logo", alt: "Aguará Paintball" }
 };
 
