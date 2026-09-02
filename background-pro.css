@@ -1,0 +1,14 @@
+/* Fondo cinematográfico: negro profundo con difuminados muy sutiles. */
+html, body{
+  background:
+    radial-gradient(circle at 15% 18%, rgba(242,139,36,.045) 0, transparent 28%),
+    radial-gradient(circle at 85% 42%, rgba(255,255,255,.025) 0, transparent 30%),
+    radial-gradient(circle at 45% 100%, rgba(242,139,36,.035) 0, transparent 34%),
+    linear-gradient(135deg, #050505 0%, #0b0b0b 45%, #070707 100%) !important;
+  background-attachment: fixed;
+}
+
+.section,
+.booking-section{
+  background:transparent;
+}
