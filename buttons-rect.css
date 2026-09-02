@@ -1,0 +1,17 @@
+/* =====================================================
+   BOTONES RECTANGULARES — AGUARÁ PAINTBALL
+   Solo modifica la presentación; no cambia funcionalidad.
+===================================================== */
+
+.btn{
+  border-radius:6px !important;
+}
+
+/* Botones de acciones del administrador */
+.admin-reservation button,
+#login-screen button,
+.promotion-admin-actions button{
+  border-radius:6px !important;
+}
+
+/* Mantener los botones internos de controles que no son acciones principales */
