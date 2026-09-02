@@ -41,8 +41,19 @@ export default async function handler(req,res){
     }
     if(req.method==="PATCH"){
       const id=cleanText(body.id,80);if(!id)return json(res,400,{ok:false,message:"Marcadora inválida."});
-      const updates={name:cleanText(body.name,120),description:cleanText(body.description,1000),sort_order:Number.isFinite(Number(body.sortOrder))?Number(body.sortOrder):0,enabled:body.enabled!==false,updated_at:new Date().toISOString()};
-      if(!updates.name&&body.imagePath===undefined)return json(res,400,{ok:false,message:"El nombre de la marcadora es obligatorio."});
+
+      // Las ediciones parciales (por ejemplo, solo una foto) no deben enviar
+      // campos ausentes como cadenas vacías. El nombre tiene un CHECK 1..120.
+      const updates={updated_at:new Date().toISOString()};
+      if(body.name!==undefined){
+        const name=cleanText(body.name,120);
+        if(!name)return json(res,400,{ok:false,message:"El nombre de la marcadora es obligatorio."});
+        updates.name=name;
+      }
+      if(body.description!==undefined)updates.description=cleanText(body.description,1000);
+      if(body.sortOrder!==undefined)updates.sort_order=Number.isFinite(Number(body.sortOrder))?Number(body.sortOrder):0;
+      if(body.enabled!==undefined)updates.enabled=body.enabled!==false;
+
       let oldImagePath="";
       if(body.imagePath!==undefined){
         const imagePath=cleanText(body.imagePath,300),requestedOld=cleanText(body.oldImagePath,300);
@@ -51,6 +62,8 @@ export default async function handler(req,res){
         if(lookupError)throw lookupError;if(!current)return json(res,404,{ok:false,message:"Marcadora no encontrada."});
         oldImagePath=requestedOld||current.image_path||"";updates.image_path=imagePath;updates.public_url=publicUrl(imagePath);
       }
+
+      if(Object.keys(updates).length===1)return json(res,400,{ok:false,message:"No hay cambios para guardar."});
       const {data,error}=await supabase.from("equipment_catalog").update(updates).eq("id",id).select().single();if(error)throw error;
       if(oldImagePath&&oldImagePath.startsWith("catalog/")&&oldImagePath!==updates.image_path)await supabase.storage.from(BUCKET).remove([oldImagePath]);
       return json(res,200,{ok:true,item:data});
