@@ -12,6 +12,7 @@
 
 .hero-logo-splash{
   top:23%;
+  right:8%;
 }
 
 @media(max-width:800px){
@@ -28,6 +29,7 @@
 
   .hero-logo-splash{
     top:22%;
+    right:8%;
   }
 }
 
@@ -45,7 +47,7 @@
 
   .hero-logo-splash{
     top:20%;
-    right:5%;
+    right:8%;
     width:min(360px,42vw);
   }
 }
