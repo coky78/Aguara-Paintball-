@@ -1,0 +1,211 @@
+/* =====================================================
+   AGUARÁ — GALERÍA PROFESIONAL
+===================================================== */
+
+#galeria .section-head{
+  margin-bottom:30px;
+}
+
+#galeria .section-head h2{
+  margin-bottom:0;
+}
+
+#galeria .gallery{
+  position:relative;
+  grid-template-columns:1.25fr 1fr 1fr;
+  grid-auto-rows:220px;
+  gap:14px;
+}
+
+#galeria .gallery-item{
+  position:relative;
+  isolation:isolate;
+  border:1px solid rgba(242,139,36,.16);
+  border-radius:18px;
+  box-shadow:0 12px 35px rgba(0,0,0,.28);
+  transition:transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+}
+
+#galeria .gallery-item::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.72) 100%);
+  opacity:.72;
+  transition:opacity .35s ease;
+  pointer-events:none;
+}
+
+#galeria .gallery-item img{
+  display:block;
+  transition:transform .7s cubic-bezier(.2,.75,.2,1), filter .5s ease;
+}
+
+#galeria .gallery-item:hover{
+  transform:translateY(-5px);
+  border-color:rgba(242,139,36,.72);
+  box-shadow:0 20px 45px rgba(0,0,0,.45),0 0 0 1px rgba(242,139,36,.1);
+}
+
+#galeria .gallery-item:hover img{
+  transform:scale(1.09);
+  filter:saturate(1.08) contrast(1.04);
+}
+
+#galeria .gallery-item:hover::after{
+  opacity:.9;
+}
+
+.gallery-hover-label{
+  position:absolute;
+  z-index:2;
+  right:16px;
+  bottom:15px;
+  padding:8px 11px;
+  border:1px solid rgba(255,255,255,.24);
+  border-radius:999px;
+  background:rgba(5,5,5,.62);
+  backdrop-filter:blur(8px);
+  color:#fff;
+  font-size:.67rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  opacity:0;
+  transform:translateY(8px);
+  transition:.3s ease;
+  pointer-events:none;
+}
+
+#galeria .gallery-item:hover .gallery-hover-label,
+#galeria .gallery-item:focus-visible .gallery-hover-label{
+  opacity:1;
+  transform:translateY(0);
+}
+
+#galeria .gallery-item:focus-visible{
+  outline:2px solid var(--orange);
+  outline-offset:3px;
+}
+
+/* Visor ampliado */
+#lightbox{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:30px;
+  background:rgba(0,0,0,.91);
+  backdrop-filter:blur(12px);
+  opacity:0;
+  transition:opacity .18s ease;
+}
+
+#lightbox[hidden]{
+  display:none;
+}
+
+#lightbox.is-open{
+  opacity:1;
+}
+
+#lightboxImg{
+  display:block;
+  max-width:min(1100px,92vw);
+  max-height:86vh;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 30px 80px rgba(0,0,0,.75),0 0 40px rgba(242,139,36,.08);
+  transform:scale(.96);
+  transition:transform .22s ease;
+}
+
+#lightbox.is-open #lightboxImg{
+  transform:scale(1);
+}
+
+#closeLightbox{
+  position:absolute;
+  top:18px;
+  right:22px;
+  z-index:3;
+  width:48px;
+  height:48px;
+  border:1px solid rgba(255,255,255,.25);
+  border-radius:50%;
+  background:rgba(10,10,10,.72);
+  color:#fff;
+  font-size:30px;
+  line-height:1;
+  cursor:pointer;
+  transition:.25s ease;
+}
+
+#closeLightbox:hover{
+  background:var(--orange);
+  color:#111;
+  transform:rotate(90deg);
+}
+
+body.lightbox-open{
+  overflow:hidden;
+}
+
+@media(max-width:800px){
+  #galeria .gallery{
+    grid-template-columns:1fr 1fr;
+    grid-auto-rows:210px;
+  }
+
+  #galeria .gallery-item.tall{
+    grid-row:span 2;
+  }
+
+  #galeria .gallery-item.wide{
+    grid-column:span 2;
+  }
+}
+
+@media(max-width:560px){
+  #galeria .gallery{
+    grid-template-columns:1fr;
+    grid-auto-rows:230px;
+  }
+
+  #galeria .gallery-item.tall,
+  #galeria .gallery-item.wide{
+    grid-column:auto;
+    grid-row:span 1;
+  }
+
+  .gallery-hover-label{
+    opacity:1;
+    transform:none;
+  }
+
+  #lightbox{
+    padding:16px;
+  }
+
+  #lightboxImg{
+    max-width:94vw;
+    max-height:82vh;
+    border-radius:10px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  #galeria .gallery-item,
+  #galeria .gallery-item img,
+  .gallery-hover-label,
+  #lightbox,
+  #lightboxImg,
+  #closeLightbox{
+    transition:none !important;
+  }
+}
