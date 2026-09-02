@@ -24,12 +24,17 @@
         min-height:240px !important;
         padding:30px !important;
       }
+      .home-promotion-card h2{
+        position:relative;
+        top:10px;
+      }
       .home-promotion-animated-text{
         display:block;width:100%;box-sizing:border-box;text-align:center;
         color:#fff;font-weight:1000;letter-spacing:.02em;
         font-size:1.65em !important;
         line-height:1.12;
         transform-origin:center;position:relative;
+        top:10px;
         text-shadow:0 2px 0 #b85c0a,0 4px 0 #7d3200,0 7px 12px rgba(0,0,0,.7);
         animation:aguaraPromotion3D 2.2s ease-in-out infinite;
         filter:drop-shadow(0 8px 7px rgba(0,0,0,.55));
