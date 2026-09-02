@@ -20,8 +20,6 @@
         video.load();
         video.play().catch(() => {});
       }
-
-      // El mismo video principal también se muestra dentro de "La experiencia Aguará".
       const featureImage = document.querySelector(".feature-image");
       if (featureImage) {
         injectExperienceVideoStyles();
@@ -66,20 +64,26 @@
     const lightbox = document.getElementById("lightbox");
     const image = document.getElementById("lightboxImg");
     const close = document.getElementById("closeLightbox");
+    const prev = document.getElementById("lightboxPrev");
+    const next = document.getElementById("lightboxNext");
+    const counter = document.getElementById("lightboxCounter");
     const items = Array.from(document.querySelectorAll(".gallery-item"));
     if (!lightbox || !image || !items.length || lightbox.dataset.ready === "1") return;
 
     lightbox.dataset.ready = "1";
     let current = 0;
 
+    const getValidItems = () => items.filter(item => item.dataset.src || item.querySelector("img")?.src);
+
     const show = index => {
-      const valid = items.filter(item => item.dataset.src || item.querySelector("img")?.src);
+      const valid = getValidItems();
       if (!valid.length) return;
       current = (index + valid.length) % valid.length;
       const item = valid[current];
       const src = item.dataset.src || item.querySelector("img")?.src;
       image.src = src;
       image.alt = item.dataset.title || item.querySelector("img")?.alt || "Aguará Paintball";
+      if (counter) counter.textContent = `${current + 1} / ${valid.length}`;
       lightbox.hidden = false;
       document.body.classList.add("lightbox-open");
       requestAnimationFrame(() => lightbox.classList.add("is-open"));
@@ -91,10 +95,14 @@
       setTimeout(() => { lightbox.hidden = true; }, 180);
     };
 
+    const move = direction => show(current + direction);
+
     items.forEach((item, index) => {
       item.addEventListener("click", event => {
         event.preventDefault();
-        show(index);
+        const valid = getValidItems();
+        const position = valid.indexOf(item);
+        show(position >= 0 ? position : index);
       });
       if (!item.querySelector(".gallery-hover-label")) {
         const label = document.createElement("span");
@@ -104,6 +112,8 @@
       }
     });
 
+    prev?.addEventListener("click", event => { event.stopPropagation(); move(-1); });
+    next?.addEventListener("click", event => { event.stopPropagation(); move(1); });
     close?.addEventListener("click", hide);
     lightbox.addEventListener("click", event => {
       if (event.target === lightbox) hide();
@@ -111,8 +121,8 @@
     document.addEventListener("keydown", event => {
       if (lightbox.hidden) return;
       if (event.key === "Escape") hide();
-      if (event.key === "ArrowRight") show(current + 1);
-      if (event.key === "ArrowLeft") show(current - 1);
+      if (event.key === "ArrowRight") move(1);
+      if (event.key === "ArrowLeft") move(-1);
     });
 
     let touchStartX = 0;
@@ -122,7 +132,7 @@
     lightbox.addEventListener("touchend", event => {
       const endX = event.changedTouches[0]?.clientX || 0;
       const delta = endX - touchStartX;
-      if (Math.abs(delta) > 45) show(current + (delta < 0 ? 1 : -1));
+      if (Math.abs(delta) > 45) move(delta < 0 ? 1 : -1);
     }, { passive: true });
   }
 
