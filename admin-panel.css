@@ -92,8 +92,10 @@
   border-radius: 16px;
 }
 
-#bookings {
-  max-height: none;
+/* Botones del administrador con acabado rectangular profesional. */
+#admin-panel button,
+#login-screen #login-btn {
+  border-radius:6px !important;
 }
 
 @media (max-width: 1100px) {
