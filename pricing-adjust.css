@@ -1,20 +1,32 @@
-/* Ajuste visual: tarjetas de Precios claros más compactas. */
+/* Ajuste visual: tarjetas de Precios claros más compactas y proporcionadas. */
 .price-grid{
-  gap:12px;
+  width:min(900px,100%);
+  margin:0 auto;
+  gap:10px;
 }
 
 .price-card{
-  padding:20px;
+  padding:16px;
+  border-radius:14px;
 }
 
 .price-card strong{
-  font-size:2.3rem;
-  margin:10px 0 3px;
+  font-size:2rem;
+  margin:8px 0 2px;
+}
+
+.price-card span{
+  font-size:.65rem;
+}
+
+.price-card small{
+  font-size:.78rem;
 }
 
 .shots-highlight{
-  margin-top:9px;
-  font-size:1.05rem;
+  margin-top:7px;
+  font-size:.92rem;
+  line-height:1.15;
 }
 
 @media(max-width:800px){
@@ -29,6 +41,6 @@
   }
 
   .price-card{
-    padding:18px;
+    padding:15px;
   }
 }
