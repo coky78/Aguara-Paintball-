@@ -1,0 +1,142 @@
+/* =====================================================
+   AGUARÁ PAINTBALL — PANEL ADMINISTRATIVO
+   Solo presentación: no modifica lógica ni funcionalidad.
+===================================================== */
+
+#admin-panel {
+  width: min(1500px, 100%);
+  margin: 0 auto;
+}
+
+.admin-dashboard-title {
+  margin: 0 0 18px;
+}
+
+.admin-dashboard-title h1 {
+  margin: 4px 0 0;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  line-height: 1.05;
+}
+
+.admin-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.admin-dashboard-card {
+  min-width: 0;
+  padding: 22px;
+}
+
+.admin-dashboard-card > h2,
+.admin-full-card > h2 {
+  margin: 0 0 14px;
+  font-size: 1.25rem;
+}
+
+.admin-dashboard-card > p,
+.admin-full-card > p {
+  margin: 0 0 14px;
+  color: var(--muted);
+}
+
+.admin-config-grid {
+  gap: 12px;
+}
+
+.admin-config-grid label {
+  gap: 6px;
+}
+
+.admin-config-grid input,
+.admin-config-grid textarea {
+  min-height: 42px;
+}
+
+.admin-config-grid textarea {
+  min-height: 92px;
+}
+
+.admin-full-card {
+  width: 100%;
+  margin-top: 18px;
+  padding: 22px;
+}
+
+/* Promoción y medios ocupan todo el ancho del panel. */
+#promotionAdmin {
+  margin-top: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+#promotionAdmin h2 {
+  margin-bottom: 10px;
+}
+
+.promotion-admin-grid {
+  gap: 12px;
+}
+
+#mediaAdmin {
+  margin-top: 18px;
+}
+
+#mediaAdmin .media-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+#mediaAdmin .media-grid > * {
+  min-width: 0;
+}
+
+/* Reduce espacio vertical sin cambiar tamaños táctiles importantes. */
+#admin-panel .booking-card {
+  border-radius: 16px;
+}
+
+#bookings {
+  max-height: none;
+}
+
+@media (max-width: 1100px) {
+  #mediaAdmin .media-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .admin-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #mediaAdmin .media-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-dashboard-card,
+  .admin-full-card {
+    padding: 16px;
+  }
+
+  .admin-dashboard-title {
+    margin-bottom: 12px;
+  }
+
+  #admin-panel .section,
+  #admin-panel {
+    width: 100%;
+  }
+
+  #mediaAdmin .media-grid {
+    grid-template-columns: 1fr;
+  }
+}
