@@ -1,4 +1,4 @@
-.home-promotion-slot{width:min(430px,100%);margin-top:22px;}
+.home-promotion-slot{width:min(430px,100%);margin-top:22px;margin-left:auto;margin-right:auto;}
 
 .home-promotion-card{position:relative;isolation:isolate;overflow:hidden;padding:13px 15px;border:2px solid #f28b24;border-radius:12px;background:#111;box-shadow:0 10px 28px rgba(0,0,0,.28);backdrop-filter:blur(5px);}
 .home-promotion-card::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:10px;background:#111;animation:aguaraPromotionAlert 2s ease-in-out infinite;}
@@ -19,4 +19,4 @@
 .home-promotion-cta{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:8px 12px;border-radius:999px;background:#111;color:#fff;font-size:.72rem;font-weight:900;}
 .home-promotion-cta:hover{background:#222;transform:translateY(-1px);}
 
-@media(max-width:640px){.home-promotion-slot{margin-top:18px;width:min(100%,360px)}.home-promotion-card{padding:12px 13px}.home-promotion-card h2{font-size:1.42rem}.home-promotion-card p{font-size:.78rem}.home-promotion-cta{font-size:.70rem;padding:7px 11px}}
+@media(max-width:640px){.home-promotion-slot{margin-top:18px;width:min(100%,360px);margin-left:auto;margin-right:auto}.home-promotion-card{padding:12px 13px}.home-promotion-card h2{font-size:1.42rem}.home-promotion-card p{font-size:.78rem}.home-promotion-cta{font-size:.70rem;padding:7px 11px}}
