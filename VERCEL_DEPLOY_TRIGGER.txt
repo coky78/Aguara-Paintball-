@@ -1,0 +1,1 @@
+Trigger de despliegue de Vercel. No modifica la funcionalidad del proyecto.
