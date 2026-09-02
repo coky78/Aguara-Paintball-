@@ -1,0 +1,1 @@
+Trigger de despliegue Vercel. No modifica ninguna funcionalidad del sitio.
