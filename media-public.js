@@ -1,6 +1,14 @@
 (() => {
   "use strict";
 
+  function injectExperienceVideoStyles() {
+    if (document.getElementById("experience-video-styles")) return;
+    const style = document.createElement("style");
+    style.id = "experience-video-styles";
+    style.textContent = `.experience-video{display:block;width:100%;height:330px;object-fit:cover;background:#101010;border-radius:var(--radius)}@media(max-width:640px){.experience-video{height:260px}}`;
+    document.head.appendChild(style);
+  }
+
   function applyMedia(media) {
     const bySlot = new Map((media || []).map(item => [item.slot_key, item]));
     const hero = bySlot.get("hero_video");
@@ -13,9 +21,10 @@
         video.play().catch(() => {});
       }
 
-      // El video principal también se muestra dentro de "La experiencia Aguará".
+      // El mismo video principal también se muestra dentro de "La experiencia Aguará".
       const featureImage = document.querySelector(".feature-image");
       if (featureImage) {
+        injectExperienceVideoStyles();
         const experienceVideo = document.createElement("video");
         experienceVideo.className = "experience-video";
         experienceVideo.src = hero.public_url;
