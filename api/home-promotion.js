@@ -112,16 +112,12 @@ async function savePromotion(req, res) {
     title: String(body.title || "").trim().slice(0, 120),
     text_content: String(body.text || "").trim().slice(0, 500),
     event_date: String(body.date || "").trim().slice(0, 80),
-    cta_text: String(body.ctaText || "").trim().slice(0, 60),
-    cta_url: String(body.ctaUrl || "").trim().slice(0, 500)
+    cta_text: "RESERVÁ AHORA",
+    cta_url: "#reservas"
   };
 
   if (promotion.enabled && !promotion.title && !promotion.text_content) {
     return sendJson(res, 400, { ok: false, message: "Cargá un título o texto antes de mostrar la promoción." });
-  }
-
-  if (promotion.ctaUrl && !/^https?:\/\//i.test(promotion.ctaUrl)) {
-    return sendJson(res, 400, { ok: false, message: "El enlace del botón debe comenzar con http:// o https://" });
   }
 
   const config = getConfig();
