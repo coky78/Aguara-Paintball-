@@ -18,14 +18,19 @@
       if (!response.ok || !data.ok || !data.visible || !data.promotion) return;
 
       const promo = data.promotion;
-      const hasCta = promo.ctaText && promo.ctaUrl;
+      const ctaUrl = promo.ctaUrl || "#reservas";
+      const ctaText = promo.ctaText || "RESERVÁ AHORA";
+      const isInternal = ctaUrl.startsWith("#") || ctaUrl.startsWith("/");
+      const targetAttrs = isInternal ? "" : ' target="_blank" rel="noopener noreferrer"';
+      const hasCta = Boolean(ctaUrl && ctaText);
+
       root.innerHTML = `
         <div class="home-promotion-card">
           <div class="home-promotion-tag">PROMOCIÓN / EVENTO ESPECIAL</div>
           ${promo.title ? `<h2>${escapeHtml(promo.title)}</h2>` : ""}
           ${promo.text ? `<p>${escapeHtml(promo.text).replace(/\n/g, "<br>")}</p>` : ""}
           ${promo.date ? `<div class="home-promotion-date">${escapeHtml(promo.date)}</div>` : ""}
-          ${hasCta ? `<a class="home-promotion-cta" href="${escapeHtml(promo.ctaUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(promo.ctaText)} ↗</a>` : ""}
+          ${hasCta ? `<a class="home-promotion-cta" href="${escapeHtml(ctaUrl)}"${targetAttrs}>${escapeHtml(ctaText)} ↗</a>` : ""}
         </div>
       `;
       root.hidden = false;
