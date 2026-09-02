@@ -12,6 +12,21 @@
         video.load();
         video.play().catch(() => {});
       }
+
+      // El video principal también se muestra dentro de "La experiencia Aguará".
+      const featureImage = document.querySelector(".feature-image");
+      if (featureImage) {
+        const experienceVideo = document.createElement("video");
+        experienceVideo.className = "experience-video";
+        experienceVideo.src = hero.public_url;
+        experienceVideo.autoplay = true;
+        experienceVideo.muted = true;
+        experienceVideo.loop = true;
+        experienceVideo.playsInline = true;
+        experienceVideo.setAttribute("aria-label", "Video de la experiencia Aguará");
+        featureImage.replaceWith(experienceVideo);
+        experienceVideo.play().catch(() => {});
+      }
     }
 
     ["gallery_1", "gallery_2", "gallery_3", "gallery_4"].forEach((slotKey, index) => {
