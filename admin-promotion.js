@@ -1,6 +1,9 @@
 (() => {
   "use strict";
 
+  const RESERVATION_URL = "#reservas";
+  const RESERVATION_TEXT = "RESERVÁ AHORA";
+
   function $(id) { return document.getElementById(id); }
 
   function status(text, ok = false) {
@@ -27,7 +30,8 @@
       .promotion-admin-toggle input{width:auto;}
       .promotion-admin-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
       .promotion-admin-actions button{min-width:170px;}
-      @media(max-width:700px){.promotion-admin-grid{grid-template-columns:1fr}.promotion-admin-grid .full-row{grid-column:auto}.promotion-admin-actions button{width:100%;}}
+      .promotion-reservation-note{grid-column:1/-1;padding:12px 14px;border:1px solid rgba(34,197,94,.22);border-radius:10px;background:rgba(34,197,94,.06);color:#bbb;font-size:13px;line-height:1.5;}
+      @media(max-width:700px){.promotion-admin-grid{grid-template-columns:1fr}.promotion-admin-grid .full-row,.promotion-reservation-note{grid-column:auto}.promotion-admin-actions button{width:100%;}}
     `;
     document.head.appendChild(style);
   }
@@ -48,8 +52,10 @@
     $("promoTitle").value = promo.title || "";
     $("promoText").value = promo.text || "";
     $("promoDate").value = promo.date || "";
-    $("promoCtaText").value = promo.ctaText || "";
-    $("promoCtaUrl").value = promo.ctaUrl || "";
+    $("promoCtaText").value = RESERVATION_TEXT;
+    $("promoCtaUrl").value = RESERVATION_URL;
+    $("promoCtaText").readOnly = true;
+    $("promoCtaUrl").readOnly = true;
   }
 
   async function load() {
@@ -74,12 +80,12 @@
           title: $("promoTitle").value,
           text: $("promoText").value,
           date: $("promoDate").value,
-          ctaText: $("promoCtaText").value,
-          ctaUrl: $("promoCtaUrl").value
+          ctaText: RESERVATION_TEXT,
+          ctaUrl: RESERVATION_URL
         })
       });
       apply(data.promotion || {});
-      status("✓ Promoción guardada correctamente.", true);
+      status("✓ Promoción guardada. El botón lleva directamente a Reservar.", true);
     } catch (error) {
       status(error.message || "No se pudo guardar la promoción.");
     }
