@@ -1,19 +1,51 @@
-/* Ajuste visual de la portada: sube levemente el bloque inicial sin cambiar tamaños ni animaciones. */
+/* Ajustes visuales de la portada: contenido lateral izquierdo y splash ligeramente más arriba. */
 .hero-content{
+  width:min(900px,90vw);
+  justify-self:start;
   margin-top:70px;
+  margin-left:5vw;
+  margin-right:0;
+  left:0;
+  text-align:left;
   transform:translateY(-4vh);
+}
+
+.hero-logo-splash{
+  top:23%;
 }
 
 @media(max-width:800px){
   .hero-content{
+    width:min(900px,90vw);
+    justify-self:start;
     margin-top:70px;
+    margin-left:5vw;
+    margin-right:0;
+    left:0;
+    text-align:left;
     transform:translateY(-6vh);
+  }
+
+  .hero-logo-splash{
+    top:22%;
   }
 }
 
 @media(max-width:640px){
   .hero-content{
+    width:90vw;
+    justify-self:start;
     margin-top:50px;
+    margin-left:5vw;
+    margin-right:0;
+    left:0;
+    text-align:left;
     transform:translateY(-8vh);
+  }
+
+  .hero-logo-splash{
+    top:20%;
+    right:5%;
+    width:min(360px,42vw);
   }
 }
