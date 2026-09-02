@@ -1,11 +1,12 @@
 .home-promotion-slot{width:min(430px,100%);margin-top:22px;}
 
 .home-promotion-card{position:relative;isolation:isolate;overflow:hidden;padding:13px 15px;border:2px solid #f28b24;border-radius:12px;background:#f28b24;box-shadow:0 10px 28px rgba(0,0,0,.28);backdrop-filter:blur(5px);}
-.home-promotion-card::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:10px;background:#f28b24;animation:aguaraPromotionAlert 1.6s ease-in-out infinite;}
+.home-promotion-card::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:10px;background:#f28b24;animation:aguaraPromotionAlert 2.4s ease-in-out infinite;}
 
 @keyframes aguaraPromotionAlert{
-  0%,100%{background-color:#f28b24;}
-  50%{background-color:#c62828;}
+  0%,100%{background-color:#111;}
+  33.333%{background-color:#c62828;}
+  66.666%{background-color:#f28b24;}
 }
 
 .home-promotion-tag{font-size:.62rem;font-weight:900;letter-spacing:.14em;color:#fff;margin-bottom:6px;}
