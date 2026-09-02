@@ -144,8 +144,8 @@
       const prepared = await api("", { method: "POST", body: JSON.stringify({ action: "prepare-upload", slotKey, fileName: file.name, contentType: file.type }) });
       const url = `${SUPABASE_URL}/storage/v1/object/upload/sign/${BUCKET}/${prepared.path}?token=${encodeURIComponent(prepared.token)}`;
       const uploadResponse = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": file.type, "x-upsert": "false" },
+        method: "PUT",
+        headers: { "Content-Type": file.type },
         body: file
       });
       if (!uploadResponse.ok) throw new Error("No se pudo subir el archivo a Storage.");
@@ -167,7 +167,7 @@
     try {
       const prepared = await api("", { method: "POST", body: JSON.stringify({ action: "prepare-upload", slotKey, fileName: filename, contentType: blob.type }) });
       const url = `${SUPABASE_URL}/storage/v1/object/upload/sign/${BUCKET}/${prepared.path}?token=${encodeURIComponent(prepared.token)}`;
-      const uploadResponse = await fetch(url, { method: "POST", headers: { "Content-Type": blob.type, "x-upsert": "false" }, body: blob });
+      const uploadResponse = await fetch(url, { method: "PUT", headers: { "Content-Type": blob.type }, body: blob });
       if (!uploadResponse.ok) throw new Error("No se pudo subir la foto editada a Storage.");
       await api("", { method: "POST", body: JSON.stringify({ action: "finalize", slotKey, path: prepared.path, title: card.querySelector(".media-title").value.trim(), altText: card.querySelector(".media-alt").value.trim(), enabled: card.querySelector(".media-enabled").checked }) });
       status(meta, "✓ Foto editada y aplicada a la portada.", true);
