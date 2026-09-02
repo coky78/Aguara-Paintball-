@@ -22,6 +22,7 @@
       .home-promotion-animated-text{
         display:block;width:100%;box-sizing:border-box;text-align:center;
         color:#fff;font-weight:1000;letter-spacing:.02em;
+        font-size:1.35em;
         transform-origin:center;position:relative;
         text-shadow:0 2px 0 #b85c0a,0 4px 0 #7d3200,0 7px 12px rgba(0,0,0,.7);
         animation:aguaraPromotion3D 2.2s ease-in-out infinite;
@@ -31,7 +32,7 @@
         0%,100%{transform:perspective(500px) rotateX(0deg) translateY(0) scale(1);text-shadow:0 2px 0 #b85c0a,0 4px 0 #7d3200,0 7px 12px rgba(0,0,0,.7);}
         50%{transform:perspective(500px) rotateX(8deg) translateY(-3px) scale(1.06);text-shadow:0 3px 0 #d66a0b,0 7px 0 #7d3200,0 0 18px rgba(242,139,36,.9),0 10px 18px rgba(0,0,0,.75);}
       }
-      @media(max-width:640px){.home-promotion-animated-text{font-size:.94em;}}
+      @media(max-width:640px){.home-promotion-animated-text{font-size:1.15em;}}
     `;
     document.head.appendChild(style);
   }
