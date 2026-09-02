@@ -1,13 +1,14 @@
 .home-promotion-slot{width:min(430px,100%);margin-top:22px;}
 
-.home-promotion-card{position:relative;padding:13px 15px;border:2px solid #f28b24;border-radius:12px;background:#f28b24;box-shadow:0 10px 28px rgba(0,0,0,.28);backdrop-filter:blur(5px);animation:aguaraPromotionAlert 1.35s ease-in-out infinite;}
+.home-promotion-card{position:relative;isolation:isolate;overflow:hidden;padding:13px 15px;border:2px solid #f28b24;border-radius:12px;background:#f28b24;box-shadow:0 10px 28px rgba(0,0,0,.28);backdrop-filter:blur(5px);}
+.home-promotion-card::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:10px;background:#f28b24;animation:aguaraPromotionAlert 1.6s ease-in-out infinite;}
 
 @keyframes aguaraPromotionAlert{
-  0%,100%{background:#f28b24;border-color:#f28b24;box-shadow:0 0 0 rgba(242,139,36,0),0 10px 28px rgba(0,0,0,.28);}
-  50%{background:#b51f1f;border-color:#ff4b4b;box-shadow:0 0 24px rgba(255,75,75,.48),0 10px 28px rgba(0,0,0,.28);}
+  0%,100%{background-color:#f28b24;}
+  50%{background-color:#c62828;}
 }
 
-.home-promotion-tag{font-size:.62rem;font-weight:900;letter-spacing:.14em;color:#111;margin-bottom:6px;}
+.home-promotion-tag{font-size:.62rem;font-weight:900;letter-spacing:.14em;color:#fff;margin-bottom:6px;}
 .home-promotion-card h2{font-size:1.15rem;line-height:1.1;margin:0 0 5px;color:#fff;letter-spacing:-.02em;}
 .home-promotion-card p{font-size:.82rem;line-height:1.45;color:#fff;margin:0;}
 .home-promotion-date{display:inline-block;margin-top:7px;font-size:.72rem;font-weight:800;color:#fff;}
@@ -15,5 +16,3 @@
 .home-promotion-cta:hover{background:#222;transform:translateY(-1px);}
 
 @media(max-width:640px){.home-promotion-slot{margin-top:18px;width:min(100%,360px)}.home-promotion-card{padding:12px 13px}.home-promotion-card h2{font-size:1.05rem}.home-promotion-card p{font-size:.78rem}.home-promotion-cta{font-size:.70rem;padding:7px 11px}}
-
-@media(prefers-reduced-motion:reduce){.home-promotion-card{animation:none;}}
