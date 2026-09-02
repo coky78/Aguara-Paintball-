@@ -2,12 +2,14 @@
 .price-grid{
   width:min(900px,100%);
   margin:0 auto;
+  grid-template-columns:repeat(4,minmax(0,1fr));
   gap:10px;
 }
 
 .price-card{
   padding:16px;
   border-radius:14px;
+  min-width:0;
 }
 
 .price-card strong{
@@ -31,7 +33,7 @@
 
 @media(max-width:800px){
   .price-grid{
-    grid-template-columns:repeat(2,1fr);
+    grid-template-columns:repeat(2,minmax(0,1fr));
   }
 }
 
