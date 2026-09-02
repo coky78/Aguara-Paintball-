@@ -65,15 +65,6 @@
   padding: 22px;
 }
 
-/* Promoción y medios ocupan todo el ancho del panel. */
-#promotionAdmin {
-  margin-top: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
 #promotionAdmin h2 {
   margin-bottom: 10px;
 }
@@ -129,11 +120,6 @@
 
   .admin-dashboard-title {
     margin-bottom: 12px;
-  }
-
-  #admin-panel .section,
-  #admin-panel {
-    width: 100%;
   }
 
   #mediaAdmin .media-grid {
