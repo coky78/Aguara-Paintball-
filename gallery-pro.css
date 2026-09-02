@@ -209,3 +209,28 @@ body.lightbox-open{
     transition:none !important;
   }
 }
+
+/* =====================================================
+   CORRECCIÓN VISOR + FLECHAS
+   Mantiene la foto centrada aunque el estado abierto aplique
+   una transformación de escala.
+===================================================== */
+#lightbox #lightboxImg{
+  position:absolute;
+  left:50%;
+  top:50%;
+  max-width:calc(100vw - 150px);
+  max-height:calc(100vh - 100px);
+  transform:translate(-50%,-50%) scale(.96);
+}
+
+#lightbox.is-open #lightboxImg{
+  transform:translate(-50%,-50%) scale(1);
+}
+
+@media(max-width:640px){
+  #lightbox #lightboxImg{
+    max-width:calc(100vw - 80px);
+    max-height:calc(100vh - 100px);
+  }
+}
