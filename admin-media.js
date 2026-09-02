@@ -7,6 +7,8 @@
     gallery_2: { label: "Galería 2", type: "image" },
     gallery_3: { label: "Galería 3", type: "image" },
     gallery_4: { label: "Galería 4", type: "image" },
+    gallery_5: { label: "Galería 5", type: "image" },
+    gallery_6: { label: "Galería 6", type: "image" },
     logo: { label: "Logo", type: "image" }
   };
 
@@ -143,11 +145,7 @@
     try {
       const prepared = await api("", { method: "POST", body: JSON.stringify({ action: "prepare-upload", slotKey, fileName: file.name, contentType: file.type }) });
       const url = `${SUPABASE_URL}/storage/v1/object/upload/sign/${BUCKET}/${prepared.path}?token=${encodeURIComponent(prepared.token)}`;
-      const uploadResponse = await fetch(url, {
-        method: "PUT",
-        headers: { "Content-Type": file.type },
-        body: file
-      });
+      const uploadResponse = await fetch(url, { method: "PUT", headers: { "Content-Type": file.type }, body: file });
       if (!uploadResponse.ok) throw new Error("No se pudo subir el archivo a Storage.");
       const title = card.querySelector(".media-title").value.trim();
       const altText = card.querySelector(".media-alt").value.trim();
