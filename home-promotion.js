@@ -4,6 +4,9 @@
   const root = document.getElementById("homePromotion");
   if (!root) return;
 
+  const RESERVATION_URL = "#reservas";
+  const RESERVATION_TEXT = "RESERVAR AHORA";
+
   const escapeHtml = value => String(value ?? "").replace(/[&<>\"]/g, char => ({
     "&": "&amp;",
     "<": "&lt;",
@@ -18,11 +21,6 @@
       if (!response.ok || !data.ok || !data.visible || !data.promotion) return;
 
       const promo = data.promotion;
-      const ctaUrl = promo.ctaUrl || "#reservas";
-      const ctaText = promo.ctaText || "RESERVÁ AHORA";
-      const isInternal = ctaUrl.startsWith("#") || ctaUrl.startsWith("/");
-      const targetAttrs = isInternal ? "" : ' target="_blank" rel="noopener noreferrer"';
-      const hasCta = Boolean(ctaUrl && ctaText);
 
       root.innerHTML = `
         <div class="home-promotion-card">
@@ -30,7 +28,7 @@
           ${promo.title ? `<h2>${escapeHtml(promo.title)}</h2>` : ""}
           ${promo.text ? `<p>${escapeHtml(promo.text).replace(/\n/g, "<br>")}</p>` : ""}
           ${promo.date ? `<div class="home-promotion-date">${escapeHtml(promo.date)}</div>` : ""}
-          ${hasCta ? `<a class="home-promotion-cta" href="${escapeHtml(ctaUrl)}"${targetAttrs}>${escapeHtml(ctaText)} ↗</a>` : ""}
+          <a class="home-promotion-cta" href="${RESERVATION_URL}">${RESERVATION_TEXT} ↗</a>
         </div>
       `;
       root.hidden = false;
