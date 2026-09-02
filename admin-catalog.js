@@ -33,7 +33,7 @@
     if (file.size > MAX_BYTES) throw new Error("La imagen debe pesar como máximo 5 MB.");
     const prepared = await api({method:"POST",body:JSON.stringify({action:"prepare-upload",fileName:file.name,contentType:file.type,fileSize:file.size})});
     const uploadUrl = `${SUPABASE_URL}/storage/v1/object/upload/sign/${BUCKET}/${prepared.path}?token=${encodeURIComponent(prepared.token)}`;
-    const uploadResponse = await fetch(uploadUrl,{method:"POST",headers:{"Content-Type":file.type,"x-upsert":"false"},body:file});
+    const uploadResponse = await fetch(uploadUrl,{method:"PUT",headers:{"Content-Type":file.type,"x-upsert":"false"},body:file});
     if (!uploadResponse.ok) throw new Error("No se pudo subir la imagen.");
     return prepared.path;
   }
