@@ -2,7 +2,7 @@
   "use strict";
 
   const RESERVATION_URL = "#reservas";
-  const RESERVATION_TEXT = "RESERVÁ AHORA";
+  const RESERVATION_TEXT = "RESERVAR AHORA";
 
   function $(id) { return document.getElementById(id); }
 
@@ -47,19 +47,21 @@
     return data;
   }
 
+  function removeCtaEditors() {
+    $("promoCtaText")?.closest("label")?.remove();
+    $("promoCtaUrl")?.closest("label")?.remove();
+  }
+
   function apply(promo = {}) {
     $("promoEnabled").checked = promo.enabled === true;
     $("promoTitle").value = promo.title || "";
     $("promoText").value = promo.text || "";
     $("promoDate").value = promo.date || "";
-    $("promoCtaText").value = RESERVATION_TEXT;
-    $("promoCtaUrl").value = RESERVATION_URL;
-    $("promoCtaText").readOnly = true;
-    $("promoCtaUrl").readOnly = true;
   }
 
   async function load() {
     injectStyles();
+    removeCtaEditors();
     status("Cargando promoción...");
     try {
       const data = await api();
@@ -85,7 +87,7 @@
         })
       });
       apply(data.promotion || {});
-      status("✓ Promoción guardada. El botón lleva directamente a Reservar.", true);
+      status("✓ Promoción guardada. El botón es RESERVAR AHORA y lleva directamente a Reservas.", true);
     } catch (error) {
       status(error.message || "No se pudo guardar la promoción.");
     }
@@ -93,6 +95,7 @@
 
   function init() {
     if (!$("promotionAdmin")) return;
+    removeCtaEditors();
     if ($("promotionSave")) $("promotionSave").addEventListener("click", save);
     load();
   }
