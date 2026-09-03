@@ -71,7 +71,7 @@
           <div class="video-editor-controls">
             <label for="videoPositionY">Vertical</label><input id="videoPositionY" type="range" min="0" max="100" step="1" value="${Number(item.position_y ?? 50)}"><span class="video-editor-value" data-for="videoPositionY"></span>
             <label for="videoPositionX">Horizontal</label><input id="videoPositionX" type="range" min="0" max="100" step="1" value="${Number(item.position_x ?? 50)}"><span class="video-editor-value" data-for="videoPositionX"></span>
-            <label for="videoZoom">Zoom</label><input id="videoZoom" type="range" min="1" max="2.5" step="0.01" value="${Number(item.zoom ?? 1)}"><span class="video-editor-value" data-for="videoZoom"></span>
+            <label for="videoZoom">Zoom</label><input id="videoZoom" type="range" min="0.5" max="2.5" step="0.01" value="${Number(item.zoom ?? 1)}"><span class="video-editor-value" data-for="videoZoom"></span>
           </div>
           <div class="video-editor-buttons"><button class="btn btn-outline video-reset" type="button">Restablecer</button><button class="btn btn-outline video-cancel" type="button">Cancelar</button><button class="btn btn-primary video-save" type="button">Guardar encuadre</button></div>
         </div>`;
