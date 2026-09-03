@@ -1,0 +1,51 @@
+/* AGUARÁ — panel admin: portada y medios separados en móvil */
+
+#mediaAdmin .media-grid { align-items: start; }
+
+#mediaAdmin .media-card[data-slot="logo"] { grid-column: 1 / -1; }
+
+#mediaAdmin .media-card[data-slot="logo"] .media-preview {
+  aspect-ratio: 16 / 6;
+  max-height: 190px;
+}
+
+@media (max-width: 820px) {
+  #mediaAdmin .media-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  #mediaAdmin .media-card[data-slot="logo"] { grid-column: 1 / -1 !important; }
+}
+
+@media (max-width: 560px) {
+  #mediaAdmin .media-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  #mediaAdmin .media-card { padding: 11px !important; }
+
+  #mediaAdmin .media-card[data-slot="logo"] {
+    margin-bottom: 6px !important;
+    border-color: rgba(242,139,36,.35) !important;
+  }
+
+  #mediaAdmin .media-card[data-slot="logo"] .media-preview {
+    aspect-ratio: 16 / 7 !important;
+    max-height: 150px !important;
+  }
+
+  #mediaAdmin .media-fields { gap: 7px !important; }
+  #mediaAdmin .media-actions { gap: 6px !important; }
+
+  #mediaAdmin .media-actions .btn {
+    flex: 1 1 calc(50% - 6px) !important;
+    min-width: 0 !important;
+    padding: 9px 8px !important;
+    font-size: .75rem !important;
+  }
+
+  #home-media-admin { margin-top: 14px !important; padding: 12px !important; }
+  .home-media-admin-grid { gap: 8px !important; }
+}
