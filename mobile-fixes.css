@@ -1,0 +1,129 @@
+/* AGUARÁ — ajustes móviles finales */
+
+@media (max-width: 700px) {
+  /* Precios: siempre legibles y sin desbordes */
+  #precios {
+    padding-top: 48px !important;
+    padding-bottom: 48px !important;
+  }
+
+  #precios .section-head {
+    margin-bottom: 18px !important;
+  }
+
+  #precios .price-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  #precios .price-card {
+    display: block !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    padding: 16px 18px !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  #precios .price-card span,
+  #precios .price-card small,
+  #precios .price-card strong,
+  #precios .price-card b {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  #precios .price-card strong {
+    display: block !important;
+    color: #fff !important;
+    font-size: clamp(2rem, 9vw, 2.5rem) !important;
+    line-height: 1 !important;
+    margin: 8px 0 4px !important;
+    white-space: nowrap !important;
+  }
+
+  #precios .price-card.accent strong {
+    color: var(--orange) !important;
+  }
+
+  #precios .shots-highlight {
+    display: block !important;
+    color: #ff7a00 !important;
+    font-size: .9rem !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Selector nativo de horarios: contraste fuerte en Android/iPhone */
+  #time,
+  #date {
+    color: #fff !important;
+    background-color: #080808 !important;
+    color-scheme: dark;
+    -webkit-text-fill-color: #fff !important;
+    min-height: 48px !important;
+  }
+
+  #time option,
+  #date option {
+    color: #fff !important;
+    background: #111 !important;
+  }
+
+  .aguara-time-panel {
+    display: block !important;
+    margin-top: 12px !important;
+  }
+
+  .aguara-time-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .aguara-time-card {
+    min-height: 48px !important;
+    padding: 9px 10px !important;
+    font-size: .9rem !important;
+  }
+
+  /* Portada: logo separado del texto para evitar superposición */
+  .hero-logo-splash {
+    top: 22% !important;
+    right: auto !important;
+    left: 50% !important;
+    width: min(250px, 62vw) !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 1 !important;
+  }
+
+  .hero-content {
+    width: min(92vw, 560px) !important;
+    margin-top: 145px !important;
+    z-index: 2 !important;
+  }
+
+  .hero h1 {
+    margin-top: 10px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  #precios .price-card {
+    padding: 14px 15px !important;
+  }
+
+  #precios .price-card strong {
+    font-size: 2.05rem !important;
+  }
+
+  .hero-logo-splash {
+    width: min(220px, 58vw) !important;
+    top: 20% !important;
+  }
+
+  .hero-content {
+    margin-top: 125px !important;
+  }
+}
