@@ -5,7 +5,8 @@
 (() => {
   "use strict";
 
-  const MIN_ZOOM = 1;
+  // Permite ampliar Y reducir la foto. 100% es el tamaño original.
+  const MIN_ZOOM = 0.10;
   const MAX_ZOOM = 3;
 
   function injectStyles() {
