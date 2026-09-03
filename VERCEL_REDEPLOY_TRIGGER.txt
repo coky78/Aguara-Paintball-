@@ -1,1 +1,1 @@
-Forzar nuevo deployment de producción después de reconectar GitHub ↔ Vercel.
+Forzar nuevo deployment de producción después de corregir APIs públicas y verificación de Aguará Paintball.
