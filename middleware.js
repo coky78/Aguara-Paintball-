@@ -62,10 +62,8 @@ export default async function middleware(request) {
   if (
     path === "/api/admin-login" ||
     path === "/api/upload-receipt" ||
-    path === "/api/public-reservations" ||
     path === "/api/public-media" ||
     path === "/api/public-catalog" ||
-    path === "/api/public-home-media" ||
     path === "/api/home-promotion"
   ) return next();
 
@@ -73,9 +71,11 @@ export default async function middleware(request) {
   if (path === "/api/media" && method === "GET") return next();
   if (path === "/api/booking-info") return next();
 
+  /* Administración conserva acceso completo. Las visitas públicas
+     se derivan a public-media, que entrega solo datos de calendario. */
   if (path === "/api/reservations" && method === "GET") {
     if (await isValidSession(request)) return next();
-    return Response.redirect(new URL("/api/public-reservations", request.url), 307);
+    return Response.redirect(new URL("/api/public-media", request.url), 307);
   }
 
   if (path === "/api/reservations" && method === "POST") return next();
