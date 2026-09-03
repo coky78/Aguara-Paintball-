@@ -37,17 +37,42 @@
   .hero-content{
     width:90vw;
     justify-self:start;
-    margin-top:50px;
+    margin-top:170px;
     margin-left:5vw;
     margin-right:0;
     left:0;
     text-align:left;
-    transform:translateY(-8vh);
+    transform:none;
+    position:relative;
+    z-index:2;
   }
 
   .hero-logo-splash{
-    top:20%;
-    right:8%;
-    width:min(360px,42vw);
+    top:16%;
+    left:50%;
+    right:auto;
+    width:min(360px,46vw);
+    z-index:3;
+    transform:translate(-50%,-50%);
+    animation:aguaraSplashMobile 3s ease-in-out forwards;
+  }
+}
+
+@keyframes aguaraSplashMobile{
+  0%{
+    opacity:0;
+    transform:translate(-50%,-50%) scale(.75);
+  }
+  20%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+  }
+  53%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+  }
+  100%{
+    opacity:.10;
+    transform:translate(-50%,-50%) scale(.72);
   }
 }
