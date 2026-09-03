@@ -5,7 +5,8 @@
 (() => {
   "use strict";
 
-  const MIN_ZOOM = 0.25;
+  // Permite alejar mucho más la foto: 0.10x hasta 3x.
+  const MIN_ZOOM = 0.10;
   const MAX_ZOOM = 3;
 
   function injectAdminButtonStyle() {
@@ -28,7 +29,7 @@
     input.max = String(MAX_ZOOM);
     input.step = "0.01";
     input.setAttribute("aria-label", "Zoom de la foto");
-    input.title = "Deslizá hacia la izquierda para alejar y hacia la derecha para acercar";
+    input.title = "Deslizá hacia la izquierda para alejar la foto y hacia la derecha para acercarla";
     if (!input.value || !Number.isFinite(Number(input.value))) input.value = "1";
     if (Number(input.value) < MIN_ZOOM) input.value = String(MIN_ZOOM);
     if (Number(input.value) > MAX_ZOOM) input.value = String(MAX_ZOOM);
