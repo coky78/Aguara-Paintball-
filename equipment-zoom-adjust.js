@@ -1,11 +1,11 @@
 /* =====================================================
    AGUARÁ — ZOOM DE EQUIPAMIENTO / FOTOS
-   Control visible para ampliar y reducir la foto.
+   Barra visible, funcional e indicador de porcentaje.
 ===================================================== */
 (() => {
   "use strict";
 
-  const MIN_ZOOM = 0.10;
+  const MIN_ZOOM = 1;
   const MAX_ZOOM = 3;
 
   function injectStyles() {
@@ -13,42 +13,54 @@
     const style = document.createElement("style");
     style.id = "aguara-photo-zoom-styles";
     style.textContent = `
-      .photo-editor-controls input[type="range"] { display:block !important; width:100% !important; min-height:28px; cursor:pointer; }
-      .photo-editor-controls label[for="photoZoom"] { font-weight:800; color:#fff; }
-      .aguara-zoom-value { display:inline-block; min-width:58px; margin-left:8px; color:#f28b24; font-weight:800; font-size:13px; }
+      .catalog-photo-editor-controls { display:grid !important; grid-template-columns:1fr 1fr !important; gap:12px !important; }
+      .catalog-photo-editor-controls label { display:grid !important; gap:6px !important; color:#bbb !important; font-size:13px !important; font-weight:800 !important; }
+      .catalog-photo-editor-controls input[type="range"],
+      .photo-editor-controls input[type="range"] { display:block !important; width:100% !important; min-height:30px !important; cursor:pointer !important; accent-color:#f28b24 !important; opacity:1 !important; visibility:visible !important; }
+      .aguara-zoom-value { display:inline-block !important; margin-left:8px !important; color:#f28b24 !important; font-weight:900 !important; font-size:13px !important; }
+      .catalog-photo-editor-controls .aguara-zoom-value { margin:0 !important; }
+      @media(max-width:700px){ .catalog-photo-editor-controls { grid-template-columns:1fr !important; } }
     `;
     document.head.appendChild(style);
   }
 
-  function adjustZoom(root = document) {
-    const input = root.querySelector?.("#photoZoom");
-    if (!input) return;
+  function enhance(root = document) {
+    const inputs = root.querySelectorAll?.("#photoZoom, .catalog-editor-zoom");
+    if (!inputs?.length) return;
 
-    input.min = String(MIN_ZOOM);
-    input.max = String(MAX_ZOOM);
-    input.step = "0.01";
-    input.type = "range";
-    input.setAttribute("aria-label", "Zoom de la foto");
-    input.title = "Izquierda: alejar la foto · Derecha: acercar la foto";
+    inputs.forEach((input) => {
+      input.type = "range";
+      input.min = String(MIN_ZOOM);
+      input.max = String(MAX_ZOOM);
+      input.step = "0.01";
+      input.setAttribute("aria-label", "Zoom de la foto");
+      input.title = "Izquierda: alejar · Derecha: acercar";
 
-    const current = Number(input.value);
-    input.value = String(Number.isFinite(current) ? Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, current)) : 1);
+      const current = Number(input.value);
+      input.value = String(Number.isFinite(current) ? Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, current)) : 1);
 
-    const controls = input.closest(".photo-editor-controls");
-    if (!controls || input.dataset.aguaraZoomReady === "1") return;
+      if (input.dataset.aguaraZoomEnhanced === "1") return;
+      input.dataset.aguaraZoomEnhanced = "1";
 
-    input.dataset.aguaraZoomReady = "1";
-    const label = controls.querySelector('label[for="photoZoom"]');
-    if (label) label.textContent = "Zoom de la foto";
+      const label = input.closest("label");
+      const value = document.createElement("output");
+      value.className = "aguara-zoom-value";
+      value.setAttribute("aria-live", "polite");
+      value.textContent = `${Math.round(Number(input.value) * 100)}%`;
 
-    const value = document.createElement("output");
-    value.className = "aguara-zoom-value";
-    value.setAttribute("for", "photoZoom");
-    input.parentNode?.appendChild(value);
+      if (label) label.appendChild(value);
+      else input.parentNode?.appendChild(value);
 
-    const updateValue = () => { value.textContent = `${Number(input.value).toFixed(2)}×`; };
-    input.addEventListener("input", updateValue);
-    updateValue();
+      const update = () => {
+        const zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number(input.value) || 1));
+        value.textContent = `${Math.round(zoom * 100)}%`;
+        input.value = String(zoom);
+        input.dispatchEvent(new Event("change", { bubbles:true }));
+      };
+
+      input.addEventListener("input", update);
+      update();
+    });
   }
 
   function injectAdminButtonStyle() {
@@ -67,11 +79,11 @@
   function init() {
     injectStyles();
     injectAdminButtonStyle();
-    adjustZoom();
-    const observer = new MutationObserver(() => adjustZoom());
-    observer.observe(document.body, { childList: true, subtree: true });
+    enhance();
+    const observer = new MutationObserver(() => enhance());
+    observer.observe(document.body, { childList:true, subtree:true });
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once:true });
   else init();
 })();
