@@ -1,4 +1,4 @@
-/* LA EXPERIENCIA — ajuste visual fino: título arriba, contenido más compacto y video más bajo. */
+/* LA EXPERIENCIA — contenido compacto y área multimedia debajo del texto. */
 #experiencia.split{
   min-height:0;
   padding-top:20px;
@@ -37,14 +37,62 @@
 #experiencia .stats span{
   font-size:.68rem;
 }
+
+/* Área compacta para foto/video administrables debajo del texto. */
+#experiencia .experience-media-slot{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  width:100%;
+  max-width:560px;
+  margin-top:16px;
+}
+#experiencia .experience-media-card{
+  position:relative;
+  min-height:105px;
+  aspect-ratio:16/7;
+  overflow:hidden;
+  border-radius:12px;
+  border:1px solid rgba(242,139,36,.2);
+  background:#101010;
+  box-shadow:0 8px 24px rgba(0,0,0,.22);
+}
+#experiencia .experience-media-card img,
+#experiencia .experience-media-card video{
+  display:block;
+  width:100%;
+  height:100%;
+  min-height:0;
+  object-fit:cover;
+  transform-origin:center center;
+}
+#experiencia .experience-media-card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.48));
+  pointer-events:none;
+}
+#experiencia .experience-media-caption{
+  position:absolute;
+  z-index:2;
+  left:10px;
+  right:10px;
+  bottom:8px;
+  color:#fff;
+  font-size:.65rem;
+  font-weight:900;
+  text-shadow:0 2px 8px rgba(0,0,0,.75);
+}
+
 #experiencia .feature-card{
   margin-top:0;
   align-self:start;
 }
 #experiencia .feature-image,
 #experiencia .experience-video{
-  height:165px;
-  min-height:165px;
+  height:150px;
+  min-height:150px;
 }
 #experiencia .feature-copy{
   padding:8px 14px;
@@ -58,6 +106,7 @@
   font-size:.72rem;
   line-height:1.25;
 }
+
 @media(max-width:800px){
   #experiencia.split{
     padding-top:22px;
@@ -72,7 +121,11 @@
     height:145px;
     min-height:145px;
   }
+  #experiencia .experience-media-slot{
+    max-width:none;
+  }
 }
+
 @media(max-width:640px){
   #experiencia.split{
     padding-top:19px;
@@ -100,6 +153,15 @@
   }
   #experiencia .stats span{
     font-size:.62rem;
+  }
+  #experiencia .experience-media-slot{
+    grid-template-columns:1fr;
+    gap:8px;
+    margin-top:12px;
+  }
+  #experiencia .experience-media-card{
+    min-height:125px;
+    aspect-ratio:16/8;
   }
   #experiencia .feature-image,
   #experiencia .experience-video{
