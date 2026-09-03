@@ -51,7 +51,7 @@
     top:16%;
     left:50%;
     right:auto;
-    width:min(360px,46vw);
+    width:min(410px,58vw);
     z-index:3;
     transform:translate(-50%,-50%);
     animation:aguaraSplashMobile 3s ease-in-out forwards;
@@ -72,7 +72,7 @@
     transform:translate(-50%,-50%) scale(1);
   }
   100%{
-    opacity:.10;
-    transform:translate(-50%,-50%) scale(.72);
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
   }
 }
