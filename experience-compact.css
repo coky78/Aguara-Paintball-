@@ -8,6 +8,7 @@
 }
 #experiencia.split > div:first-child{
   padding-top:0;
+  transform:translateY(-24px);
 }
 #experiencia .eyebrow{
   margin:0 0 5px;
@@ -63,6 +64,9 @@
     padding-bottom:38px;
     gap:24px;
   }
+  #experiencia.split > div:first-child{
+    transform:translateY(-24px);
+  }
   #experiencia .feature-image,
   #experiencia .experience-video{
     height:180px;
@@ -74,6 +78,9 @@
     padding-top:24px;
     padding-bottom:34px;
     gap:17px;
+  }
+  #experiencia.split > div:first-child{
+    transform:translateY(-18px);
   }
   #experiencia h2{
     font-size:clamp(1.65rem,7.5vw,2.3rem);
