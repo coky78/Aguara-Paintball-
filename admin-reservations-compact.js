@@ -27,6 +27,22 @@
       box-shadow: 0 6px 18px rgba(0,0,0,.16) !important;
     }
 
+    /* IMPORTANTE: conservar los colores de estado definidos por admin.js. */
+    #bookings .admin-reservation.booking-status-confirmed {
+      border-color: #22c55e !important;
+      background: rgba(34,197,94,0.10) !important;
+    }
+
+    #bookings .admin-reservation.booking-status-cancelled {
+      border-color: #ef4444 !important;
+      background: rgba(239,68,68,0.08) !important;
+    }
+
+    #bookings .admin-reservation.booking-status-pending {
+      border-color: #444 !important;
+      background: #111 !important;
+    }
+
     #bookings .admin-reservation-header {
       margin: 0 0 9px !important;
       padding: 0 0 9px !important;
