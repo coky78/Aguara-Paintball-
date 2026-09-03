@@ -65,6 +65,7 @@ export default async function middleware(request) {
     path === "/api/public-reservations" ||
     path === "/api/public-media" ||
     path === "/api/public-catalog" ||
+    path === "/api/public-home-media" ||
     path === "/api/home-promotion"
   ) return next();
 
