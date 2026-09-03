@@ -1,108 +1,35 @@
 /* Experiencia compacta: más contenido visible sin alterar reservas ni scripts protegidos. */
 #experiencia.split{
   min-height:0;
-  padding-top:72px;
-  padding-bottom:72px;
-  gap:48px;
+  padding-top:42px;
+  padding-bottom:54px;
+  gap:38px;
   align-items:start;
 }
 
-#experiencia.split > div:first-child{
-  padding-top:0;
-}
-
-#experiencia .eyebrow{
-  margin-top:0;
-  margin-bottom:8px;
-}
-
-#experiencia h2{
-  font-size:clamp(2rem,4vw,3.55rem);
-  line-height:.98;
-  margin:6px 0 18px;
-}
-
-#experiencia .muted{
-  max-width:590px;
-  font-size:.96rem;
-  line-height:1.5;
-}
-
-#experiencia .stats{
-  margin-top:28px;
-  gap:28px;
-}
-
-#experiencia .stats strong{
-  font-size:1.65rem;
-}
-
-#experiencia .feature-card{
-  margin-top:0;
-}
-
-#experiencia .feature-image,
-#experiencia .experience-video{
-  height:270px;
-}
-
-#experiencia .feature-copy{
-  padding:18px 22px;
-}
-
-#experiencia .feature-copy h3{
-  font-size:1.65rem;
-  margin:5px 0;
-}
-
-#experiencia .feature-copy p{
-  margin:6px 0 0;
-  font-size:.9rem;
-}
+#experiencia.split > div:first-child{padding-top:0}
+#experiencia .eyebrow{margin-top:0;margin-bottom:6px}
+#experiencia h2{font-size:clamp(1.8rem,3.4vw,3rem);line-height:1; margin:4px 0 14px}
+#experiencia .muted{max-width:560px;font-size:.9rem;line-height:1.42}
+#experiencia .stats{margin-top:20px;gap:24px}
+#experiencia .stats strong{font-size:1.5rem}
+#experiencia .feature-card{margin-top:0}
+#experiencia .feature-image,#experiencia .experience-video{height:230px}
+#experiencia .feature-copy{padding:14px 20px}
+#experiencia .feature-copy h3{font-size:1.45rem;margin:4px 0}
+#experiencia .feature-copy p{margin:4px 0 0;font-size:.86rem}
 
 @media(max-width:800px){
-  #experiencia.split{
-    padding-top:60px;
-    padding-bottom:60px;
-    gap:30px;
-  }
-
-  #experiencia .feature-image,
-  #experiencia .experience-video{
-    height:235px;
-  }
+  #experiencia.split{padding-top:42px;padding-bottom:48px;gap:28px}
+  #experiencia .feature-image,#experiencia .experience-video{height:205px}
 }
 
 @media(max-width:640px){
-  #experiencia.split{
-    padding-top:48px;
-    padding-bottom:48px;
-    gap:24px;
-  }
-
-  #experiencia h2{
-    font-size:clamp(2rem,9vw,2.8rem);
-  }
-
-  #experiencia .muted{
-    font-size:.9rem;
-  }
-
-  #experiencia .stats{
-    gap:18px;
-    margin-top:22px;
-  }
-
-  #experiencia .stats strong{
-    font-size:1.4rem;
-  }
-
-  #experiencia .stats span{
-    font-size:.72rem;
-  }
-
-  #experiencia .feature-image,
-  #experiencia .experience-video{
-    height:205px;
-  }
+  #experiencia.split{padding-top:34px;padding-bottom:42px;gap:20px}
+  #experiencia h2{font-size:clamp(1.8rem,8vw,2.5rem)}
+  #experiencia .muted{font-size:.86rem}
+  #experiencia .stats{gap:15px;margin-top:18px}
+  #experiencia .stats strong{font-size:1.3rem}
+  #experiencia .stats span{font-size:.7rem}
+  #experiencia .feature-image,#experiencia .experience-video{height:185px}
 }
