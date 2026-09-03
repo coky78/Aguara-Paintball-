@@ -54,17 +54,18 @@ function headers(key, prefer) {
   return result;
 }
 
+const DEFAULT_TEXT = "Elegí primero la fecha y después uno de los horarios disponibles. La seña es necesaria para confirmar la reserva.";
+
 export default async function handler(req, res) {
   const config = getConfig();
   if (!config) return sendJson(res, 500, { ok: false, message: "Faltan variables de Supabase en Vercel." });
 
   if (req.method === "GET") {
     try {
-      // PostgREST filter syntax must be id=eq.1.
       const response = await fetch(config.url + "/rest/v1/aguara_booking_info?select=text_content&id=eq.1&limit=1", { headers: headers(config.key) });
       const data = await response.json();
       if (!response.ok) return sendJson(res, response.status, { ok: false, message: "No se pudo leer el texto de reservas.", error: data });
-      return sendJson(res, 200, { ok: true, text: data?.[0]?.text_content || "Elegí primero la fecha y después uno de los horarios disponibles. La seña es necesaria para confirmar la reserva." });
+      return sendJson(res, 200, { ok: true, text: data?.[0]?.text_content || DEFAULT_TEXT });
     } catch (error) {
       return sendJson(res, 500, { ok: false, message: error.message || "Error leyendo el texto de reservas." });
     }
@@ -82,15 +83,23 @@ export default async function handler(req, res) {
   if (text.length > 1200) return sendJson(res, 400, { ok: false, message: "El texto no puede superar 1200 caracteres." });
 
   try {
-    const response = await fetch(config.url + "/rest/v1/aguara_booking_info?id=eq.1", {
+    const update = await fetch(config.url + "/rest/v1/aguara_booking_info?id=eq.1", {
       method: "PATCH",
       headers: headers(config.key, "return=representation"),
       body: JSON.stringify({ text_content: text, updated_at: new Date().toISOString() })
     });
-    const data = await response.json();
-    if (!response.ok) return sendJson(res, response.status, { ok: false, message: "No se pudo guardar el texto de reservas.", error: data });
-    if (!Array.isArray(data) || !data.length) return sendJson(res, 404, { ok: false, message: "No se encontró el registro del texto de reservas." });
-    return sendJson(res, 200, { ok: true, text: data[0].text_content || text });
+    const updated = await update.json();
+    if (!update.ok) return sendJson(res, update.status, { ok: false, message: "No se pudo guardar el texto de reservas.", error: updated });
+    if (Array.isArray(updated) && updated.length) return sendJson(res, 200, { ok: true, text: updated[0].text_content || text });
+
+    const insert = await fetch(config.url + "/rest/v1/aguara_booking_info", {
+      method: "POST",
+      headers: headers(config.key, "return=representation"),
+      body: JSON.stringify({ id: 1, text_content: text, updated_at: new Date().toISOString() })
+    });
+    const inserted = await insert.json();
+    if (!insert.ok) return sendJson(res, insert.status, { ok: false, message: "No se pudo crear el registro del texto de reservas.", error: inserted });
+    return sendJson(res, 200, { ok: true, text: inserted?.[0]?.text_content || text });
   } catch (error) {
     return sendJson(res, 500, { ok: false, message: error.message || "Error guardando el texto de reservas." });
   }
