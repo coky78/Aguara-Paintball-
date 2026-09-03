@@ -17,3 +17,11 @@ test("espacios multimedia de portada permiten editar datos y activar o desactiva
   assert.match(source, /hm-save/);
   assert.match(source, /hm-delete/);
 });
+
+test("espacios multimedia de portada permiten editar el encuadre de fotos y videos", () => {
+  assert.match(source, /Editar encuadre/);
+  assert.match(source, /positionX/);
+  assert.match(source, /positionY/);
+  assert.match(source, /zoom/);
+  assert.match(source, /Guardar encuadre/);
+});
