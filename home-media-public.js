@@ -1,5 +1,11 @@
 (() => {
   "use strict";
+  function applyPriceFallback(){
+    const game=document.getElementById("publicGamePrice");
+    const hydrogel=document.getElementById("publicHydrogelPrice");
+    if(game&&game.textContent.trim()==="$0")game.textContent="$29.000";
+    if(hydrogel&&hydrogel.textContent.trim()==="$0")hydrogel.textContent="$25.000";
+  }
   function makeCard(item, compact=false){
     const card=document.createElement("article");
     card.className=compact?"experience-media-card":"home-media-card";
@@ -25,6 +31,7 @@
     return card;
   }
   async function init(){
+    applyPriceFallback();
     const grid=document.getElementById("homeMediaGrid"),section=document.getElementById("homeMediaSection"),experienceSlot=document.getElementById("experienceMediaSlot");
     if(!grid||!section)return;
     try{
