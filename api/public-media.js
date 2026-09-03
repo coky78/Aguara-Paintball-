@@ -6,7 +6,12 @@ export default async function handler(req,res){
   if(!url||!key)return json(res,500,{ok:false,message:"Faltan variables de Supabase en Vercel."});
   try{
     const supabase=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
-    const {data,error}=await supabase.from("media_library").select("slot_key,media_type,public_url,title,alt_text,enabled,sort_order,position_x,position_y,zoom").eq("enabled",true).not("public_url","is",null).order("sort_order",{ascending:true});
-    if(error)throw error; return json(res,200,{ok:true,media:data||[]});
-  }catch(error){console.error("PUBLIC MEDIA ERROR:",error);return json(res,500,{ok:false,message:error.message||"No se pudo cargar la biblioteca de medios."});}
+    const [{data:media,error:mediaError},{data:items,error:catalogError}]=await Promise.all([
+      supabase.from("media_library").select("slot_key,media_type,public_url,title,alt_text,enabled,sort_order,position_x,position_y,zoom").eq("enabled",true).not("public_url","is",null).order("sort_order",{ascending:true}),
+      supabase.from("equipment_catalog").select("id,name,description,public_url,sort_order,enabled").eq("enabled",true).order("sort_order",{ascending:true}).order("created_at",{ascending:true})
+    ]);
+    if(mediaError)throw mediaError;
+    if(catalogError)throw catalogError;
+    return json(res,200,{ok:true,media:media||[],items:items||[]});
+  }catch(error){console.error("PUBLIC MEDIA ERROR:",error);return json(res,500,{ok:false,message:error.message||"No se pudo cargar la biblioteca pública."});}
 }
