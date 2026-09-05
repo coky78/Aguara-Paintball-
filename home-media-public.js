@@ -1,3 +1,4 @@
+import { buildMediaTransform } from "./home-media-position.js";
 (() => {
   "use strict";
   function applyPriceFallback(){
@@ -16,10 +17,13 @@
       media.autoplay=true;media.muted=true;media.loop=true;media.playsInline=true;media.preload="metadata";
       media.setAttribute("playsinline","");media.setAttribute("webkit-playsinline","");media.setAttribute("aria-label",media.alt);
       media.addEventListener("loadedmetadata",()=>{const p=media.play();if(p&&typeof p.catch==="function")p.catch(()=>{media.controls=true;});},{once:true});
-      media.addEventListener("error",()=>{media.controls=true;}, {once:true});
+      media.addEventListener("error",()=>{media.controls=true;},{once:true});
     }
-    media.style.objectPosition=`${Number(item.position_x??50)}% ${Number(item.position_y??50)}%`;
-    media.style.transform=`scale(${Number(item.zoom??1)})`;
+    const positionX=Number(item.position_x??50);
+    const positionY=Number(item.position_y??50);
+    const zoom=Number(item.zoom??1);
+    media.style.objectPosition=`${positionX}% ${positionY}%`;
+    media.style.transform=buildMediaTransform(positionX,positionY,zoom);
     media.style.transformOrigin="center center";
     card.appendChild(media);
     return card;
