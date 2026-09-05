@@ -14,4 +14,16 @@ if (!publicApi.includes('media_library')) throw new Error('api/public-home-media
 if (!index.includes('id="homeMediaSection"')) throw new Error('index.html no tiene la sección multimedia de portada');
 if (!index.includes('id="homeMediaGrid"')) throw new Error('index.html no tiene la grilla multimedia de portada');
 if (!index.includes('home-media-public.js')) throw new Error('index.html no carga el renderizador de portada');
+
+// A missing home_media_N row is valid for an empty slot. The API must not
+// request a singular representation from an UPDATE/UPSERT that can yield 0 rows.
+if (adminApi.includes('.upsert(payload,{onConflict:"slot_key"}).select().single()')) {
+  throw new Error('finalize usa .single() después de upsert y falla cuando Supabase devuelve 0 filas');
+}
+if (adminApi.includes('.update(updates).eq("slot_key",slotKey).select().single()')) {
+  throw new Error('PATCH usa .single() y falla cuando el espacio todavía no tiene fila');
+}
+if (!adminApi.includes('.maybeSingle()')) throw new Error('home-media API debe usar maybeSingle para búsquedas opcionales');
+if (!adminApi.includes('home_media_3')) throw new Error('home-media API debe admitir Momento 2');
+
 console.log('home-media tests passed');
