@@ -2,7 +2,7 @@
 #experiencia.split{
   min-height:0;
   padding-top:20px;
-  padding-bottom:30px;
+  padding-bottom:0;
   gap:24px;
   align-items:start;
 }
@@ -38,7 +38,7 @@
   font-size:.68rem;
 }
 
-/* Área compacta para foto/video administrables debajo del texto. */
+/* Cuatro espacios administrables para fotos/videos de Experiencia. */
 #experiencia .experience-media-slot{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -73,17 +73,7 @@
   background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.48));
   pointer-events:none;
 }
-#experiencia .experience-media-caption{
-  position:absolute;
-  z-index:2;
-  left:10px;
-  right:10px;
-  bottom:8px;
-  color:#fff;
-  font-size:.65rem;
-  font-weight:900;
-  text-shadow:0 2px 8px rgba(0,0,0,.75);
-}
+#experiencia .experience-media-caption{display:none!important}
 
 #experiencia .feature-card{
   margin-top:0;
@@ -110,7 +100,7 @@
 @media(max-width:800px){
   #experiencia.split{
     padding-top:22px;
-    padding-bottom:28px;
+    padding-bottom:0;
     gap:18px;
   }
   #experiencia.split > div:first-child{
@@ -129,7 +119,7 @@
 @media(max-width:640px){
   #experiencia.split{
     padding-top:19px;
-    padding-bottom:25px;
+    padding-bottom:0;
     gap:13px;
   }
   #experiencia.split > div:first-child{
