@@ -1,9 +1,9 @@
-/* HOME MEDIA — layout fluido sin huecos en escritorio. */
-#homeMediaSection{padding-top:30px;padding-bottom:100px}
+/* HOME MEDIA — layout fluido y unido al bloque de experiencia. */
+#homeMediaSection{padding-top:0;padding-bottom:100px;margin-top:0}
 .home-media-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:stretch}
 .home-media-card{position:relative;min-width:0;min-height:260px;overflow:hidden;border-radius:18px;border:1px solid rgba(242,139,36,.16);background:#101010;box-shadow:0 12px 35px rgba(0,0,0,.28)}
 .home-media-card img,.home-media-card video{display:block;width:100%;height:100%;min-height:260px;aspect-ratio:16/10;object-fit:cover}
 .home-media-card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.72));pointer-events:none}
 .home-media-caption{position:absolute;z-index:2;left:18px;right:18px;bottom:16px;color:#fff;font-weight:900;text-shadow:0 2px 10px rgba(0,0,0,.7)}
 @media(max-width:900px){.home-media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:560px){#homeMediaSection{padding-top:10px}.home-media-grid{grid-template-columns:1fr}.home-media-card,.home-media-card img,.home-media-card video{min-height:230px}.home-media-card img,.home-media-card video{aspect-ratio:16/9}}
+@media(max-width:560px){#homeMediaSection{padding-top:0;padding-bottom:70px}.home-media-grid{grid-template-columns:1fr}.home-media-card,.home-media-card img,.home-media-card video{min-height:230px}.home-media-card img,.home-media-card video{aspect-ratio:16/9}}
