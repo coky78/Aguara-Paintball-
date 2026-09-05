@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { buildSignedUploadUrl } from "../lib/home-media-upload-url.js";
 const COOKIE_NAME="aguara_admin_session";const BUCKET="site-media";
-const SLOTS={home_media_1:{label:"Portada · Experiencia",sort:20},home_media_2:{label:"Portada · Momento 1",sort:21},home_media_3:{label:"Portada · Momento 2",sort:22},home_media_4:{label:"Portada · Momento 3",sort:23},home_media_5:{label:"Portada · Momento 4",sort:24},home_media_6:{label:"Portada · Momento 5",sort:25}};
+const SLOTS={home_media_1:{label:"Experiencia 1",sort:20},home_media_2:{label:"Experiencia 2",sort:21},home_media_3:{label:"Experiencia 3",sort:22},home_media_4:{label:"Experiencia 4",sort:23},home_media_5:{label:"Momento 1",sort:24},home_media_6:{label:"Momento 2",sort:25},home_media_7:{label:"Momento 3",sort:26},home_media_8:{label:"Momento 4",sort:27}};
 function json(res,status,payload){return res.status(status).setHeader("Content-Type","application/json").json(payload)}
 function base64Url(bytes){let binary="";for(const byte of bytes)binary+=String.fromCharCode(byte);return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"")}
 async function sign(secret,payload){const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(secret),{name:"HMAC",hash:"SHA-256"},false,["sign"]);return base64Url(new Uint8Array(await crypto.subtle.sign("HMAC",key,new TextEncoder().encode(payload))))}
