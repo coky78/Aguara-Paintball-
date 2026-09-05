@@ -34,11 +34,11 @@
       const active=d.media.filter(x=>x.public_url&&x.enabled&&String(x.slot_key||"").startsWith("home_media_"));
       if(experienceSlot){
         experienceSlot.innerHTML="";
-        active.slice(0,2).forEach(item=>experienceSlot.appendChild(makeCard(item,true)));
+        active.slice(0,4).forEach(item=>experienceSlot.appendChild(makeCard(item,true)));
         experienceSlot.hidden=experienceSlot.children.length===0;
       }
       grid.innerHTML="";
-      active.slice(2).forEach(item=>grid.appendChild(makeCard(item,false)));
+      active.slice(4).forEach(item=>grid.appendChild(makeCard(item,false)));
       section.hidden=grid.children.length===0;
     }catch(error){
       console.warn("AGUARÁ HOME MEDIA:",error);
