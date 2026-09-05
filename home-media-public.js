@@ -11,7 +11,7 @@
     card.className=compact?"experience-media-card":"home-media-card";
     const media=item.media_type==="video"?document.createElement("video"):document.createElement("img");
     media.src=item.public_url;
-    media.alt=item.alt_text||item.title||"Aguará Paintball";
+    media.alt=item.alt_text||"Aguará Paintball";
     if(item.media_type==="video"){
       media.autoplay=true;media.muted=true;media.loop=true;media.playsInline=true;media.preload="metadata";
       media.setAttribute("playsinline","");media.setAttribute("webkit-playsinline","");media.setAttribute("aria-label",media.alt);
@@ -22,12 +22,6 @@
     media.style.transform=`scale(${Number(item.zoom??1)})`;
     media.style.transformOrigin="center center";
     card.appendChild(media);
-    if(item.title){
-      const cap=document.createElement("div");
-      cap.className=compact?"experience-media-caption":"home-media-caption";
-      cap.textContent=item.title;
-      card.appendChild(cap);
-    }
     return card;
   }
   async function init(){
