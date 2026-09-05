@@ -69,6 +69,7 @@ export default async function middleware(request) {
 
   if (path === "/api/config" && method === "GET") return next();
   if (path === "/api/media" && method === "GET") return next();
+  if (path === "/api/home-media" && method === "GET") return next();
   if (path === "/api/booking-info") return next();
 
   /* Administración conserva acceso completo. Las visitas públicas
